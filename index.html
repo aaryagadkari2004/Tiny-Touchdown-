@@ -12,8 +12,14 @@
 .stage .team-score div{font-size:1cqw;letter-spacing:.15cqw}
 .stage .clock-center #period{font-size:1.6cqw}
 .stage .clock-center small{font-size:.9cqw;margin-top:.4cqw}
+
+main{max-width:none;width:100%;padding:0}
+header{padding:12px 20px;margin-bottom:8px}
+.stage{width:100%;border:0}
+.stage .pixel-score{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap;pointer-events:none}
+.bar,.grid,footer,#ratings{margin-left:16px!important;margin-right:16px!important}
 </style>
-<main><header><div><div class="tag">THE GAMEPLAY LAB / BUILD 10</div><h1>TINY TOUCHDOWN<span style="color:#e9c975">.</span></h1><small>Eleven on eleven. Make the moment count.</small></div><button id="pause">Pause · Esc</button></header>
+<main><header><div><div class="tag">THE GAMEPLAY LAB / BUILD 11</div><h1>TINY TOUCHDOWN<span style="color:#e9c975">.</span></h1><small>Eleven on eleven. Make the moment count.</small></div><button id="pause">Pause · Esc</button></header>
 <div class="stage"><div class="score pixel-score" aria-label="Game scoreboard"><div class="score-strip"><span id="down">1st &amp; 10</span><span id="playclock">:40</span></div><div class="score-main"><div class="team-logo logo-red" aria-label="Red team placeholder logo">R</div><div class="team-score"><strong id="red">0</strong><div id="timeoutsRed" aria-label="Red timeouts"></div></div><div class="clock-center"><div id="period">Q1 · 2:00</div><small id="spot">RED BALL · OWN 25</small></div><div class="team-score"><strong id="blue">0</strong><div id="timeoutsBlue" aria-label="Blue timeouts"></div></div><div class="team-logo logo-blue" aria-label="Blue team placeholder logo">B</div></div></div><canvas id="game" width="1000" height="600" tabindex="0" aria-label="Football gameplay. Controls are listed below."></canvas><div id="tryChoice" hidden><h2>TOUCHDOWN · CHOOSE YOUR TRY</h2><p>Six points on the board. Go for one or two?</p><button id="xp">1 / Extra-point kick</button> <button id="two">2 / Two-point play</button></div><section id="playbook" aria-label="Choose your play"><div class="playtitle"><b id="playtitle">CALL YOUR PLAY</b><small>Choose 1, 2 or 3 · then Enter to snap</small></div><div id="choices"></div><div class="special"><button id="fgChoice">Field goal</button><small id="kickDistance"></small></div></section></div><div id="message" role="status" aria-live="polite"></div>
 <div class="bar"><button id="snap" class="primary">Snap · Enter</button><button id="recall">Change play</button><button id="timeout">Timeout · T</button><button id="punt">Punt</button><button id="fg">Field goal</button><span class="muted">You control RED</span><button id="reset" style="margin-left:auto">New game</button></div>
 <details id="ratings" class="card" open style="margin:16px 0"></details><div class="grid"><div class="card"><b>01 / OFFENSE</b>After choosing a pass play, drag from the QB to snap and aim; release to throw. Longer pull = farther pass.<br>QB: hold <kbd>W</kbd> forward, <kbd>A/D</kbd> across field; <kbd>S</kbd> slide. Pass from anywhere behind the blue line.<br>After a catch: <kbd>Space</kbd> catch timing · <kbd>W</kbd> hurdle<br><kbd>A</kbd> / <kbd>D</kbd> juke toward upper/lower sideline · <kbd>S</kbd> slide</div><div class="card"><b>02 / DEFENSE</b><kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> move<br>Run into the ball carrier to tackle.<br><kbd>Space</kbd> time interception · <kbd>Shift</kbd> switch<br>Selected defender has a gold ring. Passes automatically select the defender nearest the target.</div><div class="card"><b>03 / THE CATCH WINDOW</b>Consistent 0.8-second meter above the target player. Fast passes briefly slow the action. Press when the marker reaches green.<br><span style="color:#7ee2a2">GREEN</span> reachable catch guaranteed<br><span style="color:#ffc077">ORANGE</span> 60% chance for this prototype<br><span style="color:#ff807e">RED / NO INPUT</span> dropped or missed</div></div>
@@ -251,9 +257,20 @@ function sprite(p){let a=screen(p),unit=2,d=p.facing||direction(p.team),moving=g
  ctx.restore();}
 function fieldPoly(x1,y1,x2,y2,color){let pts=[{x:x1,y:y1},{x:x2,y:y1},{x:x2,y:y2},{x:x1,y:y2}].map(screen);ctx.fillStyle=color;ctx.beginPath();ctx.moveTo(pts[0].x,pts[0].y);pts.slice(1).forEach(p=>ctx.lineTo(p.x,p.y));ctx.closePath();ctx.fill();}
 function fieldLine(x1,y1,x2,y2,color,width=1){let a=screen({x:x1,y:y1}),b=screen({x:x2,y:y2});ctx.strokeStyle=color;ctx.lineWidth=width;ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();}
+function drawStadiumScore(){
+ rect(248,7,504,80,'#050c11');rect(251,10,498,74,'#17242e');
+ rect(251,10,498,22,'#742f3b');
+ const label=(s,x,y,size=12,c='#fff')=>{ctx.font=`${size}px TTPixel, monospace`;ctx.fillStyle=c;ctx.textAlign='center';ctx.fillText(s,x,y);};
+ label($('down').textContent,468,26,12,'#fff2c8');label($('playclock').textContent,572,26,12,g.playClock<=5?'#ff7979':'#ffdb78');
+ rect(260,40,39,34,colors[0]);rect(701,40,39,34,colors[1]);label('R',280,65,25);label('B',720,65,25);
+ label(String(g.score[0]),339,63,27);label(String(g.score[1]),661,63,27);
+ for(let t=0;t<2;t++)for(let i=0;i<3;i++)rect((t?645:323)+i*12,72,8,4,i<g.timeouts[t]?'#ffe3a0':'#43515a');
+ label($('period').textContent,500,54,15,'#fff4cf');label($('spot').textContent,500,73,9,'#c6d4d6');
+}
 function draw(){let focus=kickState&&g.phase==='kickFlight'?kickPosition().x:ball?ball.start.x+(ball.target.x-ball.start.x)*clamp(ball.t/ball.duration,0,1):carrier?carrier.x:g.spot;cam+=(clamp(focus-22,-8,g.phase==='kickFlight'?85:50)-cam)*.08;ctx.clearRect(0,0,1000,600);rect(0,0,1000,600,'#203530');
  // Lower sideline camera: more stadium, compressed depth, roughly 74 yards across.
  rect(0,0,1000,92,'#172731');for(let row=0;row<5;row++){let y=10+row*16;rect(0,y+13,1000,3,'#65757b');for(let col=0;col<125;col++){let x=col*8,v=(col*17+row*23)%11;rect(x,y,5,5,['#799baf','#d0c6a0','#b55d59','#709ec2'][v%4]);rect(x+1,y-2,3,2,'#c29e77');}}for(let x=0;x<1000;x+=125)rect(x,0,3,90,'#e3c984');rect(0,92,1000,22,'#102029');text('TINY TOUCHDOWN  /  HIGH CAM  /  EXHIBITION',500,107,13,'#c5d2c9','center');
+ drawStadiumScore();
  fieldPoly(-20,-1.2,125,54.2,'#b5bfa6');for(let yard=-10;yard<110;yard+=5)fieldPoly(yard,0,yard+5,53,(yard/5)%2?'#3d8144':'#468b49');
  for(let i=0;i<950;i++){let x=cam+((i*17)%750)/10,y=(i*73)%530/10;let a=screen({x,y});rect(a.x,a.y,2,1,i%2?'#ffffff0c':'#092d1916');}
  for(let team=0;team<2;team++){let x=direction(team)>0?100:-10;fieldPoly(x,0,x+10,53,team===0?'#763b43':'#284d75');let pos=screen({x:x+5,y:27});text(names[team],pos.x,pos.y,22,'#f1e9d3','center');}
