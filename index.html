@@ -754,7 +754,7 @@ function draw(){let focus=g.deadPass?g.deadPass.target.x:looseBall?looseBall.x:k
  drawFieldCanvas();
  
  for(let x=cam-10;x<cam+85;x+=3){let a=screen({x,y:-5});rect(a.x,a.y-9,6,8,colors[x<50?0:1]);rect(a.x+1,a.y-13,4,4,'#ddd9c6');}
- for(let goal of [-10,110]){let a=screen({x:goal,y:26.5});rect(a.x,a.y-78,3,76,'#ebc85c');rect(a.x-20,a.y-78,43,3,'#ebc85c');rect(a.x-20,a.y-180,3,102,'#ebc85c');rect(a.x+20,a.y-180,3,102,'#ebc85c');}
+ for(let goal of [-10,110])drawGoalPost(screen({x:goal,y:26.5}));
  fieldLine(g.spot,0,g.spot,53,'#68c3ee',2);fieldLine(g.line,0,g.line,53,'#efd067',2);
  if(drag&&carrier){let t=targetFromDrag(),a=screen(carrier),b=screen(t);ctx.strokeStyle='#f9df88';ctx.setLineDash([5,7]);ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(a.x,a.y-20);ctx.quadraticCurveTo((a.x+b.x)/2,(a.y+b.y)/2-20-2*passArcHeight({start:carrier,target:t}),b.x,b.y-20);ctx.stroke();ctx.setLineDash([]);ctx.beginPath();ctx.ellipse(b.x,b.y,13,6,0,0,7);ctx.stroke();text('LANDING',b.x,b.y+20,11,'#fff','center');}
  if(ball){let s=screen(ball.target);ctx.strokeStyle='#f4da84';ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(s.x,s.y,14,7,0,0,7);ctx.stroke();text('TARGET',s.x,s.y+22,10,'#ffe3a0','center');}
@@ -2053,6 +2053,12 @@ function drawPixelFigure(bm,pal,x,y,face){let a=screen({x,y}),unit=2,w=Math.max(
 function drawSidelineCrew(front){let t=homeTeam(),kit=homeKit(t),hairs=['#2a1d14','#d8b36a','#4a2f1c','#111','#9a4a22'],skins=['#f1c9a5','#d9a679','#b97f4f','#8d5a35','#6b4126'];
  if(front)CHEER_SPOTS.forEach((x,i)=>{let pal={H:hairs[i%5],S:skins[(i*3)%5],J:kit.jersey,L:kit.trim,W:'#f4f2ea',P:i%2?t.secondary:kit.trim};drawPixelFigure(CHEER_POSES[i%CHEER_POSES.length],pal,x,56.6,i<5?1:-1);});
  for(let [x,y,face] of PHOTO_SPOTS){if((y>53)!==front)continue;let i=Math.round(x*7+y),pal={C:i%3?'#1f2a33':'#b8862e',S:skins[Math.abs(i)%5],K:'#1b1d22',G:'#7d8b94',V:'#26313a',P:'#a99068',B:'#141518'};drawPixelFigure(PHOTOGRAPHER,pal,x,y,face);}}
+
+// Goalposts: each bar gets a 1-px dark outline and a light leading edge; padded base. Visible on yellow/gold end zones.
+function drawGoalPost(a){const O='#0b1418',Y='#f2cf4a',HI='#fff3b0',SH='#b8901f';
+ const bar=(x,y,w,h)=>{rect(x-1,y-1,w+2,h+2,O);rect(x,y,w,h,Y);if(w<=h){rect(x,y,1,h,HI);rect(x+w-1,y,1,h,SH);}else{rect(x,y,w,1,HI);rect(x,y+h-1,w,1,SH);}};
+ bar(a.x,a.y-78,4,76);bar(a.x-20,a.y-80,44,4);bar(a.x-20,a.y-182,4,102);bar(a.x+20,a.y-182,4,102);
+ rect(a.x-4,a.y-30,12,30,O);rect(a.x-3,a.y-29,10,28,'#1d2b36');rect(a.x-3,a.y-29,10,2,'#3a4c5a');}
 
 $('finalReturn').onclick=()=>{$('finalDialog').hidden=true;keys.clear();drag=null;if(season)showSeasonHub();else showMainMenu();};$('finalDialog').onkeydown=e=>{if(e.key==='Tab'){e.preventDefault();$('finalReturn').focus();}};initTeamMenu();initSaveMenu();initLineup();initPlayerDetails();initFinances();function frame(t){let dt=Math.min((t-last)/1000,.04);last=t;if(!menuActive){update(dt);recordSeasonFinal();drawWithFx();syncFinalDialog();autosaveTick(dt);}requestAnimationFrame(frame)}requestAnimationFrame(frame);
 </script></html>
