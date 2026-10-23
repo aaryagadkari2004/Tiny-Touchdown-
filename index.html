@@ -89,7 +89,7 @@ button.player-card{display:block;width:100%;padding:0;text-align:inherit;cursor:
 </main><main id="lineupPage" class="lineup-screen" hidden><header class="lineup-header"><div id="lineupTeam" class="lineup-team"></div><div class="lineup-header-actions"><div id="lineupOverall" class="lineup-overall"></div><button id="lineupBack">Back to season</button></div></header><nav class="lineup-tabs" role="tablist" aria-label="Lineup unit"><button id="lineupTaboffense" role="tab" aria-controls="lineupCards" aria-selected="true">Offense</button><button id="lineupTabdefense" role="tab" aria-controls="lineupCards" aria-selected="false">Defense</button><button id="lineupTabspecial" role="tab" aria-controls="lineupCards" aria-selected="false">Special teams</button></nav><div id="developmentSummary" class="development-summary"></div><section id="rosterLimitPanel" class="hub-section roster-limit-panel" hidden aria-live="polite"></section><section id="lineupUpgradeList" class="upgrade-list" hidden></section><p id="upgradeAllStatus" class="muted" role="status" aria-live="polite"></p><section id="lineupCards" class="lineup-field" role="tabpanel" aria-labelledby="lineupTaboffense"></section><div id="playerDetail" class="player-detail-overlay" hidden><section class="player-detail-panel" role="dialog" aria-modal="true" aria-labelledby="detailName"><header class="detail-header"><div id="detailIdentity" class="detail-identity"></div><button id="detailClose" type="button">Back to lineup</button></header><div class="detail-columns"><section class="detail-stats" aria-label="Individual player ratings"><h3>PLAYER RATINGS</h3><p class="detail-hint">Hover or focus a rating to learn more.</p><section id="detailProgress" class="player-progress" aria-label="Player progression"></section><div id="detailRatings"></div></section><aside class="detail-player"><div id="detailCardAura" class="card-aura"><div id="detailPortraitFrame" class="detail-portrait-wrap"><div id="detailPortrait"></div><span id="detailAgeBadge" class="detail-age-badge"></span><div class="detail-overall"><strong id="detailOverall"></strong><span>OVR</span></div></div></div><p id="detailOverallRole" class="overall-role-note"></p><div class="detail-archetype"><span>ARCHETYPE</span><strong id="detailArchetype" tabindex="0" aria-describedby="detailArchetypeHelp"></strong><span id="detailArchetypeHelp" class="archetype-tooltip" role="tooltip"></span></div><section id="detailFinance" class="detail-finance"></section></aside></div></section></div></main><main id="gameApp" hidden><header><div><div class="tag">THE GAMEPLAY LAB / BUILD 61</div><h1>TINY TOUCHDOWN<span style="color:#e9c975">.</span></h1><small>Eleven on eleven. Make the moment count.</small></div><div class="game-menu-actions"><button id="seasonButton">Season hub</button><button id="saveButton">Save</button><button id="tutorialButton">Tutorial</button><button id="settingsButton">Settings</button><button id="menuButton">Main menu</button><button id="pause">Pause · Esc</button></div></header>
 <section id="tutorialPanel" class="tutorial-panel" hidden aria-label="Tutorial"></section><section id="practiceTools" class="practice-tools" hidden aria-label="Practice controls"><strong>PRACTICE FIELD</strong><label>Side <select id="practiceSide"><option value="0">Offense</option><option value="1">Defense</option></select></label><label>CPU coverage <select id="practiceCoverage"><option value="MIXED">Mixed</option><option value="ZONE">Zone</option><option value="MAN">Man</option><option value="BLITZ">Blitz</option></select></label><button id="practiceNext">New rep</button><button id="practiceExit">Return to save hub</button><small>Repeat plays with your roster · Season progress and XP stay unchanged</small></section><section class="matchup" aria-label="Choose teams"><div class="match-side"><div id="teamPreview0"></div><label for="userTeam">YOUR TEAM</label><select id="userTeam" aria-label="Your team"></select></div><div class="match-start"><span>EXHIBITION</span><button id="startMatchup" class="primary">Start matchup</button><small id="matchHint">Choose two teams</small></div><div class="match-side"><div id="teamPreview1"></div><label for="cpuTeam">COMPUTER</label><select id="cpuTeam" aria-label="Computer team"></select></div></section><details class="league-logos"><summary>TEAM LOGOS / ALL 32</summary><div id="logoGallery"></div></details><div class="stage"><section id="fourthChoice" hidden><h2>FOURTH DOWN</h2><p>Choose your next move</p><div><button id="goFourth">1 / Go for it</button> <button id="puntFourth">2 / Punt</button> <button id="fgFourth">3 / Field goal</button></div></section><div class="score pixel-score" aria-label="Game scoreboard"><div class="score-strip"><span id="down">1st &amp; 10</span><span id="playclock">:40</span></div><div class="score-main"><div class="team-logo logo-red" id="teamLogo0" aria-label="Your team logo"></div><div class="team-score"><strong id="red">0</strong><div id="timeoutsRed" aria-label="Red timeouts"></div></div><div class="clock-center"><div id="period">Q1 · 2:00</div><small id="spot">RED BALL · OWN 25</small></div><div class="team-score"><strong id="blue">0</strong><div id="timeoutsBlue" aria-label="Blue timeouts"></div></div><div class="team-logo logo-blue" id="teamLogo1" aria-label="Computer team logo"></div></div></div><canvas id="game" width="1000" height="600" tabindex="0" aria-label="Football gameplay. Controls are listed below."></canvas><div id="tryChoice" hidden><h2>TOUCHDOWN · CHOOSE YOUR TRY</h2><p>Six points on the board. Go for one or two?</p><button id="xp">1 / Extra-point kick</button> <button id="two">2 / Two-point play</button></div><section id="playbook" aria-label="Choose your play"><div class="playtitle"><b id="playtitle">CALL YOUR PLAY</b><small>Choose 1, 2 or 3 · then Enter to snap</small></div><div id="choices"></div><div class="special"><button id="fgChoice">Field goal</button><small id="kickDistance"></small></div></section></div><div id="message" role="status" aria-live="polite"></div>
 <div class="bar"><button id="snap" class="primary">Snap · Enter</button><button id="recall">Change play</button><button id="timeout">Timeout · T</button><button id="punt">Punt</button><button id="fg">Field goal</button><span class="muted" id="teamControl"></span><small id="saveStatus" aria-live="polite"></small><button id="reset" style="margin-left:auto">New exhibition</button></div>
-<section id="ratings" aria-label="Team depth charts"></section><div class="grid"><div class="card"><b>01 / BALL CARRIER</b><kbd>WASD</kbd> move · hold <kbd>SHIFT</kbd> sprint<br><kbd>Q</kbd> juke (hold <kbd>W</kbd>/<kbd>S</kbd> to pick a side) · <kbd>SPACE</kbd> spin<br>Hold <kbd>E</kbd> stiff arm · <kbd>R</kbd> hurdle<br>Sprint straight into a tackler to truck him · <kbd>F</kbd> dive forward (QBs slide)<br>Moves use ratings and stamina and have short cooldowns.</div><div class="card"><b>02 / PASSING & PRE-SNAP</b>Drag from the QB to snap and aim; release to throw. Hold <kbd>SHIFT</kbd> as you release for a bullet.<br>After the snap: <kbd>1</kbd>–<kbd>5</kbd> tap = lob, hold = bullet, double-tap = pump fake · <kbd>G</kbd> throw away · <kbd>SPACE</kbd> catch timing (12+ yard catches)<br>Before the snap: <kbd>A</kbd>/<kbd>D</kbd> formation (play menu) · <kbd>X</kbd> audible · <kbd>H</kbd> hot route · <kbd>M</kbd> motion</div><div class="card"><b>03 / DEFENSE</b><kbd>WASD</kbd> move · <kbd>SHIFT</kbd> switch · run into the carrier to tackle<br><kbd>F</kbd> dive tackle · <kbd>E</kbd> hit stick · <kbd>SPACE</kbd> intercept · <kbd>Q</kbd> swat<br>Blocked lineman: alternate <kbd>←</kbd><kbd>→</kbd> power or <kbd>↑</kbd><kbd>↓</kbd> finesse<br>Before the snap: <kbd>WASD</kbd> creep (cross the line = offsides) · <kbd>C</kbd> press / off · <kbd>B</kbd> blitz · hold <kbd>Z</kbd> assignment<br>Catches 12+ yards downfield: <span style="color:#7ee2a2">GREEN</span> catch guaranteed · <span style="color:#ffc077">ORANGE</span> 60% · <span style="color:#ff807e">RED</span> miss. Shorter catches use the catching rating.</div></div>
+<section id="ratings" aria-label="Team depth charts"></section><div class="grid"><div class="card"><b>01 / BALL CARRIER</b><kbd>WASD</kbd> move · hold <kbd>SHIFT</kbd> sprint<br>Double-tap <kbd>W</kbd> or <kbd>S</kbd> juke that way (or let go and tap again) · <kbd>SPACE</kbd> spin<br>Hold <kbd>Q</kbd> stiff arm · double-tap forward (<kbd>A</kbd> or <kbd>D</kbd>) hurdle<br>Sprint straight into a tackler to truck him · <kbd>F</kbd> dive forward (QBs slide)<br>Moves use ratings and stamina and have short cooldowns.</div><div class="card"><b>02 / PASSING & PRE-SNAP</b>Drag from the QB to snap and aim; release to throw. Hold <kbd>SHIFT</kbd> as you release for a bullet.<br>After the snap: <kbd>1</kbd>–<kbd>5</kbd> tap = lob, hold = bullet, double-tap = pump fake · <kbd>G</kbd> throw away · <kbd>SPACE</kbd> catch timing (12+ yard catches)<br>Before the snap: <kbd>A</kbd>/<kbd>D</kbd> formation (play menu) · <kbd>X</kbd> audible · <kbd>H</kbd> hot route · <kbd>M</kbd> motion</div><div class="card"><b>03 / DEFENSE</b><kbd>WASD</kbd> move · <kbd>SHIFT</kbd> switch · run into the carrier to tackle<br><kbd>F</kbd> dive tackle · <kbd>E</kbd> hit stick · <kbd>SPACE</kbd> intercept · <kbd>Q</kbd> swat<br>Blocked lineman: alternate <kbd>←</kbd><kbd>→</kbd> power or <kbd>↑</kbd><kbd>↓</kbd> finesse<br>Before the snap: <kbd>WASD</kbd> creep (cross the line = offsides) · <kbd>C</kbd> press / off · <kbd>B</kbd> blitz · hold <kbd>Z</kbd> assignment<br>Catches 12+ yards downfield: <span style="color:#7ee2a2">GREEN</span> catch guaranteed · <span style="color:#ffc077">ORANGE</span> 60% · <span style="color:#ff807e">RED</span> miss. Shorter catches use the catching rating.</div></div>
 </main>
 <section id="finalDialog" class="final-overlay" hidden role="dialog" aria-modal="true" aria-labelledby="finalTitle"><div class="final-panel"><p>FINAL WHISTLE</p><h2 id="finalTitle">GAME COMPLETE</h2><p id="finalScore"></p><button id="finalReturn" class="primary">Return to save hub</button></div></section>
 <style>.final-overlay{position:fixed;inset:0;z-index:100;display:grid;place-items:center;background:#06121cbd;padding:20px}.final-panel{width:min(520px,100%);padding:34px 22px;border:3px solid #e9c975;background:#14252a;text-align:center;box-shadow:7px 7px #040c13;font-family:TTPixel,monospace}.final-panel h2{font-size:23px;line-height:1.6;color:#fff0ce}.final-panel p{line-height:1.8;color:#e9c975}.final-panel button{margin-top:18px;font-family:TTPixel,monospace}</style>
@@ -749,13 +749,9 @@ function drawStadiumScore(){
 }
 function draw(){let focus=g.deadPass?g.deadPass.target.x:looseBall?looseBall.x:kickState&&g.phase==='kickFlight'?kickPosition().x:ball?ball.start.x+(ball.target.x-ball.start.x)*clamp(ball.t/ball.duration,0,1):carrier?carrier.x:g.spot;cam+=(clamp(focus-22,-8,g.phase==='kickFlight'?85:53)-cam)*.08;ctx.clearRect(0,0,1000,600);rect(0,0,1000,600,'#203530');
  // Lower sideline camera: more stadium, compressed depth, roughly 74 yards across.
- rect(0,0,1000,92,'#172731');for(let row=0;row<5;row++){let y=10+row*16;rect(0,y+13,1000,3,'#65757b');for(let col=0;col<125;col++){let x=col*8,v=(col*17+row*23)%11;rect(x,y,5,5,crowdPalette()[v%5]);rect(x+1,y-2,3,2,'#c29e77');}}for(let x=0;x<1000;x+=125)rect(x,0,3,90,'#e3c984');rect(0,92,1000,22,'#102029');text('TINY TOUCHDOWN  /  '+(season&&!season.legacyGame?'SEASON '+season.year+'  /  '+stageLabel(season.activeGame?season.week:season.week>=20?season.week-1:season.lastWeek||season.week):'HIGH CAM  /  EXHIBITION'),500,107,13,'#c5d2c9','center');
+ drawCrowd();text('TINY TOUCHDOWN  /  '+(season&&!season.legacyGame?'SEASON '+season.year+'  /  '+stageLabel(season.activeGame?season.week:season.week>=20?season.week-1:season.lastWeek||season.week):'HIGH CAM  /  EXHIBITION'),500,107,13,'#c5d2c9','center');
  drawStadiumScore();
- fieldPoly(-20,-1.2,125,54.2,'#b5bfa6');for(let yard=-10;yard<110;yard+=5)fieldPoly(yard,0,yard+5,53,(yard/5)%2?'#3d8144':'#468b49');
- for(let i=0;i<950;i++){let x=cam+((i*17)%750)/10,y=(i*73)%530/10;let a=screen({x,y});rect(a.x,a.y,2,1,i%2?'#ffffff0c':'#092d1916');}
- for(let x of [-10,100]){fieldPoly(x,0,x+10,53,homeTeam().primary);drawEndZoneName(homeTeam(),x+5,x<0?-1:1);}drawFieldLogo(homeTeam(),50,26.5,15,25,.32);
- for(let yard=0;yard<=100;yard+=5){fieldLine(yard,0,yard,53,'#c3d4ad',yard%10?1:2);if(yard%10===0&&yard>0&&yard<100){for(let y of [5,49]){let a=screen({x:yard,y});text(String(yard>50?100-yard:yard),a.x,a.y,18,'#d5dfbf','center');}}}
- for(let yard=1;yard<100;yard++)for(let y of [23,30])fieldLine(yard,y,yard,y+1.0,'#c3d4ad');fieldLine(-10,0,110,0,'#eee8cb',3);fieldLine(-10,53,110,53,'#eee8cb',3);
+ drawFieldCanvas();
  
  for(let x=cam-10;x<cam+85;x+=3){let a=screen({x,y:-5});rect(a.x,a.y-9,6,8,colors[x<50?0:1]);rect(a.x+1,a.y-13,4,4,'#ddd9c6');}
  for(let goal of [-10,110]){let a=screen({x:goal,y:26.5});rect(a.x,a.y-78,3,76,'#ebc85c');rect(a.x-20,a.y-78,43,3,'#ebc85c');rect(a.x-20,a.y-180,3,102,'#ebc85c');rect(a.x+20,a.y-180,3,102,'#ebc85c');}
@@ -763,7 +759,7 @@ function draw(){let focus=g.deadPass?g.deadPass.target.x:looseBall?looseBall.x:k
  if(drag&&carrier){let t=targetFromDrag(),a=screen(carrier),b=screen(t);ctx.strokeStyle='#f9df88';ctx.setLineDash([5,7]);ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(a.x,a.y-20);ctx.quadraticCurveTo((a.x+b.x)/2,(a.y+b.y)/2-20-2*passArcHeight({start:carrier,target:t}),b.x,b.y-20);ctx.stroke();ctx.setLineDash([]);ctx.beginPath();ctx.ellipse(b.x,b.y,13,6,0,0,7);ctx.stroke();text('LANDING',b.x,b.y+20,11,'#fff','center');}
  if(ball){let s=screen(ball.target);ctx.strokeStyle='#f4da84';ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(s.x,s.y,14,7,0,0,7);ctx.stroke();text('TARGET',s.x,s.y+22,10,'#ffe3a0','center');}
  if(g.phase==='ready'&&chosen>=0&&!playMenu)drawAssignments();
- [...players].sort((a,b)=>a.y-b.y).forEach(sprite);drawSelectedAssignment();drawPenaltyFlag();drawNeutralZoneWarning();
+ drawSidelineCrew(false);[...players].sort((a,b)=>a.y-b.y).forEach(sprite);drawSidelineCrew(true);drawSelectedAssignment();drawPenaltyFlag();drawNeutralZoneWarning();
  if(looseBall){let a=screen(looseBall);pixelShadow(a.x,a.y,5);drawFootball(a.x,a.y-1-(looseBall.z||0));}
  if(ball){let flight=passFlight(ball),p=screen(flight);pixelShadow(p.x,p.y,5);drawPassBall(ball,flight,p);if(ball.timed!==false&&ball.t>=catchStart()){let target=g.off===0?ball.rec:(ball.defender||selected),anchor=screen(target),w=76,x=clamp(anchor.x-w/2,4,920),y=clamp(anchor.y-48,5,545);rect(x-3,y-3,w+6,17,'#0a1722');rect(x,y,w,9,'#dc5856');let bands=catchBands(g.off===0?ball.rec:(ball.defender||selected));rect(x+w*(.64-bands.orange),y,w*bands.orange*2,9,'#e4a34e');rect(x+w*(.64-bands.green),y,w*bands.green*2,9,'#69c78f');let v=catchProgress();rect(x+w*v-1,y-2,3,13,'#fff');let locked=g.off===0?ball.result:ball.defResult;let caption=locked?locked.toUpperCase():g.off===0?'SPACE':dist(selected,ball.target)<=12?'SPACE':'GET CLOSER';text(caption,x+w/2,y-6,10,'#fff','center');}}
 
@@ -1540,17 +1536,19 @@ function handleGameplayKey(e,k){
   return false;}
  if(!userOffenseLive())return false;
  let p=carrier;
+ if(['w','s','a','d'].includes(k)&&!e.repeat&&Date.now()-(lastMoveKeyUp[k]||0)<MOVE_RETAP_MS){lastMoveKeyUp[k]=0;let forward=direction(p.team)>0?'d':'a';if(k==='w'||k==='s')startCarrierMove(p,'juke',k==='w'?-1:1);else if(k===forward)startCarrierMove(p,'hurdle');}
  if(p.role==='QB'&&canPass()&&!ball){
   if(digit){let now=Date.now();if(pendingLob&&pendingLob.n===digit&&now-pendingLob.at<260){pendingLob=null;pumpFake(p,receiverByNumber(digit));keyThrow=null;return true;}keyThrow={n:digit,at:now};return true;}
   if(k==='g'){throwAway(p);return true;}}
  if(e.code==='Space'&&ball)return false;
  if(k==='f'){if(p.role==='QB'){endPlay('Slide.');tutorialMark('dive');}else startCarrierMove(p,'forwardDive');return true;}
- if(k==='q'){startCarrierMove(p,'juke',keys.has('w')?-1:keys.has('s')?1:0);return true;}
+ if(k==='q'){startCarrierMove(p,'stiff');return true;}
  if(e.code==='Space'){startCarrierMove(p,'spin');return true;}
- if(k==='e'){startCarrierMove(p,'stiff');return true;}
- if(k==='r'){startCarrierMove(p,'hurdle');return true;}
  return false;}
-function handleGameplayKeyUp(e){let k=e.key.toLowerCase();if(!keyThrow||Number(k)!==keyThrow.n||menuActive)return;let held=Date.now()-keyThrow.at,n=keyThrow.n;keyThrow=null;if(!userOffenseLive()||!canPass()||ball)return;if(held>=300)keyboardThrow(n,'bullet');else pendingLob={n,at:Date.now()};}
+// Double-tap moves: a W/S/A/D press within MOVE_RETAP_MS of releasing the same key is a re-press
+// (covers a quick double tap and 'hold, let go, press again').
+const MOVE_RETAP_MS=260,lastMoveKeyUp={};
+function handleGameplayKeyUp(e){let k=e.key.toLowerCase();if(['w','a','s','d'].includes(k))lastMoveKeyUp[k]=Date.now();if(!keyThrow||Number(k)!==keyThrow.n||menuActive)return;let held=Date.now()-keyThrow.at,n=keyThrow.n;keyThrow=null;if(!userOffenseLive()||!canPass()||ball)return;if(held>=300)keyboardThrow(n,'bullet');else pendingLob={n,at:Date.now()};}
 function updatePendingLob(){if(pendingLob&&Date.now()-pendingLob.at>=260){let n=pendingLob.n;pendingLob=null;if(userOffenseLive()&&canPass()&&!ball)keyboardThrow(n,'lob');}}
 
 // --- Passing types. ---
@@ -1574,7 +1572,7 @@ function carrierMoveStep(p,dt){let ms=p.moveState,d=direction(p.team);p.speedBoo
   if(ms.kind==='juke'){p.y=clamp(p.y+ms.dir*10*dt,.4,52.6);p.x+=d*Math.min(4,p.runSpeed||3)*.4*dt;p.anim+=dt*14;if(ms.t>=ms.dur){p.runSpeed=(p.runSpeed||0)*.6;p.moveState=null;}return true;}
   if(ms.kind==='forwardDive'){p.x+=d*6.5*dt;p.anim=0;if(ms.t>=ms.dur){p.moveState=null;spawnPuffs(p,6);endPlay('Dove forward.');}return true;}
   if(ms.kind==='spin')p.speedBoost=.8;
-  if(ms.kind==='stiff'){p.speedBoost=.9;if(p.team===0&&!keys.has('e'))ms.t=ms.dur;}
+  if(ms.kind==='stiff'){p.speedBoost=.9;if(p.team===0&&!keys.has('q'))ms.t=ms.dur;}
   if(ms.kind==='hurdle'){p.speedBoost=.85;if(p.jump<=0){p.moveState=null;spawnPuffs(p,4);let t=players.find(q=>q.team!==p.team&&q.stun<=0&&dist(q,p)<1.6);if(t&&Math.random()<clamp(.2+(rating(t,'tackling')-rating(p,'speed'))*.01,.05,.45)){flash='UPENDED!';flashTime=.9;queueContact(t);return true;}}}
   if(p.moveState&&ms.t>=ms.dur)p.moveState=null;}
  if(p.team===0&&p.sprintHeld){p.speedBoost*=1.1;}
@@ -1616,7 +1614,7 @@ function controlPrompts(){if(!g||menuActive)return[];let out=[],pre=g.preSnap;
   return g.off===0?[['ENTER','SNAP'],['X','AUDIBLE'],['H','HOT ROUTE'],['M','MOTION'],['DRAG QB','SNAP + PASS']]:[['ENTER','SNAP'],['SHIFT','SWITCH'],['C',g.userPress?'OFF COVER':'PRESS'],['B',selected?.userBlitz?'CANCEL BLITZ':'BLITZ'],['Z','ASSIGNMENT']];}
  if(g.phase!=='live')return[];
  if(g.off===0&&ball)return[['SPACE','CATCH']];
- if(g.off===0&&carrier?.team===0){if(carrier.role==='QB'&&canPass())return[['WASD','MOVE'],['DRAG','PASS'],['SHIFT+RELEASE','BULLET'],['1-5','TAP LOB / HOLD BULLET'],['2× TAP','PUMP FAKE'],['G','THROW AWAY']];return[['SHIFT','SPRINT'],['Q','JUKE'],['SPACE','SPIN'],['E','STIFF ARM'],['R','HURDLE'],['F',carrier.role==='QB'?'SLIDE':'DIVE']];}
+ if(g.off===0&&carrier?.team===0){if(carrier.role==='QB'&&canPass())return[['WASD','MOVE'],['DRAG','PASS'],['SHIFT+RELEASE','BULLET'],['1-5','TAP LOB / HOLD BULLET'],['2× TAP','PUMP FAKE'],['G','THROW AWAY']];return[['SHIFT','SPRINT'],['W W / S S','JUKE'],['SPACE','SPIN'],['Q','STIFF ARM'],[(direction(carrier.team)>0?'D D':'A A'),'HURDLE'],['F',carrier.role==='QB'?'SLIDE':'DIVE']];}
  if(g.off===1){if(ball)return[['SPACE','INTERCEPT'],['Q','SWAT']];if(isFront(selected)&&holdingBlock(selected))return[['← →','POWER MOVE'],['↑ ↓','FINESSE MOVE'],['SHIFT','SWITCH']];return[['WASD','MOVE'],['SHIFT','SWITCH'],['E','HIT STICK'],['F','DIVE TACKLE'],['Z','ASSIGNMENT']];}
  return out;}
 function drawKeycap(x,y,key,label,scale){let size=Math.round(10*scale),h=Math.round(18*scale);ctx.font=`${size}px TTPixel, monospace`;let kw=Math.max(h,Math.ceil(ctx.measureText(key).width)+Math.round(10*scale)),lw=Math.ceil(ctx.measureText(label).width);
@@ -1630,7 +1628,7 @@ function drawWithFx(){rect(0,0,1000,600,'#203530');ctx.save();if(shake.t>0)ctx.t
 // --- Tutorial: guided lessons in an easy practice game. CPU players are 20% slower; catch windows are wider. ---
 const TUTORIAL_LESSONS=[
  {title:'RUNNING BASICS',side:0,play:'RUN',goal:'Press ENTER to snap. Take the handoff and find open grass.',steps:[{id:'move',keys:['W','A','S','D'],text:'Move in any direction'},{id:'sprint',keys:['SHIFT'],text:'Hold while moving to sprint (drains stamina)'},{id:'gain',keys:['ENTER'],text:'Snap, then gain 5+ yards on a run'}]},
- {title:'BALL-CARRIER MOVES',side:0,play:'RUN',goal:'Use moves to make defenders miss. Each move has a short cooldown.',steps:[{id:'juke',keys:['Q'],text:'Juke (hold W or S to choose the side)'},{id:'spin',keys:['SPACE'],text:'Spin move'},{id:'stiff',keys:['E'],text:'Hold for a stiff arm'},{id:'hurdle',keys:['R'],text:'Hurdle over a tackler'}]},
+ {title:'BALL-CARRIER MOVES',side:0,play:'RUN',goal:'Use moves to make defenders miss. Each move has a short cooldown.',steps:[{id:'juke',keys:['W W','S S'],text:'Juke: double-tap W or S (or let go and tap it again)'},{id:'spin',keys:['SPACE'],text:'Spin move'},{id:'stiff',keys:['Q'],text:'Hold Q for a stiff arm'},{id:'hurdle',keys:['D D'],text:'Hurdle: double-tap the forward key (A or D)'}]},
  {title:'FINISHING THE RUN',side:0,play:'RUN',goal:'Power runners can run through tacklers. Go down on your terms.',steps:[{id:'truck',keys:['SHIFT','+ RUN AT A DEFENDER'],text:'Truck: sprint straight into a tackler'},{id:'dive',keys:['F'],text:'Dive forward for extra yards (QBs slide)'}]},
  {title:'PASSING WITH THE MOUSE',side:0,play:'PASS',goal:'Drag from the quarterback to snap and aim. Release to throw.',steps:[{id:'throw',keys:['DRAG QB'],text:'Drag and release to throw'},{id:'bullet',keys:['SHIFT','+ RELEASE'],text:'Hold SHIFT while releasing for a bullet pass'},{id:'catch',keys:['SPACE'],text:'Press when the catch meter is green'}]},
  {title:'KEYBOARD PASSING',side:0,play:'PASS',goal:'After the snap, each receiver shows a number. Throw without the mouse.',steps:[{id:'keyThrow',keys:['1','-','5'],text:'Tap a number for a lob to that receiver'},{id:'keyBullet',keys:['HOLD 1-5'],text:'Hold the number for a bullet pass'},{id:'pump',keys:['2× TAP'],text:'Double-tap a number to pump fake'},{id:'throwaway',keys:['G'],text:'Throw the ball away'}]},
@@ -1944,6 +1942,117 @@ function ensureLeagueDevelopment(){let all=leaguePlayers();if(!all.length)return
 function maximumDevelopmentTier(p){return 4;}
 function legendEligible(p){return !p.retired;}
 function enforceDevelopmentEligibility(p){}
+
+// ===== Stadium & field: pre-rendered pixel field (grass texture, wear, painted end zones with bubble-letter names),
+// a fuller crowd in home colors, and static photographers + cheerleaders. Same chunky 2-px pixel style as the players.
+const PIXEL_FONT={
+ A:['.###.','#...#','#...#','#####','#...#','#...#','#...#'],B:['####.','#...#','#...#','####.','#...#','#...#','####.'],C:['.####','#....','#....','#....','#....','#....','.####'],
+ D:['####.','#...#','#...#','#...#','#...#','#...#','####.'],E:['#####','#....','#....','####.','#....','#....','#####'],F:['#####','#....','#....','####.','#....','#....','#....'],
+ G:['.####','#....','#....','#.###','#...#','#...#','.###.'],H:['#...#','#...#','#...#','#####','#...#','#...#','#...#'],I:['#####','..#..','..#..','..#..','..#..','..#..','#####'],
+ J:['..###','...#.','...#.','...#.','#..#.','#..#.','.##..'],K:['#...#','#..#.','#.#..','##...','#.#..','#..#.','#...#'],L:['#....','#....','#....','#....','#....','#....','#####'],
+ M:['#...#','##.##','#.#.#','#.#.#','#...#','#...#','#...#'],N:['#...#','##..#','#.#.#','#..##','#...#','#...#','#...#'],O:['.###.','#...#','#...#','#...#','#...#','#...#','.###.'],
+ P:['####.','#...#','#...#','####.','#....','#....','#....'],Q:['.###.','#...#','#...#','#...#','#.#.#','#..#.','.##.#'],R:['####.','#...#','#...#','####.','#.#..','#..#.','#...#'],
+ S:['.####','#....','#....','.###.','....#','....#','####.'],T:['#####','..#..','..#..','..#..','..#..','..#..','..#..'],U:['#...#','#...#','#...#','#...#','#...#','#...#','.###.'],
+ V:['#...#','#...#','#...#','#...#','#...#','.#.#.','..#..'],W:['#...#','#...#','#...#','#.#.#','#.#.#','##.##','#...#'],X:['#...#','#...#','.#.#.','..#..','.#.#.','#...#','#...#'],
+ Y:['#...#','#...#','.#.#.','..#..','..#..','..#..','..#..'],Z:['#####','....#','...#.','..#..','.#...','#....','#####'],
+ '0':['.###.','#...#','#..##','#.#.#','##..#','#...#','.###.'],'1':['..#..','.##..','..#..','..#..','..#..','..#..','.###.'],'2':['.###.','#...#','....#','...#.','..#..','.#...','#####'],
+ '3':['####.','....#','....#','.###.','....#','....#','####.'],'4':['...#.','..##.','.#.#.','#..#.','#####','...#.','...#.'],'5':['#####','#....','####.','....#','....#','#...#','.###.'],
+ '9':['.###.','#...#','#...#','.####','....#','....#','.###.'],'8':['.###.','#...#','#...#','.###.','#...#','#...#','.###.'],'7':['#####','....#','...#.','..#..','.#...','.#...','.#...'],'6':['.###.','#....','#....','####.','#...#','#...#','.###.']
+};
+function hexRGB(h){h=String(h||'#000').replace('#','');if(h.length===3)h=[...h].map(c=>c+c).join('');let n=parseInt(h.slice(0,6),16);return[(n>>16)&255,(n>>8)&255,n&255];}
+function mixRGB(a,b,t){return[a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t,a[2]+(b[2]-a[2])*t];}
+function shadeRGB(c,f){return[c[0]*f,c[1]*f,c[2]*f];}
+function lumRGB(c){return(.299*c[0]+.587*c[1]+.114*c[2])/255;}
+function valueNoise(x,y){let ix=Math.floor(x),iy=Math.floor(y),fx=x-ix,fy=y-iy,s=t=>t*t*(3-2*t),a=hash2(ix,iy,41),b=hash2(ix+1,iy,41),c=hash2(ix,iy+1,41),d=hash2(ix+1,iy+1,41),u=s(fx),v=s(fy);return a+(b-a)*u+(c-a)*v+(a-b-c+d)*u*v;}
+function hash2(x,y,s=0){let h=(x*374761393+y*668265263+s*982451653)|0;h=Math.imul(h^(h>>>13),1274126177);h^=h>>>16;return(h>>>0)/4294967296;}
+
+// Bubble letters: font pixels → fat rounded strokes → highlight/shade → thick outline → drop shadow. Codes: 1 shadow, 2 outline, 3 fill, 4 shine, 5 shade.
+function bubbleText(word,L,H){word=String(word).toUpperCase().replace(/[^A-Z0-9]/g,'');let n=Math.max(1,word.length),out=3,best=null;
+ // Letters are drawn as centre-line strokes through the 5x7 font cells, then thickened with a round brush, so every stroke
+ // has the same weight however tall the letters are stretched. cw = cell width along the text, ch = cell height across it.
+ for(let cw=14;cw>=2&&!best;cw--){let rs=Math.max(1,Math.min(4,Math.round(cw*.65))),span=(n-1)*6*cw+4*cw+2*(rs+out);if(span<=L-2)best={cw,rs};}
+ if(!best)best={cw:2,rs:1};let {cw,rs}=best,ch=Math.max(2,Math.min(Math.floor((H-2*(rs+out)-3)/6),cw*5)),tw=(n-1)*6*cw+4*cw,th=6*ch,ox=Math.round((L-tw)/2),oy=Math.round((H-th)/2)-1;
+ let core=new Uint8Array(L*H),grid=new Uint8Array(L*H),plot=(x,y)=>{x=Math.round(x);y=Math.round(y);if(x>=0&&x<L&&y>=0&&y<H)core[y*L+x]=1;},line=(a,b)=>{let steps=Math.max(1,Math.ceil(Math.max(Math.abs(b[0]-a[0]),Math.abs(b[1]-a[1]))));for(let s=0;s<=steps;s++)plot(a[0]+(b[0]-a[0])*s/steps,a[1]+(b[1]-a[1])*s/steps);};
+ [...word].forEach((chr,i)=>{let gl=PIXEL_FONT[chr];if(!gl)return;let on=(r,c)=>r>=0&&r<7&&c>=0&&c<5&&gl[r][c]==='#',at=(r,c)=>[ox+i*6*cw+c*cw,oy+r*ch];
+  for(let r=0;r<7;r++)for(let c=0;c<5;c++){if(!on(r,c))continue;plot(...at(r,c));if(on(r,c+1))line(at(r,c),at(r,c+1));if(on(r+1,c))line(at(r,c),at(r+1,c));
+   if(on(r+1,c+1)&&!on(r,c+1)&&!on(r+1,c))line(at(r,c),at(r+1,c+1));if(on(r+1,c-1)&&!on(r,c-1)&&!on(r+1,c))line(at(r,c),at(r+1,c-1));}});
+ const dilate=(src,r)=>{let o=new Uint8Array(L*H);for(let y=0;y<H;y++)for(let x=0;x<L;x++){if(!src[y*L+x])continue;for(let dy=-r;dy<=r;dy++)for(let dx=-r;dx<=r;dx++){if(dx*dx+dy*dy>r*r+r)continue;let X=x+dx,Y=y+dy;if(X>=0&&X<L&&Y>=0&&Y<H)o[Y*L+X]=1;}}return o;};
+ let fill=dilate(core,rs),edge=dilate(fill,out);
+ for(let y=0;y<H;y++)for(let x=0;x<L;x++){let k=y*L+x;if(fill[k]){let up=y>0&&fill[k-L],dn=y<H-1&&fill[k+L];grid[k]=!up?4:!dn?5:3;}else if(edge[k])grid[k]=2;}
+ for(let y=H-1;y>=2;y--)for(let x=L-1;x>=2;x--){let k=y*L+x;if(!grid[k]&&grid[k-2*L-2]>=2)grid[k]=1;}
+ return{L,H,grid};}
+
+// ---- Field texture ----
+const FIELD_X0=-20,FIELD_Y0=-2.6,FIELD_Y1=59.8,FIELD_PAD=8,fieldCanvasCache={key:null,canvas:null};
+function fieldLocal(x,y){return{x:(x-FIELD_X0)*15.5+(y-26.5)*.12+FIELD_PAD,y:(y-FIELD_Y0)*7.8};}
+function fieldPalette(team){let kit=homeKit(team),primary=hexRGB(team.primary),secondary=hexRGB(team.secondary),dark=[11,20,24];
+ let outline=Math.abs(lumRGB(secondary)-lumRGB(primary))>.18&&lumRGB(secondary)<.75?secondary:dark;return{primary,secondary,outline,dark,fill:[251,246,232],shine:[255,255,255],shade:[214,206,186],kit};}
+function buildFieldCanvas(team){let W=Math.ceil(145*15.5+2*FIELD_PAD),H=Math.ceil((FIELD_Y1-FIELD_Y0)*7.8),c=document.createElement('canvas');c.width=W;c.height=H;let o=c.getContext('2d');if(!o?.createImageData)return c;
+ let img=o.createImageData(W,H);if(!img?.data)return c;let d=img.data,pal=fieldPalette(team),EZL=206,EZH=72,names=[bubbleText(team.mascot||team.name,EZL,EZH)],logo=team.logo,n=logo?.length||0;
+ const grassA=[64,138,74],grassB=[56,124,66],apronA=[44,104,56],apronB=[40,96,51],border=[226,226,207],dirt=[124,104,70],dirt2=[146,124,86];
+ for(let ly=0;ly<H;ly+=2)for(let lx=0;lx<W;lx+=2){let y=(ly+1)/7.8+FIELD_Y0,x=(lx+1-FIELD_PAD-(y-26.5)*.12)/15.5+FIELD_X0,tx=lx>>1,ty=ly>>1,h=hash2(tx,ty),h2=hash2(tx,ty,7),col;
+  let inField=x>=-10&&x<=110&&y>=0&&y<=53,inBorder=!inField&&x>=-11.4&&x<=111.4&&y>=-1.3&&y<=54.3;
+  if(inField){let stripe=Math.floor((x+10)/5)%2===0,band=Math.floor(y/6.625)%2===0;col=stripe?grassA:grassB;col=shadeRGB(col,band?1.03:.985);
+   // grass blades: light and dark flecks, short vertical streaks
+   if(h<.075||(hash2(tx,ty-1)<.075&&h2<.6))col=mixRGB(col,[120,186,104],.35);else if(h>.9)col=shadeRGB(col,.84);col=shadeRGB(col,.97+h2*.06);
+   // wear: between the hashes and toward midfield, and in front of each goal line
+   const sq=v=>v*v;let wear=Math.exp(-sq((y-26.5)/5.5))*(.25+.75*Math.exp(-sq((x-50)/28)))*.55+Math.exp(-sq((y-26.5)/4))*(Math.exp(-sq((x-3)/3))+Math.exp(-sq((x-97)/3)))*.5;
+   let clump=valueNoise(x/1.6,y/1.2);wear*=clump*clump*1.6;if(x>0&&x<100&&h2<wear*.5)col=mixRGB(col,h<.5?dirt:dirt2,.7);else col=mixRGB(col,[104,118,66],wear*.22);
+   if(x<0||x>100){let ez=pal.primary,diag=((tx+ty)>>3)%2?1:.93;col=mixRGB(col,shadeRGB(ez,diag*(.94+h2*.08)),.9);
+    let left=x<0,u=left?Math.floor((1-y/53)*EZL):Math.floor(y/53*EZL),v=left?Math.floor((x+10)/10*EZH):Math.floor((110-x)/10*EZH),t=names[0];
+    if(u>=0&&u<t.L&&v>=0&&v<t.H){let code=t.grid[v*t.L+u];if(code===1)col=mixRGB(col,pal.dark,.45);else if(code===2)col=pal.outline;else if(code===3)col=pal.fill;else if(code===4)col=pal.shine;else if(code===5)col=pal.shade;}}
+   if(n&&x>42.5&&x<57.5&&y>14&&y<39){let i=Math.floor((x-42.5)/15*n),j=Math.floor((y-14)/25*n),lc=logo[j]?.[i];if(lc)col=mixRGB(col,hexRGB(lc),.38);}}
+  else if(inBorder)col=shadeRGB(border,.93+h*.08);
+  else{let stripe=Math.floor((x+10)/5)%2===0;col=shadeRGB(stripe?apronA:apronB,.95+h2*.08);if(h<.06)col=mixRGB(col,[96,160,90],.3);}
+  for(let yy=0;yy<2;yy++)for(let xx=0;xx<2;xx++){if(lx+xx>=W||ly+yy>=H)continue;let k=((ly+yy)*W+lx+xx)*4;d[k]=col[0];d[k+1]=col[1];d[k+2]=col[2];d[k+3]=255;}}
+ o.putImageData(img,0,0);
+ // Painted lines as crisp 2-px pixel runs that follow the field's slight slant.
+ const paint='#eef0dc',vline=(x,y0,y1,w=2,c=paint)=>{for(let y=y0;y<y1;y+=2/7.8){let p=fieldLocal(x,y);o.fillStyle=c;o.fillRect(Math.round(p.x-w/2),Math.round(p.y),w,2);}};
+ for(let yard=0;yard<=100;yard+=5)vline(yard,0,53,yard%50===0?4:2);vline(-10,0,53,3);vline(110,0,53,3);
+ for(let yard=1;yard<100;yard++){if(yard%5===0)continue;for(let [a,b] of [[.4,1.3],[51.7,52.6],[22.9,23.8],[29.2,30.1]])vline(yard,a,b,2);}
+ for(let yard of [2,98])vline(yard,26.2,26.8,2);
+ for(let [x,y] of [[0,0],[0,53],[100,0],[100,53],[-10,0],[-10,53],[110,0],[110,53]]){let p=fieldLocal(x,y);o.fillStyle='#ff7a1a';o.fillRect(Math.round(p.x-3),Math.round(p.y-4),6,6);o.fillStyle='#ffb36b';o.fillRect(Math.round(p.x-3),Math.round(p.y-4),6,2);}
+ // Yard numbers (pixel font) with arrows pointing to the nearer goal.
+ const digits=(str,x,y,flip)=>{let uw=3,uh=3,gap=8,w=5*uw,total=str.length*w+(str.length-1)*gap,p=fieldLocal(x,y),sx=Math.round(p.x-total/2),sy=Math.round(p.y-10);
+  [...str].forEach((ch,i)=>{let gl=PIXEL_FONT[ch];for(let r=0;r<7;r++)for(let cc=0;cc<5;cc++)if(gl[r][cc]==='#'){o.fillStyle='#1d4a28';o.fillRect(sx+i*(w+gap)+cc*uw+1,sy+r*uh+1,uw,uh);o.fillStyle='#eef0dc';o.fillRect(sx+i*(w+gap)+cc*uw,sy+r*uh,uw,uh);}});
+  if(str!=='50'){let left=x<50,ax=left?sx-9:sx+total+3;o.fillStyle='#eef0dc';for(let k=0;k<4;k++)o.fillRect(left?ax+k:ax+3-k,sy+10-k,1,2*k+1);}};
+ for(let yard=10;yard<=90;yard+=10){let s=String(yard>50?100-yard:yard);digits(s,yard,9,false);digits(s,yard,45,true);}
+ return c;}
+function drawFieldCanvas(){let t=homeTeam(),key=[t.id,t.primary,t.secondary,t.mascot,t.logo?.length].join('|');if(fieldCanvasCache.key!==key){fieldCanvasCache.canvas=buildFieldCanvas(t);fieldCanvasCache.key=key;}
+ ctx.drawImage(fieldCanvasCache.canvas,Math.round(70+(FIELD_X0-cam)*15.5-FIELD_PAD),Math.round(135+FIELD_Y0*7.8));}
+
+// ---- Crowd: tiered stands, each fan a few pixels, mostly in the home team's colors ----
+const crowdCanvasCache={key:null,canvas:null};
+function buildCrowdCanvas(team){let c=document.createElement('canvas');c.width=1000;c.height=114;let o=c.getContext('2d');if(!o?.fillRect)return c;let kit=homeKit(team),cols=[kit.jersey,kit.jersey,kit.trim,team.primary,team.primary,team.secondary,'#f1efe6'],other=['#5b6b7a','#8a3b3b','#3b5f8a','#c9b27a','#2c2c34'],skins=['#f1c9a5','#d9a679','#b97f4f','#8d5a35','#5e3a22'],hair=['#2a1d14','#4a2f1c','#d8b36a','#111','#7a4a28'];
+ o.fillStyle='#101b23';o.fillRect(0,0,1000,114);
+ for(let row=0;row<7;row++){let y=6+row*12,shade=row%2?'#1a2833':'#16232d';o.fillStyle=shade;o.fillRect(0,y,1000,12);o.fillStyle='#2b3a45';o.fillRect(0,y+11,1000,1);
+  for(let col=0;col<200;col++){let x=col*5+(row%2?2:0),aisle=((x+row*0)%250)<10;if(aisle)continue;let h=hash2(col,row,3),h2=hash2(col,row,9);if(h<.06)continue;
+   let shirt=h2<.82?cols[Math.floor(hash2(col,row,5)*cols.length)]:other[Math.floor(h2*31)%other.length],skin=skins[Math.floor(hash2(col,row,11)*skins.length)],cap=hash2(col,row,13)<.25;
+   o.fillStyle=shirt;o.fillRect(x,y+5,4,5);o.fillStyle=skin;o.fillRect(x+1,y+2,2,3);o.fillStyle=cap?kit.trim:hair[Math.floor(hash2(col,row,17)*hair.length)];o.fillRect(x+1,y+1,2,cap?2:1);
+   if(hash2(col,row,19)<.16){o.fillStyle=skin;o.fillRect(x+(h<.5?0:3),y,1,4);}                                   // arm up
+   if(hash2(col,row,23)<.025){o.fillStyle='#f4f1e4';o.fillRect(x-2,y-1,8,5);o.fillStyle=team.primary;o.fillRect(x-1,y+1,6,1);} // sign
+   if(hash2(col,row,29)<.012){o.fillStyle='#d8d8d0';o.fillRect(x+3,y-6,1,10);o.fillStyle=team.primary;o.fillRect(x+4,y-6,6,4);o.fillStyle=team.secondary;o.fillRect(x+4,y-4,6,1);}}}  // flag
+ for(let x=0;x<1000;x+=250){o.fillStyle='#3a4852';o.fillRect(x,0,10,92);for(let y=2;y<92;y+=6){o.fillStyle='#4c5b66';o.fillRect(x,y,10,2);}}            // aisles
+ o.fillStyle=team.primary;o.fillRect(0,88,1000,6);o.fillStyle=team.secondary;o.fillRect(0,88,1000,2);o.fillStyle='#0b141a';o.fillRect(0,94,1000,1);   // front wall
+ o.fillStyle=kit.jersey;o.fillRect(0,95,1000,19);o.globalAlpha=.55;o.fillStyle='#071016';o.fillRect(0,95,1000,19);o.globalAlpha=1;
+ for(let x=0;x<1000;x+=40){o.fillStyle=team.secondary;o.fillRect(x,96,20,1);}
+ return c;}
+function drawCrowd(){let t=homeTeam(),key=[t.id,t.primary,t.secondary].join('|');if(crowdCanvasCache.key!==key){crowdCanvasCache.canvas=buildCrowdCanvas(t);crowdCanvasCache.key=key;}ctx.drawImage(crowdCanvasCache.canvas,0,0);}
+
+// ---- Sideline crew: cheerleaders and photographers (static) ----
+const CHEER_POSES=[
+ ['  PP    PP  ',' PPP    PPP ','  PS HHHSP  ','   SHSSSH   ','   HSSSSH   ','    SSSS    ','    JJJJ    ','    JJJJ    ','   LLLLLL   ','  LLLLLLLL  ','    S  S    ','    S  S    ','    S  S    ','   WW  WW   '],
+ ['    HHHH    ','   HSSSSH   ','   HSSSSH   ','    SSSS    ','PP  JJJJ  PP','PPSSJJJJSSPP','PP  JJJJ  PP','    JJJJ    ','   LLLLLL   ','  LLLLLLLL  ','    S  S    ','    S  S    ','    S  S    ','   WW  WW   '],
+ ['    HHHH    ','   HSSSSH   ','   HSSSSH   ','    SSSS    ','   SJJJJS   ','  PPJJJJPP  ','  PPJJJJPP  ','    JJJJ    ','   LLLLLL   ','  LLLLLLLL  ','    S  S    ','    S  S    ','    S  S    ','   WW  WW   '],
+ ['  PP        ',' PPP HHHH   ','  PSHSSSSH  ','   SHSSSSH  ','    SSSSS   ','    JJJJS   ','    JJJJ PP ','    JJJJPPP ','   LLLLLL   ','  LLLLLLLL  ','    S  S    ','    S  S    ','    S  S    ','   WW  WW   ']];
+const PHOTOGRAPHER=['   CCCC     ','  CCCCCC    ','   SSSS KK  ','   SSS KKKKG','  VVVVVKKKK ',' VVVVVVSS   ',' VVVVVV     ',' PPPPPP     ',' PP  PPPP   ',' PP     BB  ',' BB         '];
+const CHEER_SPOTS=[16,19,22,25,28,72,75,78,81,84];
+const PHOTO_SPOTS=[[-4,55.6,1],[-1.6,55.9,1],[101.6,55.9,-1],[104,55.6,-1],[-14,7,1],[-14.5,19,1],[-14,34,1],[-14.5,46,1],[114,7,-1],[114.5,19,-1],[114,34,-1],[114.5,46,-1],[-2,-1.9,1],[102,-1.9,-1]];
+function drawPixelFigure(bm,pal,x,y,face){let a=screen({x,y}),unit=2,w=Math.max(...bm.map(r=>r.length));if(a.x<-40||a.x>1040)return;pixelShadow(a.x,a.y+2,8);
+ for(let r=0;r<bm.length;r++)for(let c=0;c<bm[r].length;c++){let ch=bm[r][c];if(ch===' '||!pal[ch])continue;let cx=face<0?w-1-c:c;rect(a.x-w*unit/2+cx*unit,a.y-bm.length*unit+r*unit,unit,unit,pal[ch]);}}
+function drawSidelineCrew(front){let t=homeTeam(),kit=homeKit(t),hairs=['#2a1d14','#d8b36a','#4a2f1c','#111','#9a4a22'],skins=['#f1c9a5','#d9a679','#b97f4f','#8d5a35','#6b4126'];
+ if(front)CHEER_SPOTS.forEach((x,i)=>{let pal={H:hairs[i%5],S:skins[(i*3)%5],J:kit.jersey,L:kit.trim,W:'#f4f2ea',P:i%2?t.secondary:kit.trim};drawPixelFigure(CHEER_POSES[i%CHEER_POSES.length],pal,x,56.6,i<5?1:-1);});
+ for(let [x,y,face] of PHOTO_SPOTS){if((y>53)!==front)continue;let i=Math.round(x*7+y),pal={C:i%3?'#1f2a33':'#b8862e',S:skins[Math.abs(i)%5],K:'#1b1d22',G:'#7d8b94',V:'#26313a',P:'#a99068',B:'#141518'};drawPixelFigure(PHOTOGRAPHER,pal,x,y,face);}}
 
 $('finalReturn').onclick=()=>{$('finalDialog').hidden=true;keys.clear();drag=null;if(season)showSeasonHub();else showMainMenu();};$('finalDialog').onkeydown=e=>{if(e.key==='Tab'){e.preventDefault();$('finalReturn').focus();}};initTeamMenu();initSaveMenu();initLineup();initPlayerDetails();initFinances();function frame(t){let dt=Math.min((t-last)/1000,.04);last=t;if(!menuActive){update(dt);recordSeasonFinal();drawWithFx();syncFinalDialog();autosaveTick(dt);}requestAnimationFrame(frame)}requestAnimationFrame(frame);
 </script></html>
