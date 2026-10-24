@@ -256,6 +256,19 @@ button.player-card{display:block;width:100%;padding:0;text-align:inherit;cursor:
 .scheme-fit{position:absolute;left:4px;top:4px;z-index:3;font:8px TTPixel,monospace;color:#0e2216;background:#7ee2a2;border:2px solid #0e2216;padding:2px 4px;letter-spacing:1px}
 .scheme-fit.mastery{background:#f2c94c}
 @media(max-width:760px){.staff-cards{grid-template-columns:1fr}.market-row{grid-template-columns:40px 1fr}.market-row .ask,.market-row .offer-box,.market-row>button{grid-column:2}}
+.fa-rounds{list-style:none;display:flex;gap:6px;padding:0;margin:8px 0;flex-wrap:wrap}
+.fa-rounds li{font:9px TTPixel,monospace;padding:6px 10px;border:2px solid #2f4a40;color:#9fb4ad;background:#12232b}
+.fa-rounds li.current{border-color:#e9c975;color:#fff0ce}.fa-rounds li.done{color:#7ee2a2}
+.fa-h{font:9px TTPixel,monospace;color:#e9c975;margin:10px 0 4px}
+.fa-pos{display:flex;flex-wrap:wrap;gap:4px;margin:8px 0}.fa-pos button{padding:4px 8px;font-size:9px}.fa-pos button.on,.staff-market nav button.on{background:#e9c975;color:#13232b}
+.fa-row{grid-template-columns:48px 1fr 150px}.fa-row .offer-box,.fa-row>button{grid-column:2/-1;justify-self:start}.fa-row.offered{border-color:#7ee2a2}
+.fa-ovr{font:12px TTPixel,monospace;color:#13232b;background:#f0d38b;padding:2px 5px;margin-right:6px}
+.fa-tier,.fa-fit,.fa-need{font:8px TTPixel,monospace;padding:2px 5px;margin-right:4px;border:1px solid currentColor}
+.fa-tier.dev-legend{color:#fff5cd}.fa-tier.dev-gamebreaker{color:#d1a1ff}.fa-tier.dev-superstar{color:#ffe679}.fa-tier.dev-breakout{color:#ff9c51}
+.fa-fit{color:#7ee2a2}.fa-need{color:#f0a58f}
+.fa-interest{font:8px TTPixel,monospace!important;margin-top:5px!important}.fa-interest.good{color:#7ee2a2!important}.fa-interest.fair{color:#e9c975!important}.fa-interest.poor{color:#f0a58f!important}
+.fa-years{font:8px TTPixel,monospace;color:#9fb4ad}.fa-years select{margin-left:4px;font:10px TTPixel,monospace;background:#0f1d24;color:#fff0ce;border:2px solid #2f4a40}
+@media(max-width:760px){.fa-row{grid-template-columns:40px 1fr}.fa-row .ask,.fa-row .offer-box,.fa-row>button{grid-column:2}}
 </style>
 <main id="financePage" class="finance-page" hidden><header><div id="financeTeam" class="finance-team"></div><button id="financeBack" type="button">Back</button></header><div id="financeContent"><section id="capMetrics" class="cap-metrics" aria-label="Team salary cap"></section><div id="capMeter"></div><p id="financeStatus" aria-live="polite"></p><section id="negotiationPanel" class="finance-section" hidden></section><section class="finance-section"><div class="finance-section-head"><h2>PLAYER CONTRACTS</h2><div class="finance-controls"><label>Sort <select id="financeSort"><option value="capDesc">Highest cap hit</option><option value="capAsc">Lowest cap hit</option><option value="yearsAsc">Shortest remaining</option><option value="yearsDesc">Longest remaining</option><option value="ovr">Highest overall</option></select></label><label>Position <select id="financeFilter"><option value="ALL">All positions</option><option>QB</option><option>RB</option><option>WR</option><option>TE</option><option>OL</option><option>DT</option><option>EDGE</option><option>LB</option><option>MLB</option><option>CB</option><option>S</option><option>K</option><option>P</option></select></label></div></div><div class="finance-table-scroll"><table class="finance-table"><thead><tr><th>Player</th><th>Yearly base</th><th>Yearly bonus</th><th>Current cap hit</th><th>Remaining term</th><th>Bonus still owed</th><th>Actions</th></tr></thead><tbody id="contractRows"></tbody></table></div></section><section class="finance-section"><h2>AUTOMATIC ROOKIE RESERVE</h2><p id="draftReserveNote"></p><div id="draftReserveRows" class="draft-reserve-rows"></div></section><section class="finance-section"><h2>CAP PENALTIES</h2><div class="finance-table-scroll"><table class="finance-table"><thead><tr><th>Player / reason</th><th>Current-year penalty</th></tr></thead><tbody id="capPenaltyRows"></tbody></table></div></section></div></main>
 <div id="signedOverlay" class="signed-overlay" hidden><section role="dialog" aria-modal="true" aria-labelledby="signedStamp"><p class="signed-kicker">CONTRACT AGREED</p><h2 id="signedStamp" class="signed-stamp">SIGNED</h2><div id="signedDetails"></div><button id="signedContinue" class="primary" type="button">Continue</button></section></div><div id="financeDialog" class="finance-dialog" hidden><section role="dialog" aria-modal="true" aria-labelledby="financeDialogTitle"><h2 id="financeDialogTitle"></h2><div id="financeDialogBody"></div><div class="finance-dialog-actions"><button id="financeCancel" type="button">Cancel</button><button id="financeConfirm" class="primary" type="button">Confirm</button></div></section></div>
@@ -1278,8 +1291,8 @@ initHubLayout();
 // ===== Offseason: re-signing, CPU roster management and the free-agent pool =====
 // The offseason runs at the start of the new league year (after the history push and cap rollover),
 // so every cap check, cut and signing already uses the new season's books.
-// Stages marked `soon` are placeholders for free agency and the draft; they are skipped for now.
-const OFFSEASON_STAGES=[{id:'staff',label:'STAFF WEEK'},{id:'resign',label:'RE-SIGNING'},{id:'fa',label:'FREE AGENCY',soon:true},{id:'draft',label:'DRAFT',soon:true},{id:'cuts',label:'FINAL CUTS'}];
+// Stages marked `soon` are placeholders (the draft); they are skipped for now.
+const OFFSEASON_STAGES=[{id:'staff',label:'STAFF WEEK'},{id:'resign',label:'RE-SIGNING'},{id:'fa',label:'FREE AGENCY'},{id:'draft',label:'DRAFT',soon:true},{id:'cuts',label:'FINAL CUTS'}];
 const MINIMUM_SALARY=750000,CPU_CAP_BUFFER=3000000,FREE_AGENT_POOL_LIMIT=200;
 const DEPTH_ROLE_KEYS={OL:['linePosition',['LT','LG','C','RG','RT']],EDGE:['edgePosition',['REDGE','LEDGE']],S:['safetyPosition',['FS','SS']]};
 function playerSlotLabel(p){return p.edgePosition||p.safetyPosition||p.linePosition||p.position;}
@@ -1358,10 +1371,10 @@ function advanceOffseason(){let o=season?.offseason;if(!o||season.activeGame)ret
  if(o.stage==='resign'){let leaving=franchiseRoster(user).filter(p=>!p.retired&&!contractForYear(p));
   if(leaving.length&&!confirm(leaving.length+' unsigned player'+(leaving.length===1?'':'s')+' will enter free agency:\n\n'+leaving.map(p=>p.name+' · '+playerSlotLabel(p)+' · '+p.overall+' OVR').join('\n')+'\n\nFinish re-signing?'))return false;
   for(let p of leaving){o.departures.push({name:p.name,position:playerSlotLabel(p),overall:p.overall});releaseToFreeAgency(p,user,'Contract expired');}
-  // Free agency and the draft are not built yet: CPU teams sign from the pool, then replacement players.
-  for(let t of TEAM_DEFINITIONS)if(t.id!==user)cpuManageRoster(t.id,o.log);
-  o.userAdded=fillRosterHoles(user,{depth:false,usePool:false}).map(({player:p})=>({id:p.id,name:p.name,position:playerSlotLabel(p),overall:p.overall}));
-  o.stage='cuts';saveActiveSlot(true);showSeasonHub(false);return true;}
+  // CPU teams get under the cap and roster limits (cuts land in the pool), then free agency opens.
+  for(let t of TEAM_DEFINITIONS)if(t.id!==user){cpuTrimToLimits(t.id,o.log);cpuFixCap(t.id,o.log);}
+  o.userAdded=[];o.stage='fa';startFreeAgency();saveActiveSlot(true);showSeasonHub(false);return true;}
+ if(o.stage==='fa')return advanceFreeAgency();
  if(o.stage==='cuts'){if(offseasonBlockers().length){renderSeasonHub();return false;}trimFreeAgentPool();season.offseason=null;if(typeof cpuSetDepthCharts==='function')cpuSetDepthCharts();saveActiveSlot(true);showSeasonHub(false);return true;}
  return false;}
 
@@ -1381,14 +1394,16 @@ function renderOffseasonHub(){let node=$('hubOffseason'),o=season.offseason;node
  if(o.stage==='staff')body=staffWeekBoardHTML();
  else if(o.stage==='resign'){let rows=o.expiring.map(id=>records.find(p=>p.id===id)).filter(p=>p&&!p.retired);
   body=`${staffResultsHTML()}<h2>EXPIRING CONTRACTS</h2><p class="offseason-help">Players never refuse to negotiate, but many ask for more than their market value. Anyone still unsigned when you finish re-signing enters free agency.</p>${campReportHTML(o)}${rows.length?`<div class="resign-list">${rows.map(p=>resignRow(p,team)).join('')}</div>`:'<p class="offseason-help">No contracts expired this offseason.</p>'}<p class="offseason-league">League: CPU teams re-signed ${o.log.resigned} players · ${o.log.departed} entered free agency.</p>`;}
+ else if(o.stage==='fa')body=faBoardHTML();
  else{let blockers=offseasonBlockers(),list=(items,empty)=>items.length?`<ul class="offseason-list">${items.map(x=>`<li>${x.name} · ${x.position} · ${x.overall} OVR</li>`).join('')}</ul>`:`<p class="offseason-help">${empty}</p>`;
-  body=`<h2>FINAL CUTS</h2><p class="offseason-help">Free agency and the draft are not built yet. Required lineup spots left empty by retirements or departures were filled with replacement-level players on ${money(MINIMUM_SALARY)} one-year deals. Review your lineup and contracts before the season starts.</p><div class="offseason-columns"><section><h3>LEFT IN FREE AGENCY</h3>${list(o.departures,'Nobody left your team.')}</section><section><h3>ADDED TO FILL THE LINEUP</h3>${list(o.userAdded,'No lineup holes needed filling.')}</section></div>${openRosterSpots(user)?`<p class="offseason-help">${openRosterSpots(user)} open roster spot${openRosterSpots(user)===1?'':'s'} below the usual 45. <button id="fillDepth" type="button">Fill depth with replacement players</button></p>`:''}<p class="offseason-league">League: ${o.log.resigned} re-signed · ${o.log.departed} left in free agency · ${o.log.capCuts} cap casualties · ${o.log.limitCuts} roster cuts · ${o.log.filled} signings · ${(season.freeAgents||[]).length} players in the free-agent pool.</p>${blockers.length?`<div class="offseason-blockers"><h3>BEFORE YOU START THE SEASON</h3><ul>${blockers.map(b=>`<li>${b}</li>`).join('')}</ul></div>`:''}`;}
+  body=`<h2>FINAL CUTS</h2><p class="offseason-help">The draft is not built yet. Any required lineup spot still empty after free agency was filled with a replacement-level player on a ${money(MINIMUM_SALARY)} one-year deal. Review your lineup and contracts before the season starts.</p><div class="offseason-columns"><section><h3>LEFT IN FREE AGENCY</h3>${list(o.departures,'Nobody left your team.')}</section><section><h3>ADDED THIS OFFSEASON</h3>${list(o.userAdded,'Nobody was added.')}</section></div>${openRosterSpots(user)?`<p class="offseason-help">${openRosterSpots(user)} open roster spot${openRosterSpots(user)===1?'':'s'} below the usual 45. <button id="fillDepth" type="button">Fill depth with replacement players</button></p>`:''}<p class="offseason-league">League: ${o.log.resigned} re-signed · ${o.log.departed} left in free agency · ${o.log.capCuts} cap casualties · ${o.log.limitCuts} roster cuts · ${o.log.filled} signings · ${(season.freeAgents||[]).length} players in the free-agent pool.</p>${blockers.length?`<div class="offseason-blockers"><h3>BEFORE YOU START THE SEASON</h3><ul>${blockers.map(b=>`<li>${b}</li>`).join('')}</ul></div>`:''}`;}
  node.innerHTML=`<ol class="offseason-track">${track}</ol><div class="offseason-cap"><span>CAP SPACE · SEASON ${season.year}</span><strong class="${cap.space<0?'cap-negative':''}">${money(cap.space)}</strong><small>Includes ${money(cap.rollover)} rollover · ${money(cap.rookieReserve)} rookie reserve</small></div>${body}`;
  if(o.stage==='staff')bindStaffWeekBoard();
+ if(o.stage==='fa')bindFaBoard();
  if(o.stage==='resign')for(let id of o.expiring){let b=$('resign-'+id);if(b)b.onclick=()=>openFinances(id,'hub');}
  if(o.stage==='cuts'&&$('fillDepth'))$('fillDepth').onclick=fillUserDepth;
- let blocked=o.stage==='cuts'&&offseasonBlockers().length>0;$('hubAction').textContent=o.stage==='staff'?'Finish staff week':o.stage==='resign'?'Finish re-signing':'Start season '+season.year;$('hubAction').disabled=blocked;
- $('hubNote').textContent=o.stage==='staff'?'Hire or re-sign coordinators, then finish staff week. CPU teams bid when you do.':o.stage==='resign'?'Re-sign the players you want to keep, then finish re-signing.':blocked?'Fix the items above to start the season.':'Your roster is ready. Week 1 is next.';}
+ let blocked=o.stage==='cuts'&&offseasonBlockers().length>0;$('hubAction').textContent=o.stage==='fa'?(o.fa?.round<3?'Finish round '+o.fa.round+' · '+FA_ROUNDS[o.fa.round-1].name.toLowerCase():'Finish free agency'):o.stage==='staff'?'Finish staff week':o.stage==='resign'?'Finish re-signing':'Start season '+season.year;$('hubAction').disabled=blocked;
+ $('hubNote').textContent=o.stage==='fa'?(o.fa?.round<3?'Players pick between all offers when the round ends.':'CPU teams sign the leftovers on minimum deals when you finish.'):o.stage==='staff'?'Hire or re-sign coordinators, then finish staff week. CPU teams bid when you do.':o.stage==='resign'?'Re-sign the players you want to keep, then finish re-signing.':blocked?'Fix the items above to start the season.':'Your roster is ready. Week 1 is next.';}
 
 // ===== Contract negotiation: age limits, player interest, counter-offers =====
 // Term limits by age. QBs, kickers and punters play longer, so they are treated as four years younger.
@@ -2474,6 +2489,154 @@ function postseasonTierNotices(){let r=season?.postseason?.tierAwards;if(!r||sea
  if(r.mvp)out.push([r.mvp.team===user?'good':'info','TT Bowl MVP: '+r.mvp.name+' ('+r.mvp.position+', '+TEAM_DEFINITIONS[r.mvp.team].abbr+') is now a '+r.mvp.to+'.']);
  for(let u of r.upgrades)if(u.team===user)out.push(['good',u.name+' moved up to '+u.to+' after his playoff run.']);
  for(let b of r.balance)if(!b.fill&&franchiseRoster(user).some(p=>p.id===b.id))out.push(['info',b.name+' slipped to '+b.to+' to keep tier limits.']);return out;}
+
+// ===== Free agency: three rounds after re-signing =====
+// Round 1 · Bidding War: you and every CPU team make blind offers; each player signs with the offer he likes best.
+// Round 2 · Market Correction: unsigned players lower their asks 10-15% and teams bid again.
+// Round 3 · Bargain Bin: whoever is left takes a 1-year minimum deal. You can claim anyone instantly; then CPU teams
+//           fill their rosters from what remains.
+// A player only considers offers at or above his asking salary. Interest = contract value match + team fit
+// (contender / rebuilding, a starting role) + coach scheme fit. Legends and Gamebreakers need an overpay to join
+// a rebuilding team. Every offer has to fit under the salary cap for every year of the deal.
+const FA_ROUNDS=[{name:'BIDDING WAR',help:'Make blind offers. When the round ends, every player compares all offers and signs with the one he likes best. Only offers at or above his asking salary count.'},
+ {name:'MARKET CORRECTION',help:'Players still on the market dropped their asking prices by 10-15%. Teams get a second chance to bid.'},
+ {name:'BARGAIN BIN',help:'Everyone left will take a 1-year minimum deal. Sign anyone you want right now; CPU teams pick through the rest when you finish free agency.'}];
+const FA_ELITE_TIERS=new Set(['Legend','Gamebreaker']);
+const FA_MAX_SALARY=LEAGUE_SALARY_CAP*.25;   // nobody earns more than a quarter of the cap per year
+function faTierName(p){return developmentTier(p).name;}
+function faBand(p){let t=faTierName(p);return FA_ELITE_TIERS.has(t)||p.overall>=90?'elite':(t==='Superstar'||t==='Breakout'||p.overall>=78)?'mid':'depth';}
+// Asking price from OVR and tier: elite players want max money for 3-5 years, mid-tier starters mid money for 2-4,
+// depth players short 1-2 year "prove-it" deals (minimum salary below 68 OVR).
+function faBaseAsk(p){let band=faBand(p),h=financeHash(p.id+':fa:'+season.year),max=maxContractYears(p,0),market=marketSalary(p),annual,years;
+ if(band==='elite'){annual=market*1.15;years=3+h%3;}else if(band==='mid'){annual=market;years=2+h%3;}else{annual=p.overall<68?MINIMUM_SALARY:market*.9;years=p.overall<68?1:1+h%2;}
+ return{annual:Math.max(MINIMUM_SALARY,dollars(Math.min(FA_MAX_SALARY,annual))),years:clamp(years,1,max),band};}
+function faState(){return season?.offseason?.fa||null;}
+function faAsk(p){let fa=faState();if(!fa)return faBaseAsk(p);return fa.asks[p.id]??=faBaseAsk(p);}
+function faPool(){return (season.freeAgents||[]).filter(p=>p&&!p.retired);}
+function startFreeAgency(){let o=season.offseason;o.fa={round:1,asks:{},offers:{},results:[],log:{signed:0,userSigned:0,minimum:0},lastRound:null};for(let p of faPool())faAsk(p);}
+// ----- Team side -----
+function faTeamStatus(id){let last=season.history?.at(-1),ps=last?.postseason,made=!!ps?.rounds?.some(r=>r.games.some(m=>m.home===id||m.away===id)),rec=last?.records?.[id];
+ if(made)return 'Contender';let coach=typeof teamCoachStatus==='function'?teamCoachStatus(id):'Neutral';if(coach==='Rebuilding'||rec&&rec.w<=5)return 'Rebuilding';return 'Neutral';}
+function faWouldStart(p,id){let records=franchiseRoster(id).filter(q=>!q.retired),starters=startingRoster([...records]).filter(q=>depthGroupKey(q)===depthGroupKey(p));if(!starters.length)return true;let need=p.position==='OL'||p.position==='EDGE'||p.position==='S'?1:(STARTER_COUNTS[p.position]||1);return starters.length<need||p.overall>Math.min(...starters.map(q=>q.overall));}
+function faContract(p,annual,years){return{id:'fa-'+season.year+'-'+p.id+'-'+Math.round(annual/1000),startYear:season.year,years,annualBase:annual,annualBonus:0,totalBonus:0,incentive:0,personality:'freeAgent'};}
+// Interest Score = contract value match + team tier fit + role + coach/scheme bonus.
+function faInterest(p,id,annual,years){let ask=faAsk(p),reasons=[],elite=FA_ELITE_TIERS.has(faTierName(p));
+ if(annual<ask.annual-1)return{score:0,ok:false,label:'BELOW ASK',reasons:['Below his asking salary of '+money(ask.annual)]};
+ let score=50+Math.min(40,(annual/ask.annual-1)*250)+(annual>=FA_MAX_SALARY-1&&ask.annual>=FA_MAX_SALARY-1?15:0),off=Math.abs(years-ask.years);if(off){score-=off*6;reasons.push('Wants '+ask.years+' year'+(ask.years===1?'':'s'));}
+ let status=faTeamStatus(id),fit=elite?{Contender:20,Neutral:0,Rebuilding:-25}[status]:{Contender:8,Neutral:0,Rebuilding:-5}[status];score+=fit;
+ if(fit>0)reasons.push('Likes a contender');if(fit<0)reasons.push(elite?'Wary of a rebuild (overpay to convince him)':'Prefers a winning team');
+ if(faWouldStart(p,id))score+=6;else{score-=elite?10:4;reasons.push('Wants a starting job');}
+ let s=typeof schemeFitInfo==='function'?schemeFitInfo(p,id):null;if(s?.fit){score+=s.mastery?8:5;reasons.push('Fits the '+s.scheme+' scheme');}
+ let need=elite?45:35,ok=score>=need;return{score,ok,need,status,label:!ok?'NOT INTERESTED':score>=need+25?'EAGER':score>=need+10?'INTERESTED':'OPEN',reasons};}
+function faPendingTotal(id=season.userTeam){let fa=faState();return Object.values(fa?.offers||{}).reduce((n,o)=>n+o.annual,0);}
+function faCapCheck(p,annual,years,id,pending=0){let c=faContract(p,annual,years),check=offerCapCheck(p,c,id);return{ok:check.ok&&check.tightest>=pending,tightest:check.tightest};}
+// ----- Your offers -----
+function userFaOffer(pid,mult,years){let fa=faState();if(!fa||fa.round>2)return false;let p=faPool().find(q=>q.id===pid);if(!p)return false;
+ if(!mult){delete fa.offers[pid];return true;}let ask=faAsk(p),annual=Math.max(MINIMUM_SALARY,dollars(Math.min(FA_MAX_SALARY,Math.round(ask.annual*mult/50000)*50000))),y=clamp(years||ask.years,1,maxContractYears(p,0));
+ let pending=faPendingTotal()-(fa.offers[pid]?.annual||0);if(!faCapCheck(p,annual,y,season.userTeam,pending).ok)return false;fa.offers[pid]={annual,years:y,mult};return true;}
+function userFaSignMinimum(pid){let fa=faState();if(!fa||fa.round!==3)return false;let p=faPool().find(q=>q.id===pid);if(!p)return false;let c=minimumContract(p);if(!offerCapCheck(p,c,season.userTeam).ok)return false;
+ season.freeAgents.splice(season.freeAgents.indexOf(p),1);signToTeam(p,season.userTeam,null,c);fa.log.userSigned++;fa.log.minimum++;season.offseason.userAdded.push({id:p.id,name:p.name,position:playerSlotLabel(p),overall:p.overall});
+ fa.results.unshift({round:3,id:p.id,name:p.name,position:playerSlotLabel(p),overall:p.overall,team:season.userTeam,annual:MINIMUM_SALARY,years:1,user:true});return true;}
+// ----- CPU bidding -----
+function faTeamPreference(p,status){let t=DEVELOPMENT_TIERS.findIndex(x=>x.name===faTierName(p)),youth=p.age<=23?5:p.age<=26?3:p.age>=31?-5:0;return status==='Contender'?p.overall+t*2:status==='Rebuilding'?p.overall+youth:p.overall+t+youth*.4;}
+function cpuFaOffers(round){let pool=faPool(),byPos={},offers=[];for(let p of pool)(byPos[p.position]??=[]).push(p);for(let list of Object.values(byPos))list.sort((a,b)=>b.overall-a.overall);
+ for(let t of TEAM_DEFINITIONS){let id=t.id;if(id===season.userTeam)continue;let status=faTeamStatus(id),cap=capSummary(id).space,open=openRosterSpots(id),budget=cap-CPU_CAP_BUFFER-Math.max(0,open-1)*MINIMUM_SALARY;if(budget<MINIMUM_SALARY)continue;
+  let records=franchiseRoster(id).filter(q=>!q.retired),starters=startingRoster([...records]),weakest={};for(let s of starters){let k=depthGroupKey(s);weakest[k]=Math.min(weakest[k]??99,s.overall);}
+  let needs=rosterNeeds(id,true),required=needs.filter(n=>n.required),depth=needs.filter(n=>!n.required),targets=[],seen=new Set(),pending=0,maxOffers=required.length+(status==='Contender'?4:3)+Math.min(4,depth.length);
+  let consider=(p,why)=>{if(seen.has(p.id)||targets.length>=maxOffers)return false;let ask=faAsk(p),elite=FA_ELITE_TIERS.has(faTierName(p)),lo=0,hi=status==='Contender'?.12:status==='Neutral'?.06:.04;
+   if(elite&&status==='Rebuilding'){if(Math.random()>(p.age<=26?.6:.3))return false;lo=.12;hi=.26;}if(elite&&status==='Contender'){lo=.03;hi=.16;}
+   let annual=dollars(Math.min(FA_MAX_SALARY,Math.round(ask.annual*(1+lo+Math.random()*(hi-lo))/50000)*50000));annual=Math.max(MINIMUM_SALARY,annual);if(pending+annual>budget)return false;
+   if(!faCapCheck(p,annual,ask.years,id,pending).ok)return false;seen.add(p.id);pending+=annual;targets.push({pid:p.id,team:id,annual,years:ask.years,why});return true;};
+  let forNeed=need=>(byPos[need.position]||[]).filter(p=>!need.role||!DEPTH_ROLE_KEYS[need.position]||p[DEPTH_ROLE_KEYS[need.position][0]]===need.role).slice(0,12).sort((a,b)=>faTeamPreference(b,status)-faTeamPreference(a,status));
+  // 1) required lineup holes, 2) clear upgrades over the weakest starter at a spot, 3) depth.
+  for(let need of required)for(let p of forNeed(need))if(consider(p,'need'))break;
+  let margin=status==='Contender'?2:round===2?1:3,ups=[];for(let list of Object.values(byPos))for(let p of list.slice(0,10)){let w=weakest[depthGroupKey(p)];if(w!==undefined&&p.overall>=w+margin)ups.push(p);}
+  ups.sort((a,b)=>faTeamPreference(b,status)-faTeamPreference(a,status));let upCount=0;for(let p of ups){if(upCount>=(status==='Contender'?4:3))break;if(consider(p,'upgrade'))upCount++;}
+  for(let need of depth)for(let p of forNeed(need))if(p.overall>=64&&consider(p,'depth'))break;
+  offers.push(...targets);}
+ return offers;}
+// ----- Resolve a bidding round -----
+function resolveFaRound(){let fa=faState(),round=fa.round,user=season.userTeam,offers=cpuFaOffers(round),byPlayer={};
+ for(let [pid,o] of Object.entries(fa.offers))(byPlayer[pid]??=[]).push({pid,team:user,annual:o.annual,years:o.years,user:true});
+ for(let o of offers)(byPlayer[o.pid]??=[]).push(o);
+ let results=[],order=faPool().filter(p=>byPlayer[p.id]).sort((a,b)=>faAsk(b).annual-faAsk(a).annual||b.overall-a.overall);
+ for(let p of order){let rows=byPlayer[p.id].map(o=>{let i=faInterest(p,o.team,o.annual,o.years),cap=faCapCheck(p,o.annual,o.years,o.team);return{...o,interest:i,capOk:cap.ok};}).filter(r=>r.capOk);
+  let valid=rows.filter(r=>r.interest.ok).sort((a,b)=>b.interest.score-a.interest.score||b.annual*b.years-a.annual*a.years),win=valid[0],mine=rows.find(r=>r.user);
+  if(win){season.freeAgents.splice(season.freeAgents.indexOf(p),1);signToTeam(p,win.team,null,faContract(p,win.annual,win.years));fa.log.signed++;if(win.user)fa.log.userSigned++;
+   if(win.user)season.offseason.userAdded.push({id:p.id,name:p.name,position:playerSlotLabel(p),overall:p.overall});
+   results.push({round,id:p.id,name:p.name,position:playerSlotLabel(p),overall:p.overall,tier:faTierName(p),team:win.team,annual:win.annual,years:win.years,user:!!win.user,bids:rows.length,
+    lost:mine&&!win.user?(mine.interest.ok?'He chose '+TEAM_DEFINITIONS[win.team].abbr+' ('+money(win.annual)+' × '+win.years+')':mine.interest.reasons[0]||'Not interested'):null});}
+  else if(byPlayer[p.id].some(o=>o.user)){let r=byPlayer[p.id].find(o=>o.user),i=faInterest(p,user,r.annual,r.years);results.push({round,id:p.id,name:p.name,position:playerSlotLabel(p),overall:p.overall,tier:faTierName(p),team:null,user:false,lost:'Turned you down: '+(i.reasons[0]||'not interested')});}}
+ fa.offers={};fa.results=[...results,...fa.results].slice(0,400);fa.lastRound=round;return results;}
+// Round 2: everyone still unsigned lowers his ask 10-15%.
+function faMarketCorrection(){let fa=faState();for(let p of faPool()){let a=faAsk(p),cut=.10+(financeHash(p.id+':cut:'+season.year)%6)/100;a.annual=Math.max(MINIMUM_SALARY,dollars(Math.round(a.annual*(1-cut)/50000)*50000));a.cut=cut;}}
+// Round 3 end: CPU teams fill their holes from the leftovers on 1-year minimum deals, then replacement players.
+function faScraps(){let fa=faState(),log=season.offseason.log;for(let t of TEAM_DEFINITIONS){let id=t.id;if(id===season.userTeam)continue;
+  for(let need of rosterNeeds(id,true)){let roles=DEPTH_ROLE_KEYS[need.position],pool=faPool().filter(p=>p.position===need.position&&p.overall>=58&&(!need.role||!roles||p[roles[0]]===need.role)).sort((a,b)=>b.overall-a.overall),p=pool[0];
+   if(!p)continue;let c=minimumContract(p);if(!offerCapCheck(p,c,id).ok)continue;season.freeAgents.splice(season.freeAgents.indexOf(p),1);signToTeam(p,id,need.role,c);fa.log.minimum++;log.filled++;}
+  cpuManageRoster(id,log);}}
+function advanceFreeAgency(){let fa=faState(),o=season.offseason;if(!fa)return false;
+ if(fa.round<3){resolveFaRound();fa.round++;if(fa.round===2)faMarketCorrection();saveActiveSlot(true);showSeasonHub(false);return true;}
+ faScraps();o.userAdded.push(...fillRosterHoles(season.userTeam,{depth:false,usePool:false}).map(({player:p})=>({id:p.id,name:p.name,position:playerSlotLabel(p),overall:p.overall})));
+ o.stage='cuts';saveActiveSlot(true);showSeasonHub(false);return true;}
+
+// ===== Free agency UI: offseason board + market overlay =====
+let faFilter={pos:'ALL',needs:false,sort:'ovr'},faYearsPick={};
+function faTierBadge(p){let t=faTierName(p);return t==='Normal'?'':`<span class="fa-tier dev-${t.toLowerCase()}">${t.toUpperCase()}</span>`;}
+function faNeedsSet(){let s=new Set();for(let n of rosterNeeds(season.userTeam,true))s.add(n.position);return s;}
+function faResultsHTML(limit=12){let fa=faState();if(!fa?.results?.length)return '';let user=season.userTeam,rs=fa.results.filter(r=>r.round===fa.lastRound||r.round===3&&r.user),mine=rs.filter(r=>r.user),lost=rs.filter(r=>r.lost),big=rs.filter(r=>r.team!==null&&!r.user).sort((a,b)=>b.annual-a.annual).slice(0,limit);
+ return `<details class="camp-report" open><summary>ROUND ${fa.lastRound} RESULTS · ${rs.filter(r=>r.team!==null).length} SIGNED</summary>
+ ${mine.length?`<h3 class="fa-h">YOU SIGNED</h3><ul class="offseason-list">${mine.map(r=>`<li class="camp-up">${r.name} · ${r.position} · ${r.overall} OVR · ${money(r.annual)} × ${r.years} yr${r.years===1?'':'s'}</li>`).join('')}</ul>`:''}
+ ${lost.length?`<h3 class="fa-h">MISSED TARGETS</h3><ul class="offseason-list">${lost.map(r=>`<li class="camp-down">${r.name} · ${r.position} · ${r.overall} OVR — ${r.lost}</li>`).join('')}</ul>`:''}
+ ${big.length?`<h3 class="fa-h">BIGGEST DEALS</h3><ul class="offseason-list">${big.map(r=>`<li>${r.name} · ${r.position} · ${r.overall} OVR${r.tier&&r.tier!=='Normal'?' · '+r.tier:''} → ${TEAM_DEFINITIONS[r.team].abbr} · ${money(r.annual)} × ${r.years}${r.bids>1?' · '+r.bids+' bids':''}</li>`).join('')}</ul>`:''}</details>`;}
+function faBoardHTML(){let fa=faState(),R=FA_ROUNDS[fa.round-1],pool=faPool(),offers=Object.keys(fa.offers).length,status=faTeamStatus(season.userTeam),cap=capSummary(season.userTeam);
+ let top=[...pool].sort((a,b)=>b.overall-a.overall).slice(0,5);
+ return `<h2>FREE AGENCY · ROUND ${fa.round} OF 3 · ${R.name}</h2><p class="offseason-help">${R.help}</p>
+ <ol class="fa-rounds">${FA_ROUNDS.map((r,i)=>`<li class="${i+1===fa.round?'current':i+1<fa.round?'done':''}"><b>${i+1}</b> ${r.name}</li>`).join('')}</ol>
+ <p class="offseason-help">Your team is seen as a <b>${status.toUpperCase()}</b>${status==='Contender'?' (made the playoffs): top free agents like your chances.':status==='Rebuilding'?': Legends and Gamebreakers need an overpay to sign with you.':'.'} ${pool.length} players available · best: ${top.map(p=>p.name+' '+p.position+' '+p.overall).join(', ')}.</p>
+ ${fa.round<3?`<p class="offseason-help">You have ${offers} offer${offers===1?'':'s'} out · ${money(faPendingTotal())} per year committed · ${money(cap.space-faPendingTotal())} cap space left.</p>`:''}
+ ${faResultsHTML(8)}
+ <p><button id="openFaMarket" type="button">Open free agent market</button></p>`;}
+function bindFaBoard(){let b=$('openFaMarket');if(b)b.onclick=openFaPage;}
+function faRowHTML(p,needs){let fa=faState(),ask=faAsk(p),mine=fa.offers[p.id],user=season.userTeam,s=typeof schemeFitInfo==='function'?schemeFitInfo(p,user):null,maxY=maxContractYears(p,0);
+ let yrs=mine?.years??faYearsPick[p.id]??ask.years,preview=faInterest(p,user,mine?.annual??ask.annual,yrs),tone=preview.ok?(preview.label==='EAGER'?'good':'fair'):'poor',busy=!!season.activeGame;
+ let pending=faPendingTotal()-(mine?.annual||0),canPay=m=>faCapCheck(p,Math.max(MINIMUM_SALARY,Math.min(FA_MAX_SALARY,Math.round(ask.annual*m/50000)*50000)),yrs,user,pending).ok;
+ let action;
+ if(fa.round===3){let ok=offerCapCheck(p,minimumContract(p),user).ok;action=`<button type="button" data-fa-min="${p.id}" ${ok&&!busy?'':'disabled'}>${ok?'Sign · 1 yr · '+money(MINIMUM_SALARY):'No cap room'}</button>`;}
+ else action=`<div class="offer-box"><label class="fa-years">YRS <select data-fa-years="${p.id}">${Array.from({length:maxY},(_,i)=>i+1).map(y=>`<option ${y===yrs?'selected':''}>${y}</option>`).join('')}</select></label>
+  ${mine?`<b>OFFER ${money(mine.annual)} × ${mine.years}</b><button type="button" data-fa-offer="${p.id}" data-mult="0">Withdraw</button>`:''}
+  ${[1,1.1,1.2].map(m=>`<button type="button" data-fa-offer="${p.id}" data-mult="${m}" ${canPay(m)&&!busy?'':'disabled'}>${m===1?'Ask':'+'+Math.round((m-1)*100)+'%'} · ${money(Math.max(MINIMUM_SALARY,Math.min(FA_MAX_SALARY,Math.round(ask.annual*m/50000)*50000)))}</button>`).join('')}</div>`;
+ return `<article class="market-row fa-row ${mine?'offered':''}"><span class="role-tag">${playerSlotLabel(p)}</span>
+ <div><strong>${p.name}</strong><span class="fa-ovr">${p.overall}</span>${faTierBadge(p)}${s?.fit?`<span class="fa-fit">FIT</span>`:''}${needs.has(p.position)?'<span class="fa-need">NEED</span>':''}
+ <small>Age ${p.age} · ${p.archetype||p.position}${p.formerTeam!==undefined&&TEAM_DEFINITIONS[p.formerTeam]?' · last with '+TEAM_DEFINITIONS[p.formerTeam].abbr:''}</small>
+ <small class="fa-interest ${tone}">${mine?'YOUR OFFER: ':'AT ASK: '}${preview.label}${preview.reasons.length?' · '+preview.reasons.slice(0,2).join(' · '):''}</small></div>
+ <div class="ask"><small>${fa.round===3?'TAKES':'ASKING'}${ask.cut?' (-'+Math.round(ask.cut*100)+'%)':''}</small><b>${fa.round===3?money(MINIMUM_SALARY)+' × 1':money(ask.annual)+' × '+ask.years}</b></div>${action}</article>`;}
+function ensureFaPage(){if($('faPage'))return;let s=document.createElement('section');s.id='faPage';s.className='staff-page';s.hidden=true;s.setAttribute('role','dialog');s.setAttribute('aria-modal','true');s.setAttribute('aria-labelledby','faTitle');document.body.appendChild(s);
+ s.addEventListener('click',e=>{let b=e.target.closest('button');if(!b)return;let d=b.dataset;
+  if(d.faOffer){let sel=s.querySelector(`[data-fa-years="${d.faOffer}"]`);if(!userFaOffer(d.faOffer,Number(d.mult),Number(sel?.value)))flashFaNote('That offer does not fit under your salary cap.');saveActiveSlot(true);renderFaPage();}
+  else if(d.faMin){if(userFaSignMinimum(d.faMin)){saveActiveSlot(true);renderFaPage();}}
+  else if(d.faPos){faFilter.pos=d.faPos;renderFaPage();}
+  else if(d.faSort){faFilter.sort=d.faSort;renderFaPage();}
+  else if(b.id==='faNeeds'){faFilter.needs=!faFilter.needs;renderFaPage();}
+  else if(b.id==='faClose')closeFaPage();});
+ s.addEventListener('change',e=>{let sel=e.target.closest('[data-fa-years]');if(!sel)return;let id=sel.dataset.faYears,fa=faState();faYearsPick[id]=Number(sel.value);if(fa.offers[id]){userFaOffer(id,fa.offers[id].mult||1,Number(sel.value));saveActiveSlot(true);}renderFaPage();});
+ s.addEventListener('keydown',e=>{if(e.key==='Escape')closeFaPage();});}
+function flashFaNote(t){let n=$('faNote');if(n){n.textContent=t;n.hidden=false;}}
+function renderFaPage(){let fa=faState();if(!fa){closeFaPage();return;}let user=season.userTeam,R=FA_ROUNDS[fa.round-1],cap=capSummary(user),pending=fa.round<3?faPendingTotal():0,needs=faNeedsSet(),positions=['ALL',...Object.keys(ROSTER_COUNTS)];
+ let list=faPool().filter(p=>(faFilter.pos==='ALL'||p.position===faFilter.pos)&&(!faFilter.needs||needs.has(p.position)));
+ list.sort(faFilter.sort==='ask'?(a,b)=>faAsk(b).annual-faAsk(a).annual:faFilter.sort==='age'?(a,b)=>a.age-b.age||b.overall-a.overall:(a,b)=>b.overall-a.overall);
+ let offered=faPool().filter(p=>fa.offers[p.id]),shown=[...offered.filter(p=>list.includes(p)),...list.filter(p=>!fa.offers[p.id])].slice(0,70),rosterN=franchiseRoster(user).filter(p=>!p.retired).length;
+ $('faPage').innerHTML=`<div class="staff-inner"><header class="staff-head"><div><p class="hub-eyebrow">SEASON ${season.year} · FREE AGENCY · ROUND ${fa.round} OF 3</p><h1 id="faTitle">${R.name}</h1></div><button id="faClose" type="button">Back to hub</button></header>
+ <p class="offseason-help">${R.help}</p>
+ <div class="staff-budget"><span>CAP SPACE ${money(cap.space)}${fa.round<3?' · OFFERS OUT '+money(pending)+' · LEFT '+money(cap.space-pending):''}</span><div class="budget-bar"><i style="width:${clamp(pending/Math.max(1,cap.space)*100,0,100)}%"></i></div><small>Roster ${rosterN} / 45 · your team: ${faTeamStatus(user)} · offers must fit under the cap every year of the deal · cuts happen after free agency</small></div>
+ <p id="faNote" class="staff-note" hidden></p>
+ ${faResultsHTML(10)}
+ <section class="staff-market"><header><h2>${faPool().length} FREE AGENTS</h2><nav><button type="button" id="faNeeds" class="${faFilter.needs?'on':''}">MY NEEDS</button>${['ovr','ask','age'].map(k=>`<button type="button" data-fa-sort="${k}" class="${faFilter.sort===k?'on':''}">${k==='ovr'?'OVR':k==='ask'?'PRICE':'YOUNGEST'}</button>`).join('')}</nav></header>
+ <nav class="fa-pos">${positions.map(p=>`<button type="button" data-fa-pos="${p}" class="${faFilter.pos===p?'on':''}">${p}</button>`).join('')}</nav>
+ ${shown.length?shown.map(p=>faRowHTML(p,needs)).join(''):'<p class="offseason-help">No free agents match.</p>'}
+ ${list.length>shown.length?`<p class="offseason-help">Showing the top ${shown.length} of ${list.length}. Filter by position to see more.</p>`:''}</section></div>`;}
+function openFaPage(){if(!faState())return;ensureFaPage();renderFaPage();$('faPage').hidden=false;$('faClose')?.focus();}
+function closeFaPage(){if($('faPage'))$('faPage').hidden=true;if(typeof renderSeasonHub==='function'&&!$('seasonHub').hidden)renderSeasonHub();}
 
 $('finalReturn').onclick=()=>{$('finalDialog').hidden=true;keys.clear();drag=null;if(season)showSeasonHub();else showMainMenu();};$('finalDialog').onkeydown=e=>{if(e.key==='Tab'){e.preventDefault();$('finalReturn').focus();}};initTeamMenu();initSaveMenu();initLineup();initPlayerDetails();initFinances();function frame(t){let dt=Math.min((t-last)/1000,.04);last=t;if(!menuActive){update(dt);recordSeasonFinal();drawWithFx();syncFinalDialog();autosaveTick(dt);}requestAnimationFrame(frame)}requestAnimationFrame(frame);
 </script></html>
