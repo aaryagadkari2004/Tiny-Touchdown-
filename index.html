@@ -848,7 +848,7 @@ function contractIncentiveHold(c,year=season.year){return c&&c.incentiveSettledY
 function contractCapHit(c,year=season.year){return c?c.annualBase+c.annualBonus+contractIncentiveHold(c,year):0;}
 function playerCapHit(p,year=season.year){return contractCapHit(contractForYear(p,year),year);}
 function marketSalary(p){let premium=['QB','EDGE','WR'].includes(p.position),knots=premium?[[60,1.2],[68,2],[76,7],[84,18],[91,35],[97,60],[99,70]]:[[60,1.2],[68,2],[76,5],[84,12],[91,22],[97,35],[99,42]],value=knots[knots.length-1][1];for(let i=1;i<knots.length;i++)if(p.overall<=knots[i][0]){let [a,x]=knots[i-1],[b,y]=knots[i];value=x+(y-x)*clamp((p.overall-a)/(b-a),0,1);break;}if(['K','P'].includes(p.position))value*=.24;let age=p.age>=32?.86:p.age<=26?1.04:1,variation=.94+(financeHash(p.id)%13)/100;return Math.max(750000,dollars(value*1000000*age*variation));}
-function teamIsContender(id){let row=leagueTable()[id],played=row.w+row.l+row.t;return played>=6?pct(row)>=.625:teamRatings(id).ovr>=85;}
+function teamIsContender(id){let row=leagueTable()[id],played=row.w+row.l+row.t;return played>=6?pct(row)>=.625:teamRatings(id).ovr>=86;}
 function assignFinancePersonality(p,records){if(p.financePersonality)return p.financePersonality;let stars=[...records].filter(q=>!q.retired&&!['K','P'].includes(q.position)).sort((a,b)=>b.overall-a.overall||a.id.localeCompare(b.id)).slice(0,3);p.financePersonality=stars.includes(p)?'cornerstone':financeHash(p.id)%3===0?'mercenary':'team';return p.financePersonality;}
 function incentiveDescription(p){return p.position==='QB'?'2,500 passing yards or 20 total TD':p.position==='RB'?'800 scrimmage yards':p.position==='WR'?'800 receiving yards':p.position==='TE'?'500 receiving yards':p.position==='OL'?'150 successful blocks':p.position==='K'?'20 made field goals':p.position==='P'?'1,000 punting yards':'50 tackles, 8 sacks, or 4 interceptions';}
 function earnedIncentive(p,c){if(!contractIncentiveHold(c))return 0;let s=seasonStatsFor(p),n=k=>s[k]||0,met=p.position==='QB'?n('passingYards')>=2500||n('passingTouchdowns')+n('touchdowns')>=20:p.position==='RB'?n('rushingYards')+n('receivingYards')>=800:p.position==='WR'?n('receivingYards')>=800:p.position==='TE'?n('receivingYards')>=500:p.position==='OL'?n('blockWins')>=150:p.position==='K'?n('fieldGoalsMade')>=20:p.position==='P'?n('puntYards')>=1000:n('tackles')>=50||n('sacks')>=8||n('interceptions')>=4;return met?c.incentive:0;}
@@ -951,13 +951,13 @@ function generateTierRoster(records,tierKey,rng=Math.random){
 }
 function buildNewSaveDraft(){let previous=leagueRosters;try{
  leagueRosters={};const assignments=shuffled(Object.entries(TEAM_QUALITY_TIERS).flatMap(([key,tier])=>Array(tier.count).fill(key))),tiers={};
- for(const [i,team]of TEAM_DEFINITIONS.entries()){tiers[team.id]=assignments[i];generateTierRoster(franchiseRoster(team.id),assignments[i]);}
+ for(const [i,team]of TEAM_DEFINITIONS.entries()){tiers[team.id]=assignments[i];generateTierRoster(franchiseRoster(team.id),assignments[i]);calibrateTeamOvr(team.id,assignments[i]);}
  ensureLeagueDevelopment(null);return{rosters:leagueRosters,generation:{version:2,tiers}};
  }finally{leagueRosters=previous;}}
 function withDraftRoster(fn){let previous=leagueRosters;leagueRosters=newSaveDraft.rosters;try{return fn();}finally{leagueRosters=previous;}}
 function beginNewSlot(slot){if(slot<0||slot>2||readSlot(slot))return false;pendingNewSlot=slot;newSaveDraft=buildNewSaveDraft();selectedDraftTeam=matchTeams[0].id;$('saveSlots').hidden=true;$('newSaveSetup').hidden=false;$('mainMenu').classList.add('choosing-team');$('newSaveHeading').textContent='CHOOSE YOUR TEAM / SAVE '+(slot+1);$('teamSelectGrid').innerHTML=TEAM_DEFINITIONS.map(t=>`<button type="button" class="team-choice" id="draftTeam${t.id}" aria-label="${t.name}" aria-pressed="false">${teamLogoSVG(t,46)}<span>${t.abbr}</span></button>`).join('');for(let t of TEAM_DEFINITIONS){let button=$('draftTeam'+t.id);button.onclick=()=>selectDraftTeam(t.id);button.onkeydown=e=>{let offset={ArrowRight:1,ArrowLeft:-1,ArrowDown:4,ArrowUp:-4}[e.key];if(offset){e.preventDefault();let id=(t.id+offset+32)%32;selectDraftTeam(id);$('draftTeam'+id).focus();}};}previewNewSlot();return true;}
 function selectDraftTeam(id){if(!newSaveDraft||!TEAM_DEFINITIONS[id])return;selectedDraftTeam=id;previewNewSlot();}
-function previewNewSlot(){if(!newSaveDraft)return;withDraftRoster(()=>{let team=TEAM_DEFINITIONS[selectedDraftTeam],records=franchiseRoster(team.id),stars=[...records].sort((a,b)=>b.overall-a.overall||a.id.localeCompare(b.id)).slice(0,5),counts=Object.fromEntries(DEVELOPMENT_TIERS.map(t=>[t.name,records.filter(p=>developmentTier(p).name===t.name).length]));for(let t of TEAM_DEFINITIONS)$('draftTeam'+t.id).setAttribute('aria-pressed',String(t.id===team.id));$('teamSelectPreview').innerHTML=`<div class="select-team-header">${teamLogoSVG(team,80)}<div><p>${team.city.toUpperCase()} / ${team.division} · ${TEAM_QUALITY_TIERS[newSaveDraft.generation.tiers[team.id]].label}</p><h3>${team.mascot.toUpperCase()}</h3></div><div class="select-ovr"><strong>${teamRatings(team.id).ovr}</strong>OVR</div></div><h4 class="select-section-label">TOP FIVE PLAYERS</h4><div class="select-stars">${stars.map(p=>`<article class="select-player"><div class="select-portrait ${developmentClass(p)}">${portraitSVG(p,team)}<strong>${p.overall}</strong></div><p>${p.name}</p><small>${p.edgePosition||p.safetyPosition||p.linePosition||p.position}</small><small>${developmentTier(p).name}</small></article>`).join('')}</div>${draftCapHTML(team)}<h4 class="select-section-label">ROSTER DEVELOPMENT</h4><div class="select-development">${DEVELOPMENT_TIERS.map(t=>`<div class="select-tier"><strong>${counts[t.name]}</strong><span>${t.name.toUpperCase()}</span></div>`).join('')}</div>`;$('createSave').disabled=false;$('createSave').textContent='Choose '+team.mascot;});}
+function previewNewSlot(){if(!newSaveDraft)return;withDraftRoster(()=>{let team=TEAM_DEFINITIONS[selectedDraftTeam],records=franchiseRoster(team.id),stars=[...records].sort((a,b)=>b.overall-a.overall||a.id.localeCompare(b.id)).slice(0,5),counts=Object.fromEntries(DEVELOPMENT_TIERS.map(t=>[t.name,records.filter(p=>developmentTier(p).name===t.name).length]));for(let t of TEAM_DEFINITIONS)$('draftTeam'+t.id).setAttribute('aria-pressed',String(t.id===team.id));$('teamSelectPreview').innerHTML=`<div class="select-team-header">${teamLogoSVG(team,80)}<div><p>${team.city.toUpperCase()} / ${team.division} · ${expectationTag(teamRatings(team.id).ovr).toUpperCase()} · ${EXPECTATION_TEXT[expectationTag(teamRatings(team.id).ovr)].replace('Expectation: ','')}</p><h3>${team.mascot.toUpperCase()}</h3></div><div class="select-ovr"><strong>${teamRatings(team.id).ovr}</strong>OVR</div></div><h4 class="select-section-label">TOP FIVE PLAYERS</h4><div class="select-stars">${stars.map(p=>`<article class="select-player"><div class="select-portrait ${developmentClass(p)}">${portraitSVG(p,team)}<strong>${p.overall}</strong></div><p>${p.name}</p><small>${p.edgePosition||p.safetyPosition||p.linePosition||p.position}</small><small>${developmentTier(p).name}</small></article>`).join('')}</div>${draftCapHTML(team)}<h4 class="select-section-label">ROSTER DEVELOPMENT</h4><div class="select-development">${DEVELOPMENT_TIERS.map(t=>`<div class="select-tier"><strong>${counts[t.name]}</strong><span>${t.name.toUpperCase()}</span></div>`).join('')}</div>`;$('createSave').disabled=false;$('createSave').textContent='Choose '+team.mascot;});}
 function createNewSlot(){let slot=pendingNewSlot,team=TEAM_DEFINITIONS[selectedDraftTeam];if(slot<0||slot>2||readSlot(slot)||!team||!newSaveDraft)return false;let generation=newSaveDraft.generation;leagueRosters=newSaveDraft.rosters;newSaveDraft=null;$('mainMenu').classList.remove('choosing-team');activeSlot=slot;pendingNewSlot=-1;g=undefined;roster=undefined;players=[];carrier=selected=ball=looseBall=kickState=contact=celebration=null;playMenu=false;choices=[];season=newSeason(team.id);season.generation=generation;ensureLeagueFinances();cpuSetDepthCharts();seedInitialFreeAgents();let match=seasonGame();matchTeams=[team,TEAM_DEFINITIONS[match.home===team.id?match.away:match.home]];names.splice(0,2,...matchTeams.map(t=>t.mascot.toUpperCase()));colors.splice(0,2,...matchTeams.map(t=>t.primary));showSeasonHub();return true;}
 function deleteSlot(slot){if(slot<0||slot>2||!readSlot(slot))return false;if(!confirm('Delete Save '+(slot+1)+'? Its saved players and game progress will be removed.'))return false;try{window.localStorage.removeItem(SAVE_KEY+slot);if(activeSlot===slot){activeSlot=-1;leagueRosters={};season=null;}storageError='';renderSaveMenu();return true;}catch(e){storageError='Save could not be deleted.';renderSaveMenu();return false;}}
 function autosaveTick(dt){if(practiceMode)return;if(menuActive||activeSlot<0)return;saveElapsed+=dt;if(saveElapsed>=3||g.phase!==lastSavedPhase)saveActiveSlot(true);}
@@ -992,11 +992,6 @@ function coreRatingSlots(records){
  for(const role of ['LEDGE','REDGE'])slots[role]=pick('EDGE',0,'edgePosition',role);
  for(const role of ['FS','SS'])slots[role]=pick('S',0,'safetyPosition',role);
  return slots;
-}
-function rosterTeamRatings(records){
- const slots=coreRatingSlots(records),grade=weights=>Object.entries(weights).reduce((total,[slot,weight])=>total+(slots[slot]?.overall||0)*weight,0);
- const off=grade(CORE_OVR_WEIGHTS.offense),def=grade(CORE_OVR_WEIGHTS.defense),st=grade(CORE_OVR_WEIGHTS.special),total=off*.45+def*.45+st*.10;
- return{off:Math.round(off),def:Math.round(def),st:Math.round(st),ovr:Math.min(slots.K?.overall===99&&slots.P?.overall===99?99:98,Math.round(total)),groups:Object.fromEntries(Object.entries(slots).map(([slot,p])=>[slot,p?.overall||0])),raw:{off,def,st,ovr:total}};
 }
 function teamRatings(id){return rosterTeamRatings(franchiseRoster(id));}
 function seededRanks(){let ranks={};for(let division=0;division<8;division++){let ids=Array.from({length:4},(_,i)=>division*4+i).sort((a,b)=>teamRatings(b).ovr-teamRatings(a).ovr||a-b);ids.forEach((id,i)=>ranks[id]=i);}return ranks;}
@@ -2216,7 +2211,7 @@ function rosterSchemeFits(teamId,role,scheme){let starters=startingRoster([...fr
 function bestSchemeFor(teamId,role){let list=Object.keys(role==='OC'?OFF_SCHEMES:DEF_SCHEMES);return list.map(s=>({s,f:rosterSchemeFits(teamId,role,s).fits+Math.random()*1.5})).sort((a,b)=>b.f-a.f)[0].s;}
 function teamStrengthRank(){let order=TEAM_DEFINITIONS.map(t=>({id:t.id,ovr:teamRatings(t.id).ovr})).sort((a,b)=>b.ovr-a.ovr);return Object.fromEntries(order.map((r,i)=>[r.id,i+1]));}
 // Contender / Neutral / Rebuilding, decided from preseason team strength (top 10 / middle / bottom 10).
-function ensureCoachStatus(){let c=coachState();if(!c||c.status?.year===season.year)return;let rank=teamStrengthRank();c.status={year:season.year,teams:Object.fromEntries(TEAM_DEFINITIONS.map(t=>[t.id,rank[t.id]<=10?'Contender':rank[t.id]>=23?'Rebuilding':'Neutral']))};}
+function ensureCoachStatus(){let c=coachState();if(!c||c.status?.year===season.year)return;let rank=teamStrengthRank();c.status={year:season.year,teams:Object.fromEntries(TEAM_DEFINITIONS.map(t=>[t.id,expectationTag(teamRatings(t.id).ovr)]))};}
 function teamCoachStatus(id){ensureCoachStatus();return coachState()?.status?.teams?.[id]||'Neutral';}
 function ensureCoaches(){if(!season)return null;let c=season.coaches??={version:1,teams:{},market:[],inSeason:[],offers:{},dead:{},log:[],serial:0};
  let rank=null;for(let t of TEAM_DEFINITIONS){let staff=c.teams[t.id]??={};for(let role of ["OC","DC"])if(staff[role]===undefined){rank??=teamStrengthRank();let bias=rank[t.id]<=8?.6:rank[t.id]>=25?-.5:0;staff[role]=makeCoach(role,rollStars(bias),{scheme:bestSchemeFor(t.id,role)});}}
@@ -2300,7 +2295,7 @@ function coachAdjustedRatings(id){let r={...teamRatings(id)};if(!season)return r
 function seasonOutcome(id){let rows=leagueTable(),row=rows[id],ps=season.postseason,playoffs=!!ps?.rounds?.some(r=>r.games.some(m=>m.home===id||m.away===id)),champ=ps?.champion===id,pfRank=[...rows].sort((a,b)=>b.pf-a.pf).findIndex(r=>r.id===id)+1,paRank=[...rows].sort((a,b)=>a.pa-b.pa).findIndex(r=>r.id===id)+1;return{w:row.w,l:row.l,playoffs,champ,pfRank,paRank};}
 function starChange(status,o){if(status==='Contender'){if(o.champ)return{d:1,why:'won the title'};if(!o.playoffs)return{d:-1,why:'contender missed the playoffs',heavy:true};return{d:0,why:'contender made the playoffs'};}
  if(status==='Rebuilding'){if(o.w>=9)return{d:2,why:'rebuilding team won '+o.w};return{d:0,why:o.w<=3?'expected rebuilding year':'steady rebuild'};}
- if(o.playoffs)return{d:1,why:'made the playoffs'};if(o.w<=2)return{d:-1,why:'disaster season',heavy:true};return{d:0,why:'average season'};}
+ if(o.playoffs)return{d:1,why:'made the playoffs'};if(o.w<=4)return{d:-1,why:'disaster season'};return{d:0,why:'average season'};}
 function endSeasonCoaches(){let c=ensureCoaches();if(!c)return null;let report=[];
  for(let t of TEAM_DEFINITIONS){let status=teamCoachStatus(t.id),o=seasonOutcome(t.id),ch=starChange(status,o);
   for(let role of ['OC','DC']){let coach=c.teams[t.id][role];if(!coach)continue;let unitRank=role==='OC'?o.pfRank:o.paRank,d=ch.d;if(d<0&&ch.heavy&&unitRank>22)d=-2;if(d===2&&unitRank>16)d=1;let from=coach.stars;coach.stars=clamp(coach.stars+d,1,5);coach.age++;coach.history.push({year:season.year,teamId:t.id,from,to:coach.stars,why:ch.why,record:o.w+'-'+o.l});
@@ -2527,8 +2522,9 @@ function inSeasonAsk(p){let a=faBaseAsk(p);a.annual=Math.max(MINIMUM_SALARY,doll
 function faPool(){return (season.freeAgents||[]).filter(p=>p&&!p.retired);}
 function startFreeAgency(){let o=season.offseason;o.fa={round:1,asks:{},offers:{},results:[],log:{signed:0,userSigned:0,minimum:0},lastRound:null};for(let p of faPool()){faAsk(p);faPatience(p);}}
 // ----- Team side -----
+// Contender if the team made the playoffs last year; otherwise its expectation tag from Team OVR.
 function faTeamStatus(id){let last=season.history?.at(-1),ps=last?.postseason,made=!!ps?.rounds?.some(r=>r.games.some(m=>m.home===id||m.away===id)),rec=last?.records?.[id];
- if(made)return 'Contender';let coach=typeof teamCoachStatus==='function'?teamCoachStatus(id):'Neutral';if(coach==='Rebuilding'||rec&&rec.w<=5)return 'Rebuilding';return 'Neutral';}
+ if(made)return 'Contender';return expectationTag(teamRatings(id).ovr);}
 function faWouldStart(p,id){let records=franchiseRoster(id).filter(q=>!q.retired),starters=startingRoster([...records]).filter(q=>depthGroupKey(q)===depthGroupKey(p));if(!starters.length)return true;let need=p.position==='OL'||p.position==='EDGE'||p.position==='S'?1:(STARTER_COUNTS[p.position]||1);return starters.length<need||p.overall>Math.min(...starters.map(q=>q.overall));}
 function faContract(p,annual,years){return{id:'fa-'+season.year+'-'+p.id+'-'+Math.round(annual/1000),startYear:season.year,years,annualBase:annual,annualBonus:0,totalBonus:0,incentive:0,personality:'freeAgent'};}
 // Interest Score = contract value match + team tier fit + role + coach/scheme bonus.
@@ -2703,6 +2699,31 @@ function draftCapHTML(team){let c=draftCapPreview(team.id),pct=c.payroll/LEAGUE_
  return `<h4 class="select-section-label">SALARY CAP</h4><div class="select-cap"><div><span>CAP SPACE</span><strong>${money(c.space)}</strong><small>${c.rank<=8?'Among the most room in the league':c.rank>=25?'One of the tightest caps in the league':'Middle of the league'}</small></div>
  <div class="select-cap-bar" aria-hidden="true"><i style="width:${pct.toFixed(1)}%"></i><b style="width:${(c.reserve/LEAGUE_SALARY_CAP*100).toFixed(1)}%"></b></div>
  <small>${money(c.payroll)} payroll · ${money(c.reserve)} rookie reserve (pick #${c.slot}) · ${money(LEAGUE_SALARY_CAP)} cap</small></div>`;}
+
+// ===== Team OVR (spec §4) and new-save team generation =====
+// OFF Score = 1.3·QB1 + Σ(10 other offensive starters) + 0.4·Σ(3 offensive key depth)   → OFF OVR = round(score / 12.5)
+// DEF Score = Σ(11 defensive starters) + 0.4·Σ(3 defensive key depth)                  → DEF OVR = round(score / 12.2)
+// TEAM OVR  = round(0.475·OFF + 0.475·DEF + 0.05·K)
+// Starters follow the depth chart (QB, RB, 3 WR, TE, 5 OL / 2 DT, 2 EDGE, 2 LB, MLB, 2 CB, 2 S).
+// Key depth = the next player in line at the spots that rotate most: WR4, RB2, TE2 on offense; CB3, DT3, EDGE3 on defense.
+const OFF_KEY_DEPTH=[['WR',3],['RB',1],['TE',1]],DEF_KEY_DEPTH=[['CB',2],['DT',2],['EDGE',2]];
+function teamOvrParts(records){let active=orderRosterDepth([...records]).filter(p=>!p.retired),starters=startingRoster([...records]),at=(pos,i)=>active.filter(p=>p.position===pos)[i],ovr=p=>p?.overall||0;
+ let offStart=starters.filter(p=>['QB','RB','WR','TE','OL'].includes(p.position)),defStart=starters.filter(p=>['DT','EDGE','LB','MLB','CB','S'].includes(p.position)),qb=offStart.find(p=>p.position==='QB');
+ let offScore=1.3*ovr(qb)+offStart.filter(p=>p!==qb).reduce((n,p)=>n+ovr(p),0)+.4*OFF_KEY_DEPTH.reduce((n,[pos,i])=>n+ovr(at(pos,i)),0);
+ let defScore=defStart.reduce((n,p)=>n+ovr(p),0)+.4*DEF_KEY_DEPTH.reduce((n,[pos,i])=>n+ovr(at(pos,i)),0),k=ovr(at('K',0));
+ let off=offScore/12.5,def=defScore/12.2,total=.475*Math.round(off)+.475*Math.round(def)+.05*k;
+ return{off,def,k,total,offStarters:offStart.length,defStarters:defStart.length};}
+function rosterTeamRatings(records){let slots=coreRatingSlots(records),t=teamOvrParts(records);
+ return{off:Math.round(t.off),def:Math.round(t.def),st:t.k,ovr:Math.round(t.total),groups:Object.fromEntries(Object.entries(slots).map(([slot,p])=>[slot,p?.overall||0])),raw:{off:t.off,def:t.def,st:t.k,ovr:t.total}};}
+// Pre-season expectation tags (§4).
+function expectationTag(ovr){return ovr>=86?'Contender':ovr>=79?'Neutral':'Rebuilding';}
+const EXPECTATION_TEXT={Contender:'Expectation: playoffs / TT Bowl',Neutral:'Expectation: compete for a wildcard',Rebuilding:'Expectation: develop young players'};
+// New saves: each generated roster is tuned until its Team OVR lands inside its tier's band, so the labels are true.
+const GENERATION_BANDS={elite:[86,90],mid:[79,85],rebuilding:[71,78]};
+function calibrateTeamOvr(teamId,tierKey,rng=Math.random){let band=GENERATION_BANDS[tierKey]||[79,85],target=band[0]+Math.floor(rng()*(band[1]-band[0]+1)),records=franchiseRoster(teamId);
+ for(let i=0;i<10;i++){let now=rosterTeamRatings(records).ovr,d=target-now;if(!d)break;let step=Math.sign(d)*Math.max(1,Math.round(Math.abs(d)*.9));
+  for(let p of records){if(p.retired||p.position==='P')continue;try{fitPlayerOverall(p,clamp(p.overall+step,40,99));}catch(e){}}}
+ orderRosterDepth(records);return{target,ovr:rosterTeamRatings(records).ovr};}
 
 $('finalReturn').onclick=()=>{$('finalDialog').hidden=true;keys.clear();drag=null;if(season)showSeasonHub();else showMainMenu();};$('finalDialog').onkeydown=e=>{if(e.key==='Tab'){e.preventDefault();$('finalReturn').focus();}};initTeamMenu();initSaveMenu();initLineup();initPlayerDetails();initFinances();function frame(t){let dt=Math.min((t-last)/1000,.04);last=t;if(!menuActive){update(dt);recordSeasonFinal();drawWithFx();syncFinalDialog();autosaveTick(dt);}requestAnimationFrame(frame)}requestAnimationFrame(frame);
 </script></html>
