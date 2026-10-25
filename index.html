@@ -834,7 +834,7 @@ $('timeout').onclick=()=>g.phase==='timeout'?resumeTimeout():callTimeout(0);$('x
 // Browser saves encode references explicitly so blockers, assignments, ball targets and roster records reconnect on load.
 // Money is stored as integer dollars. Display rounding never changes the ledger.
 const LEAGUE_SALARY_CAP=300000000;
-const ROOKIE_CONTRACTS={1:{years:4,annualBase:8000000},2:{years:3,annualBase:4000000},3:{years:2,annualBase:2000000}};
+const ROOKIE_CONTRACTS={1:{years:4,annualBase:8000000},2:{years:3,annualBase:4000000},3:{years:2,annualBase:2000000},4:{years:2,annualBase:1200000},5:{years:2,annualBase:900000}};
 const CONTRACT_PERSONALITIES={cornerstone:'The Franchise Cornerstone',mercenary:'The Mercenary',team:'The Team Player'};
 let financePlayerId=null,pendingFinanceAction=null,financeReturn='hub';
 function money(n,signed=false){return (n<0?'−':signed&&n>0?'+':'')+'$'+(Math.abs(n)/1000000).toFixed(2)+'M';}
@@ -853,7 +853,7 @@ function assignFinancePersonality(p,records){if(p.financePersonality)return p.fi
 function incentiveDescription(p){return p.position==='QB'?'2,500 passing yards or 20 total TD':p.position==='RB'?'800 scrimmage yards':p.position==='WR'?'800 receiving yards':p.position==='TE'?'500 receiving yards':p.position==='OL'?'150 successful blocks':p.position==='K'?'20 made field goals':p.position==='P'?'1,000 punting yards':'50 tackles, 8 sacks, or 4 interceptions';}
 function earnedIncentive(p,c){if(!contractIncentiveHold(c))return 0;let s=seasonStatsFor(p),n=k=>s[k]||0,met=p.position==='QB'?n('passingYards')>=2500||n('passingTouchdowns')+n('touchdowns')>=20:p.position==='RB'?n('rushingYards')+n('receivingYards')>=800:p.position==='WR'?n('receivingYards')>=800:p.position==='TE'?n('receivingYards')>=500:p.position==='OL'?n('blockWins')>=150:p.position==='K'?n('fieldGoalsMade')>=20:p.position==='P'?n('puntYards')>=1000:n('tackles')>=50||n('sacks')>=8||n('interceptions')>=4;return met?c.incentive:0;}
 function projectedDraftOrder(){let rows=leagueTable(),ps=season.postseason,tier=id=>{if(ps?.champion===id)return 5;let sb=ps?.rounds[3]?.games[0];if(sb?.result&&(sb.home===id||sb.away===id))return 4;for(let i=2;i>=0;i--)if(ps?.rounds[i]?.games.some(m=>m.result&&(m.home===id||m.away===id)))return i+1;return 0;};return rows.sort((a,b)=>tier(a.id)-tier(b.id)||pct(a)-pct(b)||(a.pf-a.pa)-(b.pf-b.pa)||teamRatings(a.id).ovr-teamRatings(b.id).ovr||a.id-b.id).map(r=>r.id);}
-function rookiePicksFor(id,slot,year){let buffer=dollars(2000000*(33-slot)/32);return [1,2,3].map(round=>({id:'draft-'+year+'-'+id+'-'+round,round,slot,overallPick:(round-1)*32+slot,years:ROOKIE_CONTRACTS[round].years,annualBase:ROOKIE_CONTRACTS[round].annualBase,reserve:ROOKIE_CONTRACTS[round].annualBase+(round===1?buffer:0),signedPlayerId:null}));}
+function rookiePicksFor(id,slot,year){let buffer=dollars(2000000*(33-slot)/32);return [1,2,3,4,5].map(round=>({id:'draft-'+year+'-'+id+'-'+round,round,slot,overallPick:(round-1)*32+slot,years:ROOKIE_CONTRACTS[round].years,annualBase:ROOKIE_CONTRACTS[round].annualBase,reserve:ROOKIE_CONTRACTS[round].annualBase+(round===1?buffer:0),signedPlayerId:null}));}
 function ensureLeagueFinances(){if(!season)return null;if(!season.finances){season.finances={version:1,teams:{}};let order=projectedDraftOrder();for(let t of TEAM_DEFINITIONS){let slot=order.indexOf(t.id)+1;season.finances.teams[t.id]={rollover:0,penalties:[],draftSlot:slot,picks:rookiePicksFor(t.id,slot,season.year),closed:null,initialized:false};}}
  for(let t of TEAM_DEFINITIONS){let ledger=season.finances.teams[t.id];if(ledger.initialized)continue;let records=franchiseRoster(t.id).filter(p=>!p.retired),first=new Set(startingRoster([...records])),target=220000000+clamp(teamRatings(t.id).ovr-72,0,20)*2800000,weights=records.map(p=>marketSalary(p)*(first.has(p)?1:.28)),sum=weights.reduce((a,b)=>a+b,0),floor=750000;for(let [i,p]of records.entries()){let personality=assignFinancePersonality(p,records),hit=dollars(floor+(target-floor*records.length)*weights[i]/Math.max(1,sum)),years=initialContractYears(p,personality),annualBonus=personality==='mercenary'?0:dollars(hit*(personality==='cornerstone'?.40:.15)),incentive=personality==='team'?dollars(hit*.12):0;p.contract={id:'initial-'+season.year+'-'+p.id,startYear:season.year,years,annualBase:hit-annualBonus-incentive,annualBonus,totalBonus:annualBonus*years,incentive,personality,initial:true};p.extension=null;}ledger.initialized=true;}
  migrateInitialContractYears();return season.finances;}
@@ -1294,8 +1294,8 @@ initHubLayout();
 // ===== Offseason: re-signing, CPU roster management and the free-agent pool =====
 // The offseason runs at the start of the new league year (after the history push and cap rollover),
 // so every cap check, cut and signing already uses the new season's books.
-// Stages marked `soon` are placeholders (the draft); they are skipped for now.
-const OFFSEASON_STAGES=[{id:'staff',label:'STAFF WEEK'},{id:'resign',label:'RE-SIGNING'},{id:'fa',label:'FREE AGENCY'},{id:'draft',label:'DRAFT',soon:true},{id:'cuts',label:'FINAL CUTS'}];
+// Stages: staff week → re-signing → free agency (3 rounds) → draft (5 rounds) → final cuts.
+const OFFSEASON_STAGES=[{id:'staff',label:'STAFF WEEK'},{id:'resign',label:'RE-SIGNING'},{id:'fa',label:'FREE AGENCY'},{id:'draft',label:'DRAFT'},{id:'cuts',label:'FINAL CUTS'}];
 const MINIMUM_SALARY=750000,CPU_CAP_BUFFER=3000000,FREE_AGENT_POOL_LIMIT=200;
 const DEPTH_ROLE_KEYS={OL:['linePosition',['LT','LG','C','RG','RT']],EDGE:['edgePosition',['REDGE','LEDGE']],S:['safetyPosition',['FS','SS']]};
 function playerSlotLabel(p){return p.edgePosition||p.safetyPosition||p.linePosition||p.position;}
@@ -1378,6 +1378,7 @@ function advanceOffseason(){let o=season?.offseason;if(!o||season.activeGame)ret
   for(let t of TEAM_DEFINITIONS)if(t.id!==user){cpuTrimToLimits(t.id,o.log);cpuFixCap(t.id,o.log);}
   o.userAdded=[];o.stage='fa';startFreeAgency();saveActiveSlot(true);showSeasonHub(false);return true;}
  if(o.stage==='fa')return advanceFreeAgency();
+ if(o.stage==='draft')return advanceDraft();
  if(o.stage==='cuts'){if(offseasonBlockers().length){renderSeasonHub();return false;}trimFreeAgentPool();season.offseason=null;if(typeof cpuSetDepthCharts==='function')cpuSetDepthCharts();saveActiveSlot(true);showSeasonHub(false);return true;}
  return false;}
 
@@ -1398,15 +1399,17 @@ function renderOffseasonHub(){let node=$('hubOffseason'),o=season.offseason;node
  else if(o.stage==='resign'){let rows=o.expiring.map(id=>records.find(p=>p.id===id)).filter(p=>p&&!p.retired);
   body=`${staffResultsHTML()}<h2>EXPIRING CONTRACTS</h2><p class="offseason-help">Players never refuse to negotiate, but many ask for more than their market value. Anyone still unsigned when you finish re-signing enters free agency.</p>${campReportHTML(o)}${rows.length?`<div class="resign-list">${rows.map(p=>resignRow(p,team)).join('')}</div>`:'<p class="offseason-help">No contracts expired this offseason.</p>'}<p class="offseason-league">League: CPU teams re-signed ${o.log.resigned} players · ${o.log.departed} entered free agency.</p>`;}
  else if(o.stage==='fa')body=faBoardHTML();
+ else if(o.stage==='draft')body=draftBoardHTML();
  else{let blockers=offseasonBlockers(),list=(items,empty)=>items.length?`<ul class="offseason-list">${items.map(x=>`<li>${x.name} · ${x.position} · ${x.overall} OVR</li>`).join('')}</ul>`:`<p class="offseason-help">${empty}</p>`;
-  body=`<h2>FINAL CUTS</h2><p class="offseason-help">The draft is not built yet. Any required lineup spot still empty after free agency was filled with a replacement-level player on a ${money(MINIMUM_SALARY)} one-year deal. Review your lineup and contracts before the season starts.</p><div class="offseason-columns"><section><h3>LEFT IN FREE AGENCY</h3>${list(o.departures,'Nobody left your team.')}</section><section><h3>ADDED THIS OFFSEASON</h3>${list(o.userAdded,'Nobody was added.')}</section></div>${openRosterSpots(user)?`<p class="offseason-help">${openRosterSpots(user)} open roster spot${openRosterSpots(user)===1?'':'s'} below the usual 45. <button id="fillDepth" type="button">Fill depth with replacement players</button></p>`:''}<p class="offseason-league">League: ${o.log.resigned} re-signed · ${o.log.departed} left in free agency · ${o.log.capCuts} cap casualties · ${o.log.limitCuts} roster cuts · ${o.log.filled} signings · ${(season.freeAgents||[]).length} players in the free-agent pool.</p>${blockers.length?`<div class="offseason-blockers"><h3>BEFORE YOU START THE SEASON</h3><ul>${blockers.map(b=>`<li>${b}</li>`).join('')}</ul></div>`:''}`;}
+  body=`<h2>FINAL CUTS</h2><p class="offseason-help">Any required lineup spot still empty after free agency and the draft was filled with a replacement-level player on a ${money(MINIMUM_SALARY)} one-year deal. Review your lineup and contracts before the season starts.</p><div class="offseason-columns"><section><h3>LEFT IN FREE AGENCY</h3>${list(o.departures,'Nobody left your team.')}</section><section><h3>ADDED THIS OFFSEASON</h3>${list(o.userAdded,'Nobody was added.')}</section></div>${openRosterSpots(user)?`<p class="offseason-help">${openRosterSpots(user)} open roster spot${openRosterSpots(user)===1?'':'s'} below the usual 45. <button id="fillDepth" type="button">Fill depth with replacement players</button></p>`:''}<p class="offseason-league">League: ${o.log.resigned} re-signed · ${o.log.departed} left in free agency · ${o.log.capCuts} cap casualties · ${o.log.limitCuts} roster cuts · ${o.log.filled} signings · ${(season.freeAgents||[]).length} players in the free-agent pool.</p>${blockers.length?`<div class="offseason-blockers"><h3>BEFORE YOU START THE SEASON</h3><ul>${blockers.map(b=>`<li>${b}</li>`).join('')}</ul></div>`:''}`;}
  node.innerHTML=`<ol class="offseason-track">${track}</ol><div class="offseason-cap"><span>CAP SPACE · SEASON ${season.year}</span><strong class="${cap.space<0?'cap-negative':''}">${money(cap.space)}</strong><small>Includes ${money(cap.rollover)} rollover · ${money(cap.rookieReserve)} rookie reserve</small></div>${body}`;
  if(o.stage==='staff')bindStaffWeekBoard();
  if(o.stage==='fa')bindFaBoard();
+ if(o.stage==='draft')bindDraftBoard();
  if(o.stage==='resign')for(let id of o.expiring){let b=$('resign-'+id);if(b)b.onclick=()=>openFinances(id,'hub');}
  if(o.stage==='cuts'&&$('fillDepth'))$('fillDepth').onclick=fillUserDepth;
- let blocked=o.stage==='cuts'&&offseasonBlockers().length>0;$('hubAction').textContent=o.stage==='fa'?(o.fa?.round<3?'Finish round '+o.fa.round+' · '+FA_ROUNDS[o.fa.round-1].name.toLowerCase():'Finish free agency'):o.stage==='staff'?'Finish staff week':o.stage==='resign'?'Finish re-signing':'Start season '+season.year;$('hubAction').disabled=blocked;
- $('hubNote').textContent=o.stage==='fa'?(o.fa?.round<3?'Players pick between all offers when the round ends.':'CPU teams sign the leftovers on minimum deals when you finish.'):o.stage==='staff'?'Hire or re-sign coordinators, then finish staff week. CPU teams bid when you do.':o.stage==='resign'?'Re-sign the players you want to keep, then finish re-signing.':blocked?'Fix the items above to start the season.':'Your roster is ready. Week 1 is next.';}
+ let blocked=o.stage==='cuts'&&offseasonBlockers().length>0;$('hubAction').textContent=o.stage==='draft'?(userDraftPicksLeft().length?'Finish draft (auto-pick for me)':'Finish draft'):o.stage==='fa'?(o.fa?.round<3?'Finish round '+o.fa.round+' · '+FA_ROUNDS[o.fa.round-1].name.toLowerCase():'Finish free agency'):o.stage==='staff'?'Finish staff week':o.stage==='resign'?'Finish re-signing':'Start season '+season.year;$('hubAction').disabled=blocked;
+ $('hubNote').textContent=o.stage==='draft'?(userOnClock()?'You are on the clock. Open the draft room to pick.':'Open the draft room to follow the picks.'):o.stage==='fa'?(o.fa?.round<3?'Players pick between all offers when the round ends.':'CPU teams sign the leftovers on minimum deals when you finish.'):o.stage==='staff'?'Hire or re-sign coordinators, then finish staff week. CPU teams bid when you do.':o.stage==='resign'?'Re-sign the players you want to keep, then finish re-signing.':blocked?'Fix the items above to start the season.':'Your roster is ready. Week 1 is next.';}
 
 // ===== Contract negotiation: age limits, player interest, counter-offers =====
 // Term limits by age. QBs, kickers and punters play longer, so they are treated as four years younger.
@@ -2596,7 +2599,7 @@ function faScraps(){let fa=faState(),log=season.offseason.log;for(let t of TEAM_
 function advanceFreeAgency(){let fa=faState(),o=season.offseason;if(!fa)return false;
  if(fa.round<3){resolveFaRound();fa.round++;if(fa.round===2)faMarketCorrection();saveActiveSlot(true);showSeasonHub(false);return true;}
  faScraps();o.userAdded.push(...fillRosterHoles(season.userTeam,{depth:false,usePool:false}).map(({player:p})=>({id:p.id,name:p.name,position:playerSlotLabel(p),overall:p.overall})));
- o.stage='cuts';saveActiveSlot(true);showSeasonHub(false);return true;}
+ o.stage='draft';beginDraft();saveActiveSlot(true);showSeasonHub(false);return true;}
 
 // New leagues: starting contracts run 1-6 years, so roughly a third of the league reaches free agency after year 1.
 function initialContractYears(p,personality){let h=financeHash(p.id);return personality==='cornerstone'?4+h%3:personality==='mercenary'?1+h%2:1+h%4;}
@@ -2750,6 +2753,113 @@ function balanceLeagueAverage(){if(!season)return null;let avg=leagueAverageOvr(
  let order=[...all].sort(down?(a,b)=>Number(starters.has(a))-Number(starters.has(b))||b.age-a.age||b.overall-a.overall:(a,b)=>a.age-b.age||Number(starters.has(a))-Number(starters.has(b))||a.overall-b.overall);
  for(let round=0;round<4&&moved<points;round++)for(let p of order){if(moved>=points)break;if(down?p.overall<=50:p.overall>=95)continue;let before=p.overall;changeOverall(p,down?-1:1,down?'age':'camp');ratePlayer(p);moved+=Math.abs(before-p.overall);}
  for(let t of TEAM_DEFINITIONS)orderRosterDepth(franchiseRoster(t.id));season.leagueBalance={year:season.year,from:+avg.toFixed(2),to:+leagueAverageOvr().toFixed(2)};return{avg,moved};}
+
+// ===== Rookie draft: 5 rounds, generated draft class, CPU need + best-player-available logic =====
+// Order: every round follows last season's draft slots (worst record first, champion last). Picks were already reserved
+// against the cap (rookie reserve); drafting a player turns the reserve into his rookie contract.
+const DRAFT_ROUNDS=5;
+const DRAFT_ROUND_OVR={1:[73,82],2:[68,74],3:[64,70],4:[60,66],5:[55,62]};
+// Hidden progression tier odds by round: Normal, Breakout, Superstar, Gamebreaker, Legend.
+const DRAFT_TIER_ODDS={1:[40,42,15,2.5,.5],2:[60,33,6.5,.5,0],3:[78,19,3,0,0],4:[90,9.5,.5,0,0],5:[96,4,0,0,0]};
+const DRAFT_EXTRA_PER_ROUND=8;   // a few more prospects than picks, so the last pick still has a choice; the rest go undrafted
+const DRAFT_WEIGHTS={1:[.55,.45],2:[.55,.45],3:[.70,.30],4:[.70,.30],5:[.85,.15]};
+function draftState(){return season?.offseason?.draft||null;}
+function draftClass(){return season?.draftClass||[];}
+function rollDraftTier(round){let odds=DRAFT_TIER_ODDS[round],r=Math.random()*100,acc=0;for(let i=0;i<odds.length;i++){acc+=odds[i];if(r<acc)return DEVELOPMENT_TIERS[i].name;}return 'Normal';}
+// generate_draft_class(): 5 rounds of prospects. Position mix follows real roster needs; each prospect gets a position,
+// a random archetype for that position (from the position generators), ratings fit to his round's OVR range, and a hidden tier.
+function generateDraftClass(){let teams=TEAM_DEFINITIONS.length,positions=Object.entries(ROSTER_COUNTS).flatMap(([pos,n])=>Array(n).fill(pos)),out=[],n=0;
+ for(let round=1;round<=DRAFT_ROUNDS;round++)for(let i=0;i<teams+DRAFT_EXTRA_PER_ROUND;i++){let pos=pick(positions),roles=DEPTH_ROLE_KEYS[pos],p=createReplacementPlayer(pos,roles?pick(roles[1]):null),[lo,hi]=DRAFT_ROUND_OVR[round];
+  p.id='rk-'+season.year+'-'+(++n);p.age=roll(21,23);delete p.retirementAge;ensurePlayerAge(p);if(p.age>=p.retirementAge)p.retirementAge=p.age+10;
+  try{fitPlayerOverall(p,roll(lo,hi));}catch(e){ratePlayer(p);}
+  let tier=rollDraftTier(round);if(tier==='Legend'&&!legendEligible(p))tier='Gamebreaker';
+  delete p.replacement;p.developmentTier=tier;p.financePersonality=financeHash(p.id)%4===0?'mercenary':'team';p.careerStats={};p.rookieYear=season.year;p.prospect={round,grade:p.overall};out.push(p);}
+ // Board order: OVR first, projected round as a tiebreak.
+ return out.sort((a,b)=>b.overall-a.overall||a.prospect.round-b.prospect.round);}
+const generate_draft_class=generateDraftClass;
+// Every team owns one pick per round (older saves only reserved rounds 1-3).
+function ensureDraftPicks(){ensureLeagueFinances();for(let t of TEAM_DEFINITIONS){let ledger=season.finances.teams[t.id],full=rookiePicksFor(t.id,ledger.draftSlot,season.year);for(let pk of full)if(!ledger.picks.some(q=>q.round===pk.round))ledger.picks.push(pk);}}
+function buildDraftOrder(){let ledgers=season.finances.teams,teams=TEAM_DEFINITIONS.map(t=>t.id).sort((a,b)=>ledgers[a].draftSlot-ledgers[b].draftSlot||a-b),order=[];
+ for(let round=1;round<=DRAFT_ROUNDS;round++)for(let id of teams){let slot=ledgers[id].draftSlot,pk=ledgers[id].picks.find(q=>q.round===round);if(pk&&!pk.signedPlayerId)order.push({teamId:id,round,slot,overall:order.length+1});}
+ return order;}
+// evaluate_cpu_team_needs(team): 1-10 need per position from the starters (and how many rookies he already took there).
+const DRAFT_POSITIONS=['QB','RB','WR','TE','OL','DT','EDGE','LB','MLB','CB','S','K','P'];
+function evaluateCpuTeamNeeds(teamId,round=1){let records=franchiseRoster(teamId).filter(p=>!p.retired),starters=startingRoster([...records]),taken=draftState()?.picks?.filter(x=>x.teamId===teamId)||[],needs={};
+ for(let pos of DRAFT_POSITIONS){let group=starters.filter(p=>p.position===pos),need;
+  if(!group.length)need=10;
+  else if(pos==='QB'){let qb=group[0];need=qb.overall>=80&&qb.age<30?1:qb.overall<75?10:5;}
+  else{let w=Math.min(...group.map(p=>p.overall));need=w>=82?2:w>=75?5:9;}
+  // Kickers and punters are never worth an early pick.
+  if((pos==='K'||pos==='P')&&round<4)need=Math.min(need,2);
+  // Already drafted someone here? Need drops.
+  let already=taken.filter(x=>x.position===pos).length;if(already)need=Math.max(1,need-4*already);
+  needs[pos]=need;}
+ return needs;}
+const evaluate_cpu_team_needs=evaluateCpuTeamNeeds;
+// Kickers and punters rate high on few attributes; teams treat them as 8 OVR lower before round 4 so they go late.
+function draftSelectionScore(p,needs,round){let [rw,nw]=DRAFT_WEIGHTS[round],ovr=p.overall-((p.position==='K'||p.position==='P')&&round<4?8:0);return ovr*rw+(needs[p.position]||1)*nw;}
+// execute_cpu_draft_pick(team, available, round): best Selection Score = OVR × round weight + need × need weight.
+function executeCpuDraftPick(teamId,available,round){let needs=evaluateCpuTeamNeeds(teamId,round),best=null,bs=-1;
+ for(let p of available){let s=draftSelectionScore(p,needs,round);if(s>bs||s===bs&&best&&(p.overall>best.overall||p.overall===best.overall&&p.age<best.age)){bs=s;best=p;}}
+ return best?makeDraftPick(best):null;}
+const execute_cpu_draft_pick=executeCpuDraftPick;
+// Turns the current pick into a rookie contract (from the reserved pick) and moves the player onto the roster.
+function makeDraftPick(p){let d=draftState(),cur=d?.order[d.index];if(!cur||!p)return null;let cls=season.draftClass,i=cls.indexOf(p);if(i<0)return null;cls.splice(i,1);
+ let ledger=season.finances.teams[cur.teamId],pk=ledger.picks.find(q=>q.round===cur.round&&!q.signedPlayerId),c=rookieContractForPick(cur.round,Math.min(32,cur.slot));
+ if(pk)pk.signedPlayerId=p.id;c.id=pk?.id||'draft-'+season.year+'-'+cur.teamId+'-'+cur.round;p.contract=c;p.extension=null;p.expiredContract=null;franchiseRoster(cur.teamId).push(p);orderRosterDepth(leagueRosters[cur.teamId]);
+ p.drafted={year:season.year,round:cur.round,pick:cur.overall,teamId:cur.teamId};delete p.prospect;
+ let row={overall:cur.overall,round:cur.round,slot:cur.slot,teamId:cur.teamId,id:p.id,name:p.name,position:playerSlotLabel(p),pos:p.position,ovr:p.overall,tier:p.developmentTier,user:cur.teamId===season.userTeam};
+ d.picks.push(row);d.index++;if(cur.teamId===season.userTeam)season.offseason.userAdded.push({id:p.id,name:p.name,position:playerSlotLabel(p),overall:p.overall,drafted:cur.overall});return row;}
+function draftOnClock(){let d=draftState();return d?d.order[d.index]||null:null;}
+function userOnClock(){return draftOnClock()?.teamId===season.userTeam;}
+function beginDraft(){ensureDraftPicks();season.draftClass=generateDraftClass();season.offseason.draft={index:0,order:buildDraftOrder(),picks:[],classSize:season.draftClass.length};simDraft({stopAtUser:true});}
+// CPU teams pick until it's your turn (or everyone, picking for you too, when you finish the draft).
+function simDraft({stopAtUser=true,maxPicks=Infinity}={}){let d=draftState(),n=0;while(d&&d.index<d.order.length&&n<maxPicks){let cur=d.order[d.index];if(stopAtUser&&cur.teamId===season.userTeam)break;if(!season.draftClass.length)break;executeCpuDraftPick(cur.teamId,season.draftClass,cur.round);n++;}return n;}
+function userDraftPick(pid){if(!userOnClock())return null;let p=season.draftClass.find(q=>q.id===pid);if(!p)return null;let row=makeDraftPick(p);simDraft({stopAtUser:true});saveActiveSlot(true);return row;}
+function userAutoPick(){let cur=draftOnClock();if(!cur||cur.teamId!==season.userTeam)return null;let row=executeCpuDraftPick(cur.teamId,season.draftClass,cur.round);simDraft({stopAtUser:true});saveActiveSlot(true);return row;}
+// Finish: remaining picks (yours included) are made by the CPU logic; undrafted prospects become free agents.
+function finishDraft(){let d=draftState();if(!d)return false;simDraft({stopAtUser:false});for(let p of season.draftClass||[]){delete p.prospect;p.freeAgentSince=season.year;p.undrafted=season.year;(season.freeAgents??=[]).push(p);}d.undrafted=(season.draftClass||[]).length;season.draftClass=null;return true;}
+function advanceDraft(){let o=season.offseason;finishDraft();for(let t of TEAM_DEFINITIONS)if(t.id!==season.userTeam){cpuTrimToLimits(t.id,o.log);cpuFixCap(t.id,o.log);cpuTrimTo53(t.id,o.log);}o.stage='cuts';saveActiveSlot(true);showSeasonHub(false);return true;}
+// CPU teams carry at most 53 players into the season: the lowest-rated backups are released.
+const CPU_ROSTER_MAX=53;
+function cpuTrimTo53(id,log){for(let guard=0;guard<20;guard++){let active=franchiseRoster(id).filter(p=>!p.retired);if(active.length<=CPU_ROSTER_MAX)break;let starters=new Set(startingRoster([...active])),cut=active.filter(p=>!starters.has(p)&&canReleaseFromTeam(id,p)).sort((a,b)=>a.overall-b.overall||b.age-a.age)[0];if(!cut)break;releaseToFreeAgency(cut,id,'Roster cut');log.limitCuts++;}}
+
+// ===== Draft UI: offseason board + draft room overlay =====
+let draftFilter={pos:'ALL',needs:false};
+function draftTeamAbbr(id){return TEAM_DEFINITIONS[id]?.abbr||'';}
+function userDraftPicksLeft(){let d=draftState();return d?d.order.slice(d.index).filter(x=>x.teamId===season.userTeam):[];}
+function draftBoardHTML(){let d=draftState();if(!d)return '';let cur=draftOnClock(),mine=d.picks.filter(x=>x.user),left=userDraftPicksLeft();
+ return `<h2>ROOKIE DRAFT · ${DRAFT_ROUNDS} ROUNDS</h2><p class="offseason-help">${d.classSize} prospects. Every team picks once per round in last season's order. Drafted players sign rookie contracts that were already reserved under your cap. Progression tiers are hidden until a player is drafted.</p>
+ <p class="offseason-help">${cur?`<b>${cur.teamId===season.userTeam?'YOU ARE ON THE CLOCK':'ON THE CLOCK: '+draftTeamAbbr(cur.teamId)}</b> · Round ${cur.round}, pick ${cur.overall} of ${d.order.length}`:'The draft is complete.'}${left.length?' · your picks left: '+left.map(x=>'#'+x.overall).join(', '):''}</p>
+ ${mine.length?`<ul class="offseason-list">${mine.map(r=>`<li class="camp-up">R${r.round} #${r.overall} · ${r.name} · ${r.position} · ${r.ovr} OVR · ${r.tier}</li>`).join('')}</ul>`:''}
+ <p><button id="openDraftRoom" type="button">Open draft room</button></p>`;}
+function bindDraftBoard(){let b=$('openDraftRoom');if(b)b.onclick=openDraftPage;}
+function draftRowHTML(p,needs,canPick){let s=typeof schemeFitInfo==='function'?schemeFitInfo(p,season.userTeam):null;
+ return `<article class="market-row fa-row"><span class="role-tag">${playerSlotLabel(p)}</span>
+ <div><strong>${p.name}</strong><span class="fa-ovr">${p.overall}</span><span class="fa-tier">TIER ?</span>${s?.fit?'<span class="fa-fit">FIT</span>':''}${(needs[p.position]||0)>=9?'<span class="fa-need">NEED</span>':''}
+ <small>Age ${p.age} · ${p.archetype||p.position} · projected round ${p.prospect?.round||'-'}</small></div>
+ <div class="ask"><small>ROOKIE DEAL</small><b>${(()=>{let cur=draftOnClock(),c=cur&&rookieContractForPick(cur.round,Math.min(32,cur.slot));return c?money(c.annualBase)+' × '+c.years:'-'})()}</b></div>
+ <button type="button" data-draft-pick="${p.id}" ${canPick?'':'disabled'}>${canPick?'Draft':'Not your pick'}</button></article>`;}
+function ensureDraftPage(){if($('draftPage'))return;let s=document.createElement('section');s.id='draftPage';s.className='staff-page';s.hidden=true;s.setAttribute('role','dialog');s.setAttribute('aria-modal','true');s.setAttribute('aria-labelledby','draftTitle');document.body.appendChild(s);
+ s.addEventListener('click',e=>{let b=e.target.closest('button');if(!b)return;let d=b.dataset;
+  if(d.draftPick){userDraftPick(d.draftPick);renderDraftPage();}
+  else if(d.draftPos){draftFilter.pos=d.draftPos;renderDraftPage();}
+  else if(b.id==='draftNeeds'){draftFilter.needs=!draftFilter.needs;renderDraftPage();}
+  else if(b.id==='draftAuto'){userAutoPick();renderDraftPage();}
+  else if(b.id==='draftFinish'){closeDraftPage();advanceOffseason();}
+  else if(b.id==='draftClose')closeDraftPage();});
+ s.addEventListener('keydown',e=>{if(e.key==='Escape')closeDraftPage();});}
+function renderDraftPage(){let d=draftState();if(!d){closeDraftPage();return;}let user=season.userTeam,cur=draftOnClock(),mine=cur?.teamId===user,needs=evaluateCpuTeamNeeds(user,cur?.round||1),positions=['ALL',...DRAFT_POSITIONS];
+ let list=draftClass().filter(p=>(draftFilter.pos==='ALL'||p.position===draftFilter.pos)&&(!draftFilter.needs||(needs[p.position]||0)>=5)),shown=list.slice(0,80),recent=d.picks.slice(-12).reverse(),left=userDraftPicksLeft();
+ $('draftPage').innerHTML=`<div class="staff-inner"><header class="staff-head"><div><p class="hub-eyebrow">SEASON ${season.year} · ROOKIE DRAFT</p><h1 id="draftTitle">${cur?`ROUND ${cur.round} · PICK ${cur.overall}`:'DRAFT COMPLETE'}</h1></div><button id="draftClose" type="button">Back to hub</button></header>
+ <div class="staff-budget"><span>${cur?(mine?'YOU ARE ON THE CLOCK':'ON THE CLOCK: '+TEAM_DEFINITIONS[cur.teamId].name.toUpperCase()):'ALL PICKS MADE'}</span><small>Your picks left: ${left.length?left.map(x=>'R'+x.round+' #'+x.overall).join(' · '):'none'} · cap space ${money(capSummary(user).space)} (rookie deals come out of the reserve already held) · your needs: ${Object.entries(needs).filter(([,v])=>v>=9).map(([k])=>k).join(', ')||'none urgent'}</small></div>
+ <p class="staff-actions">${mine?'<button id="draftAuto" type="button">Auto-pick for me</button>':''}<button id="draftFinish" type="button">${left.length?'Finish draft (auto-pick the rest for me)':'Finish draft'}</button></p>
+ ${recent.length?`<details class="camp-report" ${mine?'':'open'}><summary>LATEST PICKS</summary><ul class="offseason-list">${recent.map(r=>`<li class="${r.user?'camp-up':''}">#${r.overall} ${draftTeamAbbr(r.teamId)} · ${r.name} · ${r.position} · ${r.ovr} OVR</li>`).join('')}</ul></details>`:''}
+ <section class="staff-market"><header><h2>${draftClass().length} PROSPECTS LEFT</h2><nav><button type="button" id="draftNeeds" class="${draftFilter.needs?'on':''}">MY NEEDS</button></nav></header>
+ <nav class="fa-pos">${positions.map(p=>`<button type="button" data-draft-pos="${p}" class="${draftFilter.pos===p?'on':''}">${p}</button>`).join('')}</nav>
+ ${shown.length?shown.map(p=>draftRowHTML(p,needs,mine)).join(''):'<p class="offseason-help">No prospects match.</p>'}</section></div>`;}
+function openDraftPage(){if(!draftState())return;ensureDraftPage();renderDraftPage();$('draftPage').hidden=false;$('draftClose')?.focus();}
+function closeDraftPage(){if($('draftPage'))$('draftPage').hidden=true;if(typeof renderSeasonHub==='function'&&!$('seasonHub').hidden)renderSeasonHub();}
 
 $('finalReturn').onclick=()=>{$('finalDialog').hidden=true;keys.clear();drag=null;if(season)showSeasonHub();else showMainMenu();};$('finalDialog').onkeydown=e=>{if(e.key==='Tab'){e.preventDefault();$('finalReturn').focus();}};initTeamMenu();initSaveMenu();initLineup();initPlayerDetails();initFinances();function frame(t){let dt=Math.min((t-last)/1000,.04);last=t;if(!menuActive){update(dt);recordSeasonFinal();drawWithFx();syncFinalDialog();autosaveTick(dt);}requestAnimationFrame(frame)}requestAnimationFrame(frame);
 </script></html>
