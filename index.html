@@ -298,6 +298,34 @@ button.player-card{display:block;width:100%;padding:0;text-align:inherit;cursor:
 .reveal-stats span{font:7px TTPixel,monospace;color:#9fb4ad}.reveal-stats b{font:12px TTPixel,monospace;color:#fff0ce}.reveal-stats small{width:100%;font-size:10px;color:#9fc6e8}.reveal-stats .scouted{border-color:#4f8fe0}
 @media(max-width:600px){.reveal-top{grid-template-columns:100px 1fr}.reveal-grade{grid-column:1/-1}}
 .scout-grades .scout-tag{color:#9fc6e8;border-color:#4f8fe0}
+.settings-screen header{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.settings-body{max-width:1000px;margin:18px auto 0}
+.settings-block{background:#12222b;border:3px solid #3b5550;box-shadow:5px 5px 0 #040e13;padding:18px;margin-bottom:18px}
+.settings-block h2{font:14px TTPixel,monospace;color:#e9c975;margin:0 0 6px;letter-spacing:1px}
+.settings-help{font-size:13px;color:#b9cbc4;margin:4px 0 12px;line-height:1.5}
+.settings-empty{font-size:14px;color:#b9cbc4;text-align:center;padding:30px}
+.settings-warn{font-size:12px;color:#f0a58f;margin:6px 0 0}
+.diff-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+.diff-card{display:flex;flex-direction:column;align-items:flex-start;gap:6px;text-align:left;background:#172c35;border:2px solid #3d5c51;color:#d7e2dc;padding:12px 10px;cursor:pointer;min-height:170px}
+.diff-card small{font:8px TTPixel,monospace;color:#9fb4ad;letter-spacing:1px}
+.diff-card strong{font:12px/1.4 TTPixel,monospace;color:#fff0ce}
+.diff-card em{font:normal 12px/1.45 system-ui,sans-serif;color:#b9cbc4}
+.diff-card:hover{border-color:#7a9c8c}
+.diff-card.on{border-color:#e9c975;background:#22362a;box-shadow:inset 0 0 0 2px #e9c97555}
+.diff-card.on strong{color:#e9c975}
+.diff-bars{display:flex;gap:3px}.diff-bars i{width:10px;height:8px;background:#2a4049;border:1px solid #3d5c51}.diff-bars i.f{background:#e9c975;border-color:#e9c975}
+.diff-notes{list-style:none;padding:0;margin:14px 0 0;display:grid;grid-template-columns:1fr 1fr;gap:6px 14px;font-size:12px;color:#c7d6d0}
+.diff-notes li{border-left:3px solid #7ee2a2;padding:3px 8px;background:#0f1d24}
+.setting-row{display:flex;justify-content:space-between;align-items:center;gap:18px}
+.setting-row strong{font:11px TTPixel,monospace;color:#fff0ce}
+.switch{display:flex;align-items:center;gap:10px;min-width:118px;justify-content:space-between;background:#2a1f22;border:2px solid #a8564f;color:#f0a58f;padding:8px 10px;cursor:pointer;flex:none}
+.switch i{width:34px;height:16px;background:#0b161c;border:2px solid currentColor;position:relative}
+.switch i::after{content:'';position:absolute;top:1px;left:1px;width:10px;height:10px;background:currentColor;transition:left .15s}
+.switch.on{background:#1d3b2c;border-color:#7ee2a2;color:#7ee2a2}.switch.on i::after{left:19px}
+.switch span{font:11px TTPixel,monospace}
+.cap-off{color:#7ee2a2!important}
+@media(max-width:900px){.diff-grid{grid-template-columns:repeat(2,1fr)}.diff-notes{grid-template-columns:1fr}}
+@media(max-width:520px){.diff-grid{grid-template-columns:1fr}.diff-card{min-height:0}.setting-row{flex-direction:column;align-items:stretch}}
 </style>
 <main id="financePage" class="finance-page" hidden><header><div id="financeTeam" class="finance-team"></div><button id="financeBack" type="button">Back</button></header><div id="financeContent"><section id="capMetrics" class="cap-metrics" aria-label="Team salary cap"></section><div id="capMeter"></div><p id="financeStatus" aria-live="polite"></p><section id="negotiationPanel" class="finance-section" hidden></section><section class="finance-section"><div class="finance-section-head"><h2>PLAYER CONTRACTS</h2><div class="finance-controls"><label>Sort <select id="financeSort"><option value="capDesc">Highest cap hit</option><option value="capAsc">Lowest cap hit</option><option value="yearsAsc">Shortest remaining</option><option value="yearsDesc">Longest remaining</option><option value="ovr">Highest overall</option></select></label><label>Position <select id="financeFilter"><option value="ALL">All positions</option><option>QB</option><option>RB</option><option>WR</option><option>TE</option><option>OL</option><option>DT</option><option>EDGE</option><option>LB</option><option>MLB</option><option>CB</option><option>S</option><option>K</option><option>P</option></select></label></div></div><div class="finance-table-scroll"><table class="finance-table"><thead><tr><th>Player</th><th>Yearly base</th><th>Yearly bonus</th><th>Current cap hit</th><th>Remaining term</th><th>Bonus still owed</th><th>Actions</th></tr></thead><tbody id="contractRows"></tbody></table></div></section><section class="finance-section"><h2>AUTOMATIC ROOKIE RESERVE</h2><p id="draftReserveNote"></p><div id="draftReserveRows" class="draft-reserve-rows"></div></section><section class="finance-section"><h2>CAP PENALTIES</h2><div class="finance-table-scroll"><table class="finance-table"><thead><tr><th>Player / reason</th><th>Current-year penalty</th></tr></thead><tbody id="capPenaltyRows"></tbody></table></div></section></div></main>
 <div id="signedOverlay" class="signed-overlay" hidden><section role="dialog" aria-modal="true" aria-labelledby="signedStamp"><p class="signed-kicker">CONTRACT AGREED</p><h2 id="signedStamp" class="signed-stamp">SIGNED</h2><div id="signedDetails"></div><button id="signedContinue" class="primary" type="button">Continue</button></section></div><div id="financeDialog" class="finance-dialog" hidden><section role="dialog" aria-modal="true" aria-labelledby="financeDialogTitle"><h2 id="financeDialogTitle"></h2><div id="financeDialogBody"></div><div class="finance-dialog-actions"><button id="financeCancel" type="button">Cancel</button><button id="financeConfirm" class="primary" type="button">Confirm</button></div></section></div>
@@ -1080,7 +1108,7 @@ function renderSeasonHub(){if(!season)return;ensureLeagueFinances();finishSeason
  if(season.week===TRADE_DEADLINE_WEEK+1&&season.cpuExtensionCount>0&&!season.activeGame)$('hubNote').textContent+=' · Trade deadline passed: CPU teams signed '+season.cpuExtensionCount+' extensions.';renderPostseasonHub();renderRosterLimitGate();renderHubFinances();renderOffseasonHub();renderHubChrome();
 }
 function showSeasonHub(save=true){hideFinances();$('playoffPage').hidden=true;$('settingsScreen').hidden=true;settingsReturn=null;if(practiceMode){exitPractice();return;}if(!season)return;closePlayerDetail(false);recordSeasonFinal();menuActive=true;paused=true;drag=null;keys.clear();$('mainMenu').hidden=true;$('gameApp').hidden=true;$('seasonHub').hidden=false;$('lineupPage').hidden=true;renderSeasonHub();if(save)saveActiveSlot(true);}
-function enterSeasonGame(){if(!season)return false;if(season.offseason)return advanceOffseason();if(financeGameBlock()){renderSeasonHub();return false;}if(!season.activeGame&&seasonGame()&&rosterOverages().length){renderSeasonHub();return false;}if(season.activeGame||season.legacyGame){menuActive=false;paused=false;$('seasonHub').hidden=true;$('lineupPage').hidden=true;$('gameApp').hidden=false;$('pause').textContent='Pause · Esc';hud();return true;}if(season.week>=19&&season.week<=23)return enterPostseasonAction();if(season.week>=24){let rows=leagueTable(),ranks={};for(let div=0;div<8;div++)rows.filter(r=>Math.floor(r.id/4)===div).sort(compareStandings).forEach((r,i)=>ranks[r.id]=i);let nextFinances=carryFinancesToYear(season.year+1),pool=season.freeAgents||[],serial=season.playerSerial||0;let coachReport=endSeasonCoaches(),carriedCoaches=season.coaches;let history=season.history.concat({year:season.year,finances:season.finances,records:rows,weeks:season.weeks,playerStats:season.playerStats||{},awards:season.awards||{},developmentChanges:season.developmentChanges||[],postseason:season.postseason||null,playoffStats:season.playoffStats||{},releasedPlayers:season.releasedPlayers||[]});season=newSeason(season.userTeam,season.year+1,ranks,history);season.coaches=carriedCoaches;if(carriedCoaches)carriedCoaches.endReport=coachReport;season.tierModelVersion=TIER_MODEL_VERSION;season.ratingShapeV2=true;season.specialistsV1=true;season.finances=nextFinances;season.playerSerial=serial;beginOffseason(pool);showSeasonHub();return true;}let match=seasonGame();if(!match){settleWeek();showSeasonHub();return true;}if(!matchHasFullLineups(match)){renderSeasonHub();return false;}matchTeams=[TEAM_DEFINITIONS[season.userTeam],TEAM_DEFINITIONS[match.home===season.userTeam?match.away:match.home]];names.splice(0,2,...matchTeams.map(t=>t.mascot.toUpperCase()));colors.splice(0,2,...matchTeams.map(t=>t.primary));season.activeGame=match.id;menuActive=false;$('seasonHub').hidden=true;$('lineupPage').hidden=true;$('gameApp').hidden=false;$('mainMenu').hidden=true;fresh();$('seasonButton').textContent='Season hub';saveActiveSlot(true);return true;}
+function enterSeasonGame(){if(!season)return false;if(season.offseason)return advanceOffseason();if(financeGameBlock()){renderSeasonHub();return false;}if(!season.activeGame&&seasonGame()&&rosterOverages().length){renderSeasonHub();return false;}if(season.activeGame||season.legacyGame){menuActive=false;paused=false;$('seasonHub').hidden=true;$('lineupPage').hidden=true;$('gameApp').hidden=false;$('pause').textContent='Pause · Esc';hud();return true;}if(season.week>=19&&season.week<=23)return enterPostseasonAction();if(season.week>=24){let rows=leagueTable(),ranks={};for(let div=0;div<8;div++)rows.filter(r=>Math.floor(r.id/4)===div).sort(compareStandings).forEach((r,i)=>ranks[r.id]=i);let nextFinances=carryFinancesToYear(season.year+1),pool=season.freeAgents||[],serial=season.playerSerial||0;let coachReport=endSeasonCoaches(),carriedCoaches=season.coaches;let history=season.history.concat({year:season.year,finances:season.finances,records:rows,weeks:season.weeks,playerStats:season.playerStats||{},awards:season.awards||{},developmentChanges:season.developmentChanges||[],postseason:season.postseason||null,playoffStats:season.playoffStats||{},releasedPlayers:season.releasedPlayers||[]});const carriedSettings=season.settings,carriedSpread=season.launchSpread;season=newSeason(season.userTeam,season.year+1,ranks,history);season.coaches=carriedCoaches;if(carriedCoaches)carriedCoaches.endReport=coachReport;season.tierModelVersion=TIER_MODEL_VERSION;season.ratingShapeV2=true;season.specialistsV1=true;season.settings=carriedSettings;season.launchSpread=carriedSpread;season.finances=nextFinances;season.playerSerial=serial;beginOffseason(pool);showSeasonHub();return true;}let match=seasonGame();if(!match){settleWeek();showSeasonHub();return true;}if(!matchHasFullLineups(match)){renderSeasonHub();return false;}matchTeams=[TEAM_DEFINITIONS[season.userTeam],TEAM_DEFINITIONS[match.home===season.userTeam?match.away:match.home]];names.splice(0,2,...matchTeams.map(t=>t.mascot.toUpperCase()));colors.splice(0,2,...matchTeams.map(t=>t.primary));season.activeGame=match.id;menuActive=false;$('seasonHub').hidden=true;$('lineupPage').hidden=true;$('gameApp').hidden=false;$('mainMenu').hidden=true;fresh();$('seasonButton').textContent='Season hub';saveActiveSlot(true);return true;}
 
 // Portrait traits belong to the player record; drawing never rolls new traits.
 const PORTRAIT_SKINS=[['#efc99a','#c9956f','#f7d9b4'],['#dbab7f','#aa7654','#ebc39a'],['#c58d60','#925d40','#dca879'],['#a66c47','#77462f','#c08a5f'],['#875435','#5b3525','#a5704d'],['#633e2c','#42291f','#87573b'],['#492f25','#30201c','#674433']];
@@ -3167,6 +3195,98 @@ function renderTrainingPage(){if(!season)return;$('trainingPage').innerHTML=`<di
  <p class="staff-actions"><button id="trainingPractice" type="button" ${season.activeGame?'disabled':''}>Practice reps (no stats)</button></p></div>`;}
 function openTrainingPage(){if(!season)return;ensureTrainingPage();renderTrainingPage();$('trainingPage').hidden=false;$('trainingClose')?.focus();}
 function closeTrainingPage(){if($('trainingPage'))$('trainingPage').hidden=true;if(typeof renderSeasonHub==='function'&&!$('seasonHub').hidden)renderSeasonHub();}
+
+// ===== Settings: difficulty + salary cap toggle (stored per save in season.settings, changeable any time) =====
+// Team 0 on the field is always you; team 1 is the CPU. All-Pro is the original game with every dial at 1.
+// Hall of Fame is hard but beatable: the CPU is a little faster and sharper, but its QB still misreads under
+// pressure, its catches still drop, and nothing ever becomes automatic.
+const DIFFICULTIES=[
+ {id:'rookie',level:'Very Easy',name:'Rookie',desc:'Casual play, simplified pre-snap controls, heavy user assistance.',
+  notes:['CPU players about 10% slower','CPU QB slow to read and often throws to the wrong man','Your catch, kick and throw windows are much larger','No pre-snap penalties on you'],
+  cpuSpeed:.90,cpuAccel:.88,qbReaction:.30,qbThrowAt:.35,readMiss:.40,cpuAcc:1.40,userAcc:.75,userCatch:.08,cpuCatch:-.08,cpuInt:.45,userInt:1.35,userBreak:1.6,cpuBreak:.6,userFumble:.35,cpuFumble:1.6,cpuShed:.75,userShed:1.25,window:1.6,kickWindow:1.35,userPenalty:0,cpuPenalty:1.6,simplePreSnap:true,cpuMoves:.5,defAdapt:0,extraAdapt:0,smartOff:0},
+ {id:'varsity',level:'Easy',name:'Varsity',desc:'High school level; generous reaction times and low CPU mistake recovery.',
+  notes:['CPU players about 5% slower','CPU QB reacts late and misreads some throws','Larger timing windows for you','CPU commits more penalties and fumbles'],
+  cpuSpeed:.95,cpuAccel:.94,qbReaction:.15,qbThrowAt:.18,readMiss:.22,cpuAcc:1.20,userAcc:.88,userCatch:.04,cpuCatch:-.04,cpuInt:.70,userInt:1.15,userBreak:1.3,cpuBreak:.8,userFumble:.65,cpuFumble:1.3,cpuShed:.88,userShed:1.12,window:1.3,kickWindow:1.15,userPenalty:.5,cpuPenalty:1.3,simplePreSnap:false,cpuMoves:.75,defAdapt:.5,extraAdapt:0,smartOff:0},
+ {id:'allpro',level:'Medium',name:'All-Pro',desc:'Balanced simulation; standard AI execution and realistic contest logic.',
+  notes:['The standard game: ratings decide everything','CPU adapts to your play calling','Normal timing windows'],
+  cpuSpeed:1,cpuAccel:1,qbReaction:0,qbThrowAt:0,readMiss:0,cpuAcc:1,userAcc:1,userCatch:0,cpuCatch:0,cpuInt:1,userInt:1,userBreak:1,cpuBreak:1,userFumble:1,cpuFumble:1,cpuShed:1,userShed:1,window:1,kickWindow:1,userPenalty:1,cpuPenalty:1,simplePreSnap:false,cpuMoves:1,defAdapt:1,extraAdapt:0,smartOff:0},
+ {id:'allamerican',level:'Hard',name:'All-American',desc:'Elite college standard; sharp AI play-calling and tighter windows.',
+  notes:['CPU players about 3% faster','CPU reads your tendencies more often','Tighter catch, kick and throw windows','CPU avoids bad situational calls'],
+  cpuSpeed:1.03,cpuAccel:1.04,qbReaction:-.03,qbThrowAt:0,readMiss:0,cpuAcc:.90,userAcc:1.06,userCatch:-.02,cpuCatch:.02,cpuInt:1.15,userInt:.92,userBreak:.85,cpuBreak:1.12,userFumble:1.15,cpuFumble:.85,cpuShed:1.10,userShed:.92,window:.85,kickWindow:.90,userPenalty:1.2,cpuPenalty:.8,simplePreSnap:false,cpuMoves:1,defAdapt:1,extraAdapt:.2,smartOff:.5},
+ {id:'hof',level:'Very Hard',name:'Hall of Fame',desc:'Unforgiving AI, split-second windows, punishment for bad reads.',
+  notes:['CPU players about 5% faster','Throws into coverage get picked much more','Split-second timing windows','The CPU still makes mistakes: beatable, not perfect'],
+  cpuSpeed:1.05,cpuAccel:1.07,qbReaction:-.05,qbThrowAt:0,readMiss:0,cpuAcc:.84,userAcc:1.12,userCatch:-.04,cpuCatch:.03,cpuInt:1.30,userInt:.85,userBreak:.72,cpuBreak:1.22,userFumble:1.3,cpuFumble:.75,cpuShed:1.18,userShed:.86,window:.72,kickWindow:.82,userPenalty:1.4,cpuPenalty:.6,simplePreSnap:false,cpuMoves:1,defAdapt:1,extraAdapt:.35,smartOff:.8}];
+const DEFAULT_SETTINGS={difficulty:'allpro',salaryCap:true};
+function gameSettings(){if(!season)return{...DEFAULT_SETTINGS};season.settings={...DEFAULT_SETTINGS,...(season.settings||{})};return season.settings;}
+function difficultyInfo(){let id=season?.settings?.difficulty||'allpro';return DIFFICULTIES.find(d=>d.id===id)||DIFFICULTIES[2];}
+// Tutorial lessons always play at All-Pro.
+function diffDials(){return typeof tutorial!=='undefined'&&tutorial?DIFFICULTIES[2]:difficultyInfo();}
+function userCapOff(id=season?.userTeam){return !!season&&season.settings?.salaryCap===false&&id===season.userTeam;}
+
+// ----- Gameplay dials -----
+// Speed: CPU players run a little slower or faster.
+function moveAthlete(p,x,y,dt){let dx=x-p.x,dy=y-p.y,l=Math.hypot(dx,dy),projected=Math.hypot(dx+dy*.12/15.5,dy*7.8/15.5),d=diffDials(),cpu=p.team===1,max=(5.8+(rating(p,'speed')-60)/39*4.2)*(g.specialReturn&&p===carrier?.86:1)*positionSpeedScale(p.record?.position)*(p.speedBoost||1)*(tutorial&&p.team===1?.8:1)*(cpu?d.cpuSpeed:1),acc=(5+(rating(p,'acceleration')-60)/39*13)*(g.specialReturn&&p===carrier?.88:1)*positionAccelerationScale(p.record?.position)*(cpu?d.cpuAccel:1);p.runSpeed=l>.05?Math.min(max,(p.runSpeed||0)+acc*dt):0;if(l>.05&&projected>0)move(p,x,y,p.runSpeed*l/projected,dt);}
+// CPU quarterback: reaction time, when he lets it go, and (on easy levels) locking onto the wrong receiver.
+{const base=cpuPlan;cpuPlan=function(p){let plan=base(p),d=diffDials();if(g.off===1){plan.reaction=Math.max(.06,(plan.reaction||.3)+d.qbReaction);plan.throwAt=Math.max(.8,(plan.throwAt||2)+d.qbThrowAt);plan.missRead=d.readMiss>0&&Math.random()<d.readMiss;}return plan;};}
+{const base=cpuRead;cpuRead=function(qb,hot=false){let best=base(qb,hot);if(!best||g.off!==1)return best;let plan=g.qbPlan;if(!plan?.missRead)return best;
+ if(plan.wrongTarget===undefined){let others=eligible().filter(p=>p.routeName!=='Block'&&p!==best.player);plan.wrongTarget=others.length?players.indexOf(pick(others)):-1;}
+ let p=players[plan.wrongTarget];if(!p)return best;let r=passRead(qb,p,hot);return r.score>-50?r:best;};}
+// Pass accuracy: CPU throws spray more on easy levels; yours get tighter.
+{const base=passAccuracy;passAccuracy=function(p,target){let r=base(p,target),d=diffDials();return{...r,radius:r.radius*(p.team===1?d.cpuAcc:d.userAcc)};};}
+{const base=ratingCatchChance;ratingCatchChance=function(rec,b){let d=diffDials();return clamp(base(rec,b)+(rec.team===0?d.userCatch:d.cpuCatch),.40,.98);};}
+{const base=defensiveInterceptionChance;defensiveInterceptionChance=function(p,target){let d=diffDials();return clamp(base(p,target)*(p.team===1?d.cpuInt:d.userInt),.03,.85);};}
+{const base=breakChance;breakChance=function(p,tackler=null){let d=diffDials();return base(p,tackler)*(p.team===0?d.userBreak:d.cpuBreak);};}
+{const base=fumbleChance;fumbleChance=function(runner,tackler){let d=diffDials();return clamp(base(runner,tackler)*(runner.team===0?d.userFumble:d.cpuFumble),0,.04);};}
+// Line play: CPU rushers beat your blockers more or less often (and your rushers vice versa).
+{const base=shedRate;shedRate=function(blocker,run=g.run,rusher=null){let d=diffDials();return base(blocker,run,rusher)*(blocker?.team===0?d.cpuShed:blocker?.team===1?d.userShed:1);};}
+{const base=rushMoveChance;rushMoveChance=function(p,kind){let d=diffDials();return clamp(base(p,kind)*(p?.team===1?d.cpuShed:d.userShed),.03,.7);};}
+// Timing windows: catch/swat meter and kick meter.
+{const base=catchBands;catchBands=function(p){let b=base(p),d=diffDials();return{green:b.green*d.window,orange:b.orange*d.window};};}
+{const base=kickGreen;kickGreen=function(distance,k=kickState){let v=base(distance,k),d=diffDials();return k&&k.team===0?clamp(v*d.kickWindow,.03,.34):v;};}
+// CPU ball carriers juke/spin less on easy levels.
+{const base=cpuCarrierMoves;cpuCarrierMoves=function(p){let d=diffDials();if(p.team!==0&&d.cpuMoves<1&&!p.moveState&&(p.moveCheckAt||0)<=g.playTime&&Math.random()>d.cpuMoves){p.moveCheckAt=g.playTime+.3;return;}return base(p);};}
+// CPU play calling: easy levels ignore your tendencies; hard levels counter them more and avoid bad situational calls.
+{const base=nextCpuDefense;nextCpuDefense=function(){let d=diffDials();if(d.defAdapt<1&&Math.random()>=d.defAdapt)return baseCpuDefense();let call=base();
+ let recent=(g.userCalls||[]).slice(-5),runShare=recent.length?recent.filter(v=>v==='RUN').length/recent.length:.4;
+ if(recent.length>=3&&Math.random()<d.extraAdapt){if(runShare>=.6)call=defense(Math.random()<.6?'BLITZ':'MAN');else if(runShare<=.25){call=defense('ZONE');call.cover=pick([3,4]);call.zone=true;call.name='Zone · Cover '+call.cover;}}return call;};}
+{const base=cpuOffense;cpuOffense=function(){let call=base(),d=diffDials();if(call?.kneel||!d.smartOff)return call;let c=cpuSituation();
+ for(let i=0;i<3&&Math.random()<d.smartOff;i++){let bad=(call.kind==='RUN'&&g.down>=3&&c.distance>=7)||(call.kind==='RUN'&&c.hurry)||(call.kind!=='RUN'&&c.drain&&Math.random()<.5);if(!bad)break;call=base();if(call?.kneel)break;}return call;};}
+// Pre-snap penalties: none on you at Rookie, fewer at Varsity, more at the hard levels; the CPU's own rate moves the other way.
+function preSnapPenalty(){if(!penaltyEligible())return false;let d=direction(g.off),dd=diffDials(),userDef=g.off===1,defRate=userDef?dd.userPenalty:dd.cpuPenalty,offRate=g.off===0?dd.userPenalty:dd.cpuPenalty,over=players.filter(p=>p.team!==g.off&&(p.x-g.spot)*d<.5);
+ if(dd.simplePreSnap&&userDef){for(let p of over)if(p.team===0)p.x=g.spot+d*.6;over=over.filter(p=>p.team!==0);}
+ if(!over.length&&Math.random()<.004*defRate){let jumper=pick(players.filter(p=>p.team!==g.off&&isFront(p)&&!(p===selected&&p.team===0)));if(jumper){jumper.x=g.spot+d*.2;over=[jumper];}}
+ if(over.length){callPenalty('offsides',over.sort((a,b)=>(a.x-g.spot)*d-(b.x-g.spot)*d)[0]);return true;}
+ if(Math.random()<falseStartChance()*offRate){let jumper=weightedPick(players.filter(p=>p.team===g.off&&p.role==='OL'),linemanJumpWeight);jumper.x=g.spot+d*.25;jumper.anim=(jumper.anim||0)+1;callPenalty('falseStart',jumper);return true;}
+ return false;}
+
+// ----- Salary cap off: your team signs and re-signs freely; CPU teams still live under the cap -----
+{const base=offerCapCheck;offerCapCheck=function(p,c,id=season.userTeam){return userCapOff(id)?{ok:true,tightest:Infinity}:base(p,c,id);};}
+{const base=offseasonBlockers;offseasonBlockers=function(){let out=base();return userCapOff()?out.filter(t=>!t.startsWith('Over the salary cap')):out;};}
+{const base=financeGameBlock;financeGameBlock=function(){let m=base();return userCapOff()&&m.startsWith('Over the salary cap')?'':m;};}
+// Drafted rookies and trades: same as the originals, but your team skips the cap check when the cap is off.
+function signDraftedPlayer(id,p,round,slot){if(!financeEditable()||!TEAM_DEFINITIONS[id]||!p?.id||Object.values(leagueRosters).flat().some(q=>q.id===p.id))return false;ensureLeagueFinances();let ledger=season.finances.teams[id],pick=ledger.picks.find(q=>q.round===round&&q.slot===slot&&!q.signedPlayerId),c=rookieContractForPick(round,slot);if(!pick||!c)return false;if(!userCapOff(id)&&capSummary(id).space+pick.reserve-contractCapHit(c)<0)return false;c.id=pick.id;p.contract=c;p.extension=null;p.financePersonality='team';pick.signedPlayerId=p.id;franchiseRoster(id).push(p);orderRosterDepth(leagueRosters[id]);saveActiveSlot(true);return true;}
+function transferContractPlayer(from,to,playerId){if(!financeEditable()||from===to||!TEAM_DEFINITIONS[from]||!TEAM_DEFINITIONS[to])return false;ensureLeagueFinances();let source=franchiseRoster(from),p=source.find(p=>p.id===playerId&&!p.retired);if(!p||!contractForYear(p))return false;let active=source.filter(q=>!q.retired),same=active.filter(q=>q.position===p.position);if(same.length<=(STARTER_COUNTS[p.position]||1)||['OL','EDGE','S'].includes(p.position)&&depthPool(active,p).length<=1)return false;let strip=c=>c?{...c,annualBonus:0,totalBonus:0,...(earnedIncentive(p,c)?{incentiveSettledYear:season.year}:{})}:null,incoming={...p,contract:strip(p.contract),extension:strip(p.extension)};if(!userCapOff(to))for(let year=season.year;year<=Math.max(contractEnd(p.contract),contractEnd(p.extension));year++)if(capSummary(to,year).space<playerCapHit(incoming,year))return false;executePlayerRelease(p,from,'Traded');p.contract=incoming.contract;p.extension=incoming.extension;delete p.depthOrder;franchiseRoster(to).push(p);orderRosterDepth(leagueRosters[to]);saveActiveSlot(true);return true;}
+{const base=renderHubFinances;renderHubFinances=function(){base();if(!userCapOff())return;let cap=capSummary();$('hubCap').innerHTML=`<span>SALARY CAP <strong class="cap-off">OFF</strong></span><small>Payroll ${money(cap.salaries)} · ${cap.space<0?money(-cap.space)+' over the normal cap':money(cap.space)+' under the normal cap'} · change in Settings</small>`;};}
+
+// ----- Settings screen -----
+function settingsHTML(){if(!season)return `<p class="settings-empty">Load or start a save to change difficulty and salary cap settings. Settings are saved with each franchise.</p>`;
+ let s=gameSettings(),cur=difficultyInfo(),cap=capSummary(),inGame=!!(season.activeGame||(typeof g!=='undefined'&&g&&!$('gameApp').hidden));
+ return `<section class="settings-block" aria-labelledby="setDiffTitle"><h2 id="setDiffTitle">DIFFICULTY</h2><p class="settings-help">How sharp the CPU plays and how much help you get. ${inGame?'Changes take effect on the next play.':'Change it any time, even mid-game.'}</p>
+ <div class="diff-grid" role="radiogroup" aria-label="Difficulty">${DIFFICULTIES.map((d,i)=>`<button type="button" role="radio" aria-checked="${d.id===cur.id}" class="diff-card ${d.id===cur.id?'on':''}" data-difficulty="${d.id}"><small>${d.level.toUpperCase()}</small><strong>${d.name}</strong><span class="diff-bars">${Array.from({length:5},(_,k)=>`<i class="${k<=i?'f':''}"></i>`).join('')}</span><em>${d.desc}</em></button>`).join('')}</div>
+ <ul class="diff-notes">${cur.notes.map(n=>`<li>${n}</li>`).join('')}</ul></section>
+ <section class="settings-block" aria-labelledby="setCapTitle"><h2 id="setCapTitle">SALARY CAP</h2>
+ <div class="setting-row"><div><strong>Salary cap for your team</strong><p class="settings-help">${s.salaryCap?'On: every signing, re-signing and trade has to fit under the cap.':'Off: you still negotiate, re-sign and sign players, and they still ask for real money, but no deal is blocked by the cap and you can never be locked out of a game for being over it. CPU teams still play by the cap.'}</p>
+ ${!s.salaryCap&&cap.space<0?`<p class="settings-warn">You are ${money(-cap.space)} over the normal cap. If you turn the cap back on you will need to get under it before your next game.</p>`:''}</div>
+ <button type="button" id="capToggle" role="switch" aria-checked="${s.salaryCap}" class="switch ${s.salaryCap?'on':''}"><span>${s.salaryCap?'ON':'OFF'}</span><i></i></button></div></section>`;}
+function renderSettings(){let host=$('settingsBody');if(!host){host=document.createElement('div');host.id='settingsBody';host.className='settings-body';$('settingsScreen').appendChild(host);
+ host.addEventListener('click',e=>{let b=e.target.closest('button');if(!b||!season)return;if(b.dataset.difficulty){gameSettings().difficulty=b.dataset.difficulty;}else if(b.id==='capToggle'){let s=gameSettings();s.salaryCap=!s.salaryCap;}else return;
+  try{saveActiveSlot(true);}catch(err){}renderSettings();let again=b.dataset.difficulty?host.querySelector(`[data-difficulty="${b.dataset.difficulty}"]`):$('capToggle');again?.focus();});}
+ host.innerHTML=settingsHTML();}
+{const base=openSettings;openSettings=function(){base();renderSettings();};}
+{const base=closeSettings;closeSettings=function(){base();if(season&&!$('seasonHub').hidden&&typeof renderSeasonHub==='function')renderSeasonHub();};}
+// Current difficulty (and cap off) shown in the hub eyebrow so it is always visible.
+function difficultyBadge(){return season?`${difficultyInfo().name.toUpperCase()}${userCapOff()?' · CAP OFF':''}`:'';}
+{const base=renderSeasonHub;renderSeasonHub=function(...a){let r=base(...a);let e=$('hubEyebrow');if(e&&season&&!e.textContent.includes(' / '+difficultyInfo().name.toUpperCase()))e.textContent+=' / '+difficultyBadge();return r;};}
 
 $('finalReturn').onclick=()=>{$('finalDialog').hidden=true;keys.clear();drag=null;if(season)showSeasonHub();else showMainMenu();};$('finalDialog').onkeydown=e=>{if(e.key==='Tab'){e.preventDefault();$('finalReturn').focus();}};initTeamMenu();initSaveMenu();initLineup();initPlayerDetails();initFinances();function frame(t){let dt=Math.min((t-last)/1000,.04);last=t;if(!menuActive){update(dt);recordSeasonFinal();drawWithFx();syncFinalDialog();autosaveTick(dt);}requestAnimationFrame(frame)}requestAnimationFrame(frame);
 </script></html>
