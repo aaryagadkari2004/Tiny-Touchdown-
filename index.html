@@ -278,6 +278,17 @@ button.player-card{display:block;width:100%;padding:0;text-align:inherit;cursor:
 @media(max-width:760px){.fa-row{grid-template-columns:40px 1fr}.fa-row .ask,.fa-row .offer-box,.fa-row>button{grid-column:2}}
 .fa-pat{font:8px TTPixel,monospace!important;color:#c9b8f0!important;margin-top:4px!important}
 #faNote.good{color:#7ee2a2}
+.proj-tag{font:8px TTPixel,monospace;color:#13232b;background:#9fc6e8;padding:2px 5px;margin:0 6px}
+.scout-grades{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}.scout-grades span{font:7px TTPixel,monospace;color:#9fb4ad;background:#0f1d24;border:1px solid #2f4a40;padding:3px 5px;display:flex;gap:5px;align-items:center}
+.scout-grades b{font:10px TTPixel,monospace}.grade-a b,.grade-a strong{color:#7ee2a2}.grade-b b,.grade-b strong{color:#e9c975}.grade-c b,.grade-c strong{color:#f0a858}.grade-d b,.grade-d strong,.grade-f b,.grade-f strong{color:#f07a6a}.grade-hidden b{color:#6f8790}
+.draft-reveal{position:fixed;inset:0;z-index:80;background:#050c10cc;display:flex;align-items:center;justify-content:center;padding:16px}
+.reveal-inner{background:#12222b;border:3px solid #e9c975;box-shadow:6px 6px 0 #040e13;max-width:720px;width:100%;padding:20px;max-height:92vh;overflow:auto}
+.reveal-top{display:grid;grid-template-columns:150px 1fr auto;gap:16px;align-items:center;margin:8px 0 14px}.reveal-card .portrait-panel{position:relative}.reveal-card svg{width:100%;height:auto;image-rendering:pixelated}
+.reveal-top h2{font:16px TTPixel,monospace;color:#fff0ce;margin:0 0 6px}.reveal-top p{font-size:12px;color:#c7d6d0;margin:4px 0}.reveal-tier{color:#8cc4ff!important;font:8px TTPixel,monospace}
+.reveal-grade{text-align:center;border:3px solid currentColor;padding:10px 14px;background:#0f1d24}.reveal-grade small{display:block;font:8px TTPixel,monospace;color:#9fb4ad}.reveal-grade strong{font:34px TTPixel,monospace}
+.reveal-stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:6px}.reveal-stats div{background:#0f1d24;border:1px solid #2f4a40;padding:6px 8px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap}
+.reveal-stats span{font:7px TTPixel,monospace;color:#9fb4ad}.reveal-stats b{font:12px TTPixel,monospace;color:#fff0ce}.reveal-stats small{width:100%;font-size:10px;color:#9fc6e8}.reveal-stats .scouted{border-color:#4f8fe0}
+@media(max-width:600px){.reveal-top{grid-template-columns:100px 1fr}.reveal-grade{grid-column:1/-1}}
 </style>
 <main id="financePage" class="finance-page" hidden><header><div id="financeTeam" class="finance-team"></div><button id="financeBack" type="button">Back</button></header><div id="financeContent"><section id="capMetrics" class="cap-metrics" aria-label="Team salary cap"></section><div id="capMeter"></div><p id="financeStatus" aria-live="polite"></p><section id="negotiationPanel" class="finance-section" hidden></section><section class="finance-section"><div class="finance-section-head"><h2>PLAYER CONTRACTS</h2><div class="finance-controls"><label>Sort <select id="financeSort"><option value="capDesc">Highest cap hit</option><option value="capAsc">Lowest cap hit</option><option value="yearsAsc">Shortest remaining</option><option value="yearsDesc">Longest remaining</option><option value="ovr">Highest overall</option></select></label><label>Position <select id="financeFilter"><option value="ALL">All positions</option><option>QB</option><option>RB</option><option>WR</option><option>TE</option><option>OL</option><option>DT</option><option>EDGE</option><option>LB</option><option>MLB</option><option>CB</option><option>S</option><option>K</option><option>P</option></select></label></div></div><div class="finance-table-scroll"><table class="finance-table"><thead><tr><th>Player</th><th>Yearly base</th><th>Yearly bonus</th><th>Current cap hit</th><th>Remaining term</th><th>Bonus still owed</th><th>Actions</th></tr></thead><tbody id="contractRows"></tbody></table></div></section><section class="finance-section"><h2>AUTOMATIC ROOKIE RESERVE</h2><p id="draftReserveNote"></p><div id="draftReserveRows" class="draft-reserve-rows"></div></section><section class="finance-section"><h2>CAP PENALTIES</h2><div class="finance-table-scroll"><table class="finance-table"><thead><tr><th>Player / reason</th><th>Current-year penalty</th></tr></thead><tbody id="capPenaltyRows"></tbody></table></div></section></div></main>
 <div id="signedOverlay" class="signed-overlay" hidden><section role="dialog" aria-modal="true" aria-labelledby="signedStamp"><p class="signed-kicker">CONTRACT AGREED</p><h2 id="signedStamp" class="signed-stamp">SIGNED</h2><div id="signedDetails"></div><button id="signedContinue" class="primary" type="button">Continue</button></section></div><div id="financeDialog" class="finance-dialog" hidden><section role="dialog" aria-modal="true" aria-labelledby="financeDialogTitle"><h2 id="financeDialogTitle"></h2><div id="financeDialogBody"></div><div class="finance-dialog-actions"><button id="financeCancel" type="button">Cancel</button><button id="financeConfirm" class="primary" type="button">Confirm</button></div></section></div>
@@ -2795,8 +2806,30 @@ function generateDraftClass(){let teams=TEAM_DEFINITIONS.length,positions=Object
   try{fitPlayerOverall(p,roll(lo,hi));}catch(e){ratePlayer(p);}
   let tier=rollDraftTier(round);if(tier==='Legend'&&!legendEligible(p))tier='Gamebreaker';
   delete p.replacement;p.developmentTier=tier;p.financePersonality=financeHash(p.id)%4===0?'mercenary':'team';p.careerStats={};p.rookieYear=season.year;p.prospect={round,grade:p.overall};out.push(p);}
- // Board order: OVR first, projected round as a tiebreak.
- return out.sort((a,b)=>b.overall-a.overall||a.prospect.round-b.prospect.round);}
+ return scoutDraftClass(out);}
+// ----- Scouting: nobody sees a prospect's real OVR before the draft -----
+// Every prospect has a hidden consensus evaluation = true OVR + scouting error (usually ±3, sometimes a big miss of
+// 6-10 either way: busts and sleepers). The big board and the projected pick come from that consensus. A few key
+// ratings are shown as letter grades (themselves a little noisy); the rest stay hidden. Each CPU team adds its own
+// scouting noise on top, so teams disagree and sometimes reach or miss.
+function gauss(){let u=Math.max(1e-9,Math.random()),v=Math.random();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);}
+const GRADE_STEPS=[[92,'A+'],[88,'A'],[85,'A-'],[82,'B+'],[78,'B'],[75,'B-'],[72,'C+'],[68,'C'],[65,'C-'],[60,'D'],[0,'F']];
+function ratingLetter(v){for(let [min,l] of GRADE_STEPS)if(v>=min)return l;return 'F';}
+function scoutedKeys(p){let w=ratingWeights(p),keys=Object.keys(p.attributes).filter(k=>Number.isFinite(p.attributes[k])&&k!=='stamina');return keys.sort((a,b)=>(w[b]??0)-(w[a]??0)).slice(0,4);}
+function scoutDraftClass(list){let byTrue=[...list].sort((a,b)=>b.overall-a.overall||Math.random()-.5);byTrue.forEach((p,i)=>p.trueRank=i+1);
+ for(let p of list){let miss=Math.random()<.12?(Math.random()<.5?-1:1)*(6+Math.random()*4):0,value=p.overall+gauss()*3+miss,grades={};
+  for(let k of scoutedKeys(p))grades[k]=ratingLetter(p.attributes[k]+gauss()*3.5);
+  p.scout={value:+value.toFixed(1),grades,hidden:Object.keys(p.attributes).filter(k=>Number.isFinite(p.attributes[k])&&!(k in grades)).length};}
+ // Kickers and punters are projected late no matter how well they rate (teams rarely spend early picks on them).
+ let boardValue=p=>p.scout.value-(p.position==='K'||p.position==='P'?12:0),board=[...list].sort((a,b)=>boardValue(b)-boardValue(a));board.forEach((p,i)=>p.scout.proj=i+1);return board;}
+// One team's private read on a prospect (consensus + its own scouts' opinion; stable for the whole draft).
+function teamScoutValue(p,teamId){let h=financeHash(p.id+':scout:'+teamId),noise=((h%1000)/1000+((h>>10)%1000)/1000+((h>>20)%1000)/1000-1.5)*2.8;return (p.scout?.value??p.overall)+noise;}
+function projLabel(n){return n<=TEAM_DEFINITIONS.length*DRAFT_ROUNDS?'R'+Math.ceil(n/TEAM_DEFINITIONS.length)+' · #'+n:'UNDRAFTED';}
+// Draft grade for your pick: how far the player's real standing in the class beat (or missed) the pick you used.
+// A top-5 talent taken late in round 1 is an A+; the best player in the class with a top-3 pick is an A.
+function draftPickGrade(trueRank,pick){if(pick<=3&&trueRank<=3)return 'A';let s=(pick-trueRank)/(pick*.4+4);return s>=1.5?'A+':s>=1?'A':s>=.6?'A-':s>=.3?'B+':s>=0?'B':s>=-.3?'B-':s>=-.6?'C+':s>=-1?'C':s>=-1.6?'C-':s>=-2.4?'D':'F';}
+const GRADE_POINTS={'A+':4.3,A:4,'A-':3.7,'B+':3.3,B:3,'B-':2.7,'C+':2.3,C:2,'C-':1.7,D:1,F:0};
+function averageDraftGrade(rows){let g=rows.filter(r=>r.grade);if(!g.length)return null;let avg=g.reduce((n,r)=>n+GRADE_POINTS[r.grade],0)/g.length;return Object.entries(GRADE_POINTS).find(([,v])=>avg>=v-.15)?.[0]||'F';}
 const generate_draft_class=generateDraftClass;
 // Every team owns one pick per round (older saves only reserved rounds 1-3).
 function ensureDraftPicks(){ensureLeagueFinances();for(let t of TEAM_DEFINITIONS){let ledger=season.finances.teams[t.id],full=rookiePicksFor(t.id,ledger.draftSlot,season.year);for(let pk of full)if(!ledger.picks.some(q=>q.round===pk.round))ledger.picks.push(pk);}}
@@ -2817,19 +2850,21 @@ function evaluateCpuTeamNeeds(teamId,round=1){let records=franchiseRoster(teamId
   needs[pos]=need;}
  return needs;}
 const evaluate_cpu_team_needs=evaluateCpuTeamNeeds;
-// Kickers and punters rate high on few attributes; teams treat them as 8 OVR lower before round 4 so they go late.
-function draftSelectionScore(p,needs,round){let [rw,nw]=DRAFT_WEIGHTS[round],ovr=p.overall-((p.position==='K'||p.position==='P')&&round<4?8:0);return ovr*rw+(needs[p.position]||1)*nw;}
+// CPU teams only see their own scouting read, never the real OVR. Kickers and punters count 8 lower before round 4.
+function draftSelectionScore(p,needs,round,teamId){let [rw,nw]=DRAFT_WEIGHTS[round],ovr=teamScoutValue(p,teamId)-((p.position==='K'||p.position==='P')&&round<4?8:0);return ovr*rw+(needs[p.position]||1)*nw;}
 // execute_cpu_draft_pick(team, available, round): best Selection Score = OVR × round weight + need × need weight.
-function executeCpuDraftPick(teamId,available,round){let needs=evaluateCpuTeamNeeds(teamId,round),best=null,bs=-1;
- for(let p of available){let s=draftSelectionScore(p,needs,round);if(s>bs||s===bs&&best&&(p.overall>best.overall||p.overall===best.overall&&p.age<best.age)){bs=s;best=p;}}
+// Teams don't reach far past the consensus board: candidates are prospects projected no more than ~1 round later.
+function executeCpuDraftPick(teamId,available,round){let needs=evaluateCpuTeamNeeds(teamId,round),best=null,bs=-1,pickNo=draftOnClock()?.overall||1,window=TEAM_DEFINITIONS.length*.75+round*4,pool=available.filter(p=>!p.scout||p.scout.proj<=pickNo+window);if(!pool.length)pool=available;
+ for(let p of pool){let s=draftSelectionScore(p,needs,round,teamId);if(s>bs){bs=s;best=p;}}
  return best?makeDraftPick(best):null;}
 const execute_cpu_draft_pick=executeCpuDraftPick;
 // Turns the current pick into a rookie contract (from the reserved pick) and moves the player onto the roster.
 function makeDraftPick(p){let d=draftState(),cur=d?.order[d.index];if(!cur||!p)return null;let cls=season.draftClass,i=cls.indexOf(p);if(i<0)return null;cls.splice(i,1);
  let ledger=season.finances.teams[cur.teamId],pk=ledger.picks.find(q=>q.round===cur.round&&!q.signedPlayerId),c=rookieContractForPick(cur.round,Math.min(32,cur.slot));
  if(pk)pk.signedPlayerId=p.id;c.id=pk?.id||'draft-'+season.year+'-'+cur.teamId+'-'+cur.round;p.contract=c;p.extension=null;p.expiredContract=null;franchiseRoster(cur.teamId).push(p);orderRosterDepth(leagueRosters[cur.teamId]);
- p.drafted={year:season.year,round:cur.round,pick:cur.overall,teamId:cur.teamId};delete p.prospect;
- let row={overall:cur.overall,round:cur.round,slot:cur.slot,teamId:cur.teamId,id:p.id,name:p.name,position:playerSlotLabel(p),pos:p.position,ovr:p.overall,tier:p.developmentTier,user:cur.teamId===season.userTeam};
+ let user=cur.teamId===season.userTeam,grade=user&&p.trueRank?draftPickGrade(p.trueRank,cur.overall):null;
+ p.drafted={year:season.year,round:cur.round,pick:cur.overall,teamId:cur.teamId,proj:p.scout?.proj,grades:p.scout?.grades,grade};delete p.prospect;delete p.scout;delete p.trueRank;
+ let row={overall:cur.overall,round:cur.round,slot:cur.slot,teamId:cur.teamId,id:p.id,name:p.name,position:playerSlotLabel(p),pos:p.position,ovr:p.overall,tier:p.developmentTier,user,proj:p.drafted.proj,grade};
  d.picks.push(row);d.index++;if(cur.teamId===season.userTeam)season.offseason.userAdded.push({id:p.id,name:p.name,position:playerSlotLabel(p),overall:p.overall,drafted:cur.overall});return row;}
 function draftOnClock(){let d=draftState();return d?d.order[d.index]||null:null;}
 function userOnClock(){return draftOnClock()?.teamId===season.userTeam;}
@@ -2839,7 +2874,7 @@ function simDraft({stopAtUser=true,maxPicks=Infinity}={}){let d=draftState(),n=0
 function userDraftPick(pid){if(!userOnClock())return null;let p=season.draftClass.find(q=>q.id===pid);if(!p)return null;let row=makeDraftPick(p);simDraft({stopAtUser:true});saveActiveSlot(true);return row;}
 function userAutoPick(){let cur=draftOnClock();if(!cur||cur.teamId!==season.userTeam)return null;let row=executeCpuDraftPick(cur.teamId,season.draftClass,cur.round);simDraft({stopAtUser:true});saveActiveSlot(true);return row;}
 // Finish: remaining picks (yours included) are made by the CPU logic; undrafted prospects become free agents.
-function finishDraft(){let d=draftState();if(!d)return false;simDraft({stopAtUser:false});for(let p of season.draftClass||[]){delete p.prospect;p.freeAgentSince=season.year;p.undrafted=season.year;(season.freeAgents??=[]).push(p);}d.undrafted=(season.draftClass||[]).length;season.draftClass=null;return true;}
+function finishDraft(){let d=draftState();if(!d)return false;simDraft({stopAtUser:false});for(let p of season.draftClass||[]){delete p.prospect;delete p.scout;delete p.trueRank;p.freeAgentSince=season.year;p.undrafted=season.year;(season.freeAgents??=[]).push(p);}d.undrafted=(season.draftClass||[]).length;season.draftClass=null;return true;}
 function advanceDraft(){let o=season.offseason;finishDraft();for(let t of TEAM_DEFINITIONS)if(t.id!==season.userTeam){cpuTrimToLimits(t.id,o.log);cpuFixCap(t.id,o.log);cpuMakeRoomAndFill(t.id,o.log);cpuTrimTo53(t.id,o.log);}o.stage='cuts';saveActiveSlot(true);showSeasonHub(false);return true;}
 // CPU cap management: a team short of 45 players without the cap room to fill them at the minimum releases its most
 // overpaid backups (biggest cap hit per rating point, only when the cut actually saves money), then fills the roster.
@@ -2856,23 +2891,36 @@ let draftFilter={pos:'ALL',needs:false};
 function draftTeamAbbr(id){return TEAM_DEFINITIONS[id]?.abbr||'';}
 function userDraftPicksLeft(){let d=draftState();return d?d.order.slice(d.index).filter(x=>x.teamId===season.userTeam):[];}
 function draftBoardHTML(){let d=draftState();if(!d)return '';let cur=draftOnClock(),mine=d.picks.filter(x=>x.user),left=userDraftPicksLeft();
- return `<h2>ROOKIE DRAFT · ${DRAFT_ROUNDS} ROUNDS</h2><p class="offseason-help">${d.classSize} prospects. Every team picks once per round in last season's order. Drafted players sign rookie contracts that were already reserved under your cap. Progression tiers are hidden until a player is drafted.</p>
+ return `<h2>ROOKIE DRAFT · ${DRAFT_ROUNDS} ROUNDS</h2><p class="offseason-help">${d.classSize} prospects. Every team picks once per round in last season's order. Nobody sees a prospect's real overall: the board is the scouts' consensus, with letter grades for a few key ratings and the rest hidden. Every team's scouts read prospects a little differently, so some players fall and some picks bust. You see a player's real ratings once you draft him; his tier stays hidden until midseason.${mine.length?` Your draft grade so far: <b>${averageDraftGrade(mine)}</b>.`:''}</p>
  <p class="offseason-help">${cur?`<b>${cur.teamId===season.userTeam?'YOU ARE ON THE CLOCK':'ON THE CLOCK: '+draftTeamAbbr(cur.teamId)}</b> · Round ${cur.round}, pick ${cur.overall} of ${d.order.length}`:'The draft is complete.'}${left.length?' · your picks left: '+left.map(x=>'#'+x.overall).join(', '):''}</p>
- ${mine.length?`<ul class="offseason-list">${mine.map(r=>`<li class="camp-up">R${r.round} #${r.overall} · ${r.name} · ${r.position} · ${r.ovr} OVR · ROOKIE</li>`).join('')}</ul>`:''}
+ ${mine.length?`<ul class="offseason-list">${mine.map(r=>`<li class="camp-up">R${r.round} #${r.overall} · ${r.name} · ${r.position} · ${r.ovr} OVR${r.grade?' · GRADE '+r.grade:''}</li>`).join('')}</ul>`:''}
  <p><button id="openDraftRoom" type="button">Open draft room</button></p>`;}
 function bindDraftBoard(){let b=$('openDraftRoom');if(b)b.onclick=openDraftPage;}
-function draftRowHTML(p,needs,canPick){let s=typeof schemeFitInfo==='function'?schemeFitInfo(p,season.userTeam):null;
- return `<article class="market-row fa-row"><span class="role-tag">${playerSlotLabel(p)}</span>
- <div><strong>${p.name}</strong><span class="fa-ovr">${p.overall}</span><span class="fa-tier">TIER ?</span>${s?.fit?'<span class="fa-fit">FIT</span>':''}${(needs[p.position]||0)>=9?'<span class="fa-need">NEED</span>':''}
- <small>Age ${p.age} · ${p.archetype||p.position} · projected round ${p.prospect?.round||'-'}</small></div>
+function gradeClass(l){return 'grade-'+(l[0]||'F').toLowerCase();}
+function draftRowHTML(p,needs,canPick){let s=typeof schemeFitInfo==='function'?schemeFitInfo(p,season.userTeam):null,sc=p.scout||{grades:{},hidden:0,proj:0};
+ return `<article class="market-row fa-row draft-row"><span class="role-tag">${playerSlotLabel(p)}</span>
+ <div><strong>${p.name}</strong><span class="proj-tag">PROJ ${projLabel(sc.proj)}</span>${s?.fit?'<span class="fa-fit">FIT</span>':''}${(needs[p.position]||0)>=9?'<span class="fa-need">NEED</span>':''}
+ <small>Age ${p.age} · ${p.archetype||p.position}</small>
+ <div class="scout-grades">${Object.entries(sc.grades).map(([k,l])=>`<span class="${gradeClass(l)}"><b>${l}</b>${(RATING_INFO[k]?.[0]||k).toUpperCase()}</span>`).join('')}<span class="grade-hidden"><b>?</b>${sc.hidden} HIDDEN</span></div></div>
  <div class="ask"><small>ROOKIE DEAL</small><b>${(()=>{let cur=draftOnClock(),c=cur&&rookieContractForPick(cur.round,Math.min(32,cur.slot));return c?money(c.annualBase)+' × '+c.years:'-'})()}</b></div>
  <button type="button" data-draft-pick="${p.id}" ${canPick?'':'disabled'}>${canPick?'Draft':'Not your pick'}</button></article>`;}
+// Pick reveal: the drafted player's real card, ratings and your draft grade.
+function draftRevealHTML(row){let p=franchiseRoster(season.userTeam).find(q=>q.id===row.id);if(!p)return '';let team=TEAM_DEFINITIONS[season.userTeam],d=p.drafted||{},keys=Object.keys(p.attributes).filter(k=>Number.isFinite(p.attributes[k]));
+ return `<div class="draft-reveal" role="dialog" aria-modal="true" aria-labelledby="revealName"><div class="reveal-inner">
+ <p class="hub-eyebrow">ROUND ${row.round} · PICK ${row.overall}${d.proj?' · PROJECTED #'+d.proj:''}</p>
+ <div class="reveal-top"><div class="reveal-card card-aura ${developmentClass(p)}"><div class="portrait-panel">${portraitSVG(p,team)}<div class="card-rating"><strong>${p.overall}</strong><span>OVR</span></div></div></div>
+ <div><h2 id="revealName">${p.name}</h2><p>${playerSlotLabel(p)} · AGE ${p.age} · ${(p.archetype||'').toUpperCase()} · ${money(p.contract.annualBase)} × ${p.contract.years} ROOKIE DEAL</p><p class="reveal-tier">TIER HIDDEN UNTIL MIDSEASON</p></div>
+ ${row.grade?`<div class="reveal-grade ${gradeClass(row.grade)}"><small>DRAFT GRADE</small><strong>${row.grade}</strong></div>`:''}</div>
+ <div class="reveal-stats">${keys.map(k=>{let sc=d.grades?.[k];return `<div class="${sc?'scouted':''}"><span>${(RATING_INFO[k]?.[0]||k).toUpperCase()}</span><b>${p.attributes[k]}</b>${sc?`<small>scouted ${sc}</small>`:''}</div>`;}).join('')}</div>
+ <p class="offseason-help">${row.grade?draftGradeNote(row.grade):''}</p><button type="button" id="revealContinue">Continue</button></div></div>`;}
+function draftGradeNote(g){return g.startsWith('A')?'Great value for where you picked.':g.startsWith('B')?'Solid pick for that spot.':g.startsWith('C')?'A bit of a reach.':'A big reach for that pick.';}
+function showDraftReveal(row){if(!row?.user)return;let host=$('draftPage');if(!host)return;let wrap=document.createElement('div');wrap.innerHTML=draftRevealHTML(row);let el=wrap.firstElementChild;if(!el)return;host.appendChild(el);let btn=el.querySelector('#revealContinue');btn.onclick=()=>{el.remove();renderDraftPage();};btn.focus();}
 function ensureDraftPage(){if($('draftPage'))return;let s=document.createElement('section');s.id='draftPage';s.className='staff-page';s.hidden=true;s.setAttribute('role','dialog');s.setAttribute('aria-modal','true');s.setAttribute('aria-labelledby','draftTitle');document.body.appendChild(s);
  s.addEventListener('click',e=>{let b=e.target.closest('button');if(!b)return;let d=b.dataset;
-  if(d.draftPick){userDraftPick(d.draftPick);renderDraftPage();}
+  if(d.draftPick){let row=userDraftPick(d.draftPick);renderDraftPage();showDraftReveal(row);}
   else if(d.draftPos){draftFilter.pos=d.draftPos;renderDraftPage();}
   else if(b.id==='draftNeeds'){draftFilter.needs=!draftFilter.needs;renderDraftPage();}
-  else if(b.id==='draftAuto'){userAutoPick();renderDraftPage();}
+  else if(b.id==='draftAuto'){let row=userAutoPick();renderDraftPage();showDraftReveal(row);}
   else if(b.id==='draftFinish'){closeDraftPage();advanceOffseason();}
   else if(b.id==='draftClose')closeDraftPage();});
  s.addEventListener('keydown',e=>{if(e.key==='Escape')closeDraftPage();});}
@@ -2881,7 +2929,7 @@ function renderDraftPage(){let d=draftState();if(!d){closeDraftPage();return;}le
  $('draftPage').innerHTML=`<div class="staff-inner"><header class="staff-head"><div><p class="hub-eyebrow">SEASON ${season.year} · ROOKIE DRAFT</p><h1 id="draftTitle">${cur?`ROUND ${cur.round} · PICK ${cur.overall}`:'DRAFT COMPLETE'}</h1></div><button id="draftClose" type="button">Back to hub</button></header>
  <div class="staff-budget"><span>${cur?(mine?'YOU ARE ON THE CLOCK':'ON THE CLOCK: '+TEAM_DEFINITIONS[cur.teamId].name.toUpperCase()):'ALL PICKS MADE'}</span><small>Your picks left: ${left.length?left.map(x=>'R'+x.round+' #'+x.overall).join(' · '):'none'} · cap space ${money(capSummary(user).space)} (rookie deals come out of the reserve already held) · your needs: ${Object.entries(needs).filter(([,v])=>v>=9).map(([k])=>k).join(', ')||'none urgent'}</small></div>
  <p class="staff-actions">${mine?'<button id="draftAuto" type="button">Auto-pick for me</button>':''}<button id="draftFinish" type="button">${left.length?'Finish draft (auto-pick the rest for me)':'Finish draft'}</button></p>
- ${recent.length?`<details class="camp-report" ${mine?'':'open'}><summary>LATEST PICKS</summary><ul class="offseason-list">${recent.map(r=>`<li class="${r.user?'camp-up':''}">#${r.overall} ${draftTeamAbbr(r.teamId)} · ${r.name} · ${r.position} · ${r.ovr} OVR</li>`).join('')}</ul></details>`:''}
+ ${recent.length?`<details class="camp-report" ${mine?'':'open'}><summary>LATEST PICKS</summary><ul class="offseason-list">${recent.map(r=>`<li class="${r.user?'camp-up':''}">#${r.overall} ${draftTeamAbbr(r.teamId)} · ${r.name} · ${r.position}${r.user?' · '+r.ovr+' OVR · '+r.grade:' · proj #'+(r.proj||'-')}</li>`).join('')}</ul></details>`:''}
  <section class="staff-market"><header><h2>${draftClass().length} PROSPECTS LEFT</h2><nav><button type="button" id="draftNeeds" class="${draftFilter.needs?'on':''}">MY NEEDS</button></nav></header>
  <nav class="fa-pos">${positions.map(p=>`<button type="button" data-draft-pos="${p}" class="${draftFilter.pos===p?'on':''}">${p}</button>`).join('')}</nav>
  ${shown.length?shown.map(p=>draftRowHTML(p,needs,mine)).join(''):'<p class="offseason-help">No prospects match.</p>'}</section></div>`;}
