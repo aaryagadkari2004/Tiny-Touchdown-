@@ -330,6 +330,9 @@ button.player-card{display:block;width:100%;padding:0;text-align:inherit;cursor:
 .crowd-meter[hidden]{display:none}.crowd-meter span{color:#f2c94c;font-size:13px;letter-spacing:1px}.crowd-meter small{font-size:7px;color:#f0a58f}
 .inj-badge{position:absolute;right:4px;bottom:26px;z-index:3;font:8px TTPixel,monospace;color:#fff;background:#b8433a;border:2px solid #3a0f0b;padding:2px 4px;letter-spacing:1px}
 .pb-timeout{margin-right:6px}
+.wx-badge{position:absolute;z-index:5;transform:translateX(-100%);pointer-events:none;background:#0b161ccc;border:2px solid #9fc6e8;padding:6px 9px;font:9px TTPixel,monospace;color:#e6f1ff;box-shadow:3px 3px 0 #040e13;white-space:nowrap}
+.wx-badge[hidden]{display:none}.wx-badge.wx-snow{border-color:#ffffff}.wx-badge.wx-rain{border-color:#6f9fd8}.wx-badge.wx-dome{border-color:#8a9a94}
+.wx-tag{display:block;margin-top:8px;font:9px TTPixel,monospace;color:#9fc6e8;letter-spacing:1px}.wx-tag.wx-snow{color:#ffffff}.wx-tag.wx-rain{color:#7fb2ee}.wx-tag.wx-clear{color:#f2c94c}.wx-tag.wx-dome{color:#9fb4ad}
 </style>
 <main id="financePage" class="finance-page" hidden><header><div id="financeTeam" class="finance-team"></div><button id="financeBack" type="button">Back</button></header><div id="financeContent"><section id="capMetrics" class="cap-metrics" aria-label="Team salary cap"></section><div id="capMeter"></div><p id="financeStatus" aria-live="polite"></p><section id="negotiationPanel" class="finance-section" hidden></section><section class="finance-section"><div class="finance-section-head"><h2>PLAYER CONTRACTS</h2><div class="finance-controls"><label>Sort <select id="financeSort"><option value="capDesc">Highest cap hit</option><option value="capAsc">Lowest cap hit</option><option value="yearsAsc">Shortest remaining</option><option value="yearsDesc">Longest remaining</option><option value="ovr">Highest overall</option></select></label><label>Position <select id="financeFilter"><option value="ALL">All positions</option><option>QB</option><option>RB</option><option>WR</option><option>TE</option><option>OL</option><option>DT</option><option>EDGE</option><option>LB</option><option>MLB</option><option>CB</option><option>S</option><option>K</option><option>P</option></select></label></div></div><div class="finance-table-scroll"><table class="finance-table"><thead><tr><th>Player</th><th>Yearly base</th><th>Yearly bonus</th><th>Current cap hit</th><th>Remaining term</th><th>Bonus still owed</th><th>Actions</th></tr></thead><tbody id="contractRows"></tbody></table></div></section><section class="finance-section"><h2>AUTOMATIC ROOKIE RESERVE</h2><p id="draftReserveNote"></p><div id="draftReserveRows" class="draft-reserve-rows"></div></section><section class="finance-section"><h2>CAP PENALTIES</h2><div class="finance-table-scroll"><table class="finance-table"><thead><tr><th>Player / reason</th><th>Current-year penalty</th></tr></thead><tbody id="capPenaltyRows"></tbody></table></div></section></div></main>
 <div id="signedOverlay" class="signed-overlay" hidden><section role="dialog" aria-modal="true" aria-labelledby="signedStamp"><p class="signed-kicker">CONTRACT AGREED</p><h2 id="signedStamp" class="signed-stamp">SIGNED</h2><div id="signedDetails"></div><button id="signedContinue" class="primary" type="button">Continue</button></section></div><div id="financeDialog" class="finance-dialog" hidden><section role="dialog" aria-modal="true" aria-labelledby="financeDialogTitle"><h2 id="financeDialogTitle"></h2><div id="financeDialogBody"></div><div class="finance-dialog-actions"><button id="financeCancel" type="button">Cancel</button><button id="financeConfirm" class="primary" type="button">Confirm</button></div></section></div>
@@ -3493,6 +3496,82 @@ function clearAllInjuries(){for(let p of leaguePlayers())delete p.injury;for(let
 {const base=schemeFitBadge;schemeFitBadge=function(p,...a){let out=base(p,...a)||'';if(p&&isInjuredOut(p)&&p.injury?.weeks>0)out+=`<span class="inj-badge" title="${injuryLabel(p)}">INJ ${p.injury.weeks}W</span>`;return out;};}
 // Hub notice for your injured players
 function injuryNotices(){if(!season)return[];let mine=franchiseRoster(season.userTeam).filter(p=>p.injury?.weeks>0);if(!mine.length)return[];return[['alert','Injured: '+mine.slice(0,4).map(p=>`${playerSlotLabel(p)} ${p.name} (${p.injury.type}, ${p.injury.weeks} wk${p.injury.weeks>1?'s':''})`).join(' · ')+(mine.length>4?' · …':'')+'. Backups will start.']];}
+
+// ===== Weather =====
+// Every game gets conditions from the HOME stadium and the time of year:
+//   * Dome teams (HOU, IND, LV, both LA teams, DAL, DET, MIN, ATL, NO, ARI) always play indoors.
+//   * Snow only shows up from about week 10 on, mostly in cold cities (BUF, GB, CHI, CLE, NE, DEN, PIT, NY...), and is
+//     most likely in December and the playoffs.
+//   * Rain can happen anywhere outdoors (Seattle and Florida most). Most games are clear.
+//   * Every outdoor game also has wind (usually light). Storms bring more.
+// Gameplay effects (both teams, so it's fair):
+//   SNOW  - hard cuts can make players slip and stumble; everyone is a touch slower to accelerate and top out.
+//           Ball security drops, catches are harder, kicks are shorter and less accurate. Visibility drops far downfield.
+//   RAIN  - long throws get less accurate and deep visibility drops (a fog over the far field); wet ball = more drops
+//           and fumbles; footing is slightly worse on cuts; kicks are a bit harder.
+//   WIND  - deep passes, field goals and punts: less range and accuracy the stronger it blows.
+//   CPU   - leans on the run game in bad weather and takes fewer deep shots.
+// Simulated games use the same weather: scoring drops in snow/rain/wind (fewer TDs, harder field goals), and
+// cold-weather home teams get a small edge on warm-weather and dome visitors in snow.
+const DOME_TEAMS=new Set([8,9,14,15,16,21,23,24,26,28,29]);
+const TEAM_CLIMATE={0:{cold:1,rain:.12},1:{cold:0,rain:.2},2:{cold:.85,rain:.13},3:{cold:.7,rain:.13},4:{cold:.45,rain:.13},5:{cold:.6,rain:.13},6:{cold:.85,rain:.13},7:{cold:.8,rain:.14},10:{cold:0,rain:.2},11:{cold:.15,rain:.14},12:{cold:.8,rain:.07},13:{cold:.6,rain:.12},17:{cold:.7,rain:.13},18:{cold:.6,rain:.13},19:{cold:.4,rain:.13},20:{cold:.9,rain:.12},22:{cold:1,rain:.1},25:{cold:.1,rain:.15},27:{cold:0,rain:.2},30:{cold:0,rain:.15},31:{cold:.25,rain:.32}};
+function seededRng(seed){let a=seed|0;return()=>{a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function makeWeather(homeId,week,rng){if(DOME_TEAMS.has(homeId))return{kind:'dome',intensity:0,wind:0,temp:72};let c=TEAM_CLIMATE[homeId]||{cold:.3,rain:.13},late=clamp((week-9)/9,0,1),chill=clamp((week-5)/9,0,1),pSnow=c.cold*clamp((week-8)/8,0,1)*.5;
+ let temp=Math.round(78-c.cold*50*chill-c.cold*8+rng()*10-(week>=19?6:0)),wind=Math.min(25,Math.round(Math.abs((rng()+rng()+rng()-1.5)*2)*7));
+ let r=rng(),kind='clear',intensity=0;if(temp<=36&&r<pSnow){kind='snow';intensity=.4+rng()*.6;temp=Math.min(temp,32);}else if(rng()<c.rain*(temp<=36?.5:1)){kind='rain';intensity=.4+rng()*.6;}
+ if(kind!=='clear')wind=Math.min(25,wind+Math.round(intensity*6));return{kind,intensity:+intensity.toFixed(2),wind,temp};}
+function weatherFor(m){if(!m)return null;if(m.weather)return m.weather;let week=season?.week||1,seed=((season?.year||1)*1000+week*37+m.home*101+m.away*7)|0;m.weather=makeWeather(m.home,week,seededRng(seed));return m.weather;}
+function currentWeather(){if(typeof g==='undefined'||!g)return null;if(practiceMode||(typeof tutorial!=='undefined'&&tutorial))return null;if(!g.weather){let m=season&&season.activeGame?seasonGame():null;g.weather=m?weatherFor(m):makeWeather(matchTeams[homeTeamIndex()]?.id??0,10+Math.floor(Math.random()*8),Math.random);}return g.weather;}
+function wx(){let w=currentWeather();return{snow:w?.kind==='snow'?w.intensity:0,rain:w?.kind==='rain'?w.intensity:0,wind:w&&w.kind!=='dome'?w.wind:0};}
+function weatherLabel(w){if(!w)return'';let wind=w.wind>=8?` · WIND ${w.wind} MPH`:'';return w.kind==='dome'?'INDOORS · DOME':w.kind==='snow'?`${w.intensity>=.75?'HEAVY ':''}SNOW · ${w.temp}°F${wind}`:w.kind==='rain'?`${w.intensity>=.75?'HEAVY ':''}RAIN · ${w.temp}°F${wind}`:`CLEAR · ${w.temp}°F${wind}`;}
+{const base=fresh;fresh=function(...a){let r=base(...a);try{g.weather=null;let w=currentWeather();if(w&&w.kind!=='clear'&&w.kind!=='dome'){flash=w.kind==='snow'?'SNOW GAME':'RAIN GAME';flashTime=1.8;}}catch(e){}return r;};}
+
+// ---- Footing: cuts in snow (and a little in rain) ----
+{const base=moveAthlete;moveAthlete=function(p,x,y,dt){let w=wx();if((w.snow||w.rain)&&g.phase==='live'){
+  let vx=p.lastMoveX||0,vy=p.lastMoveY||0,v=Math.hypot(vx,vy),dx=x-p.x,dy=y-p.y,l=Math.hypot(dx,dy);
+  if(v>3.5&&l>.3&&(p.cutCool||0)<=g.playTime){let cos=(vx*dx+vy*dy)/(v*l),ang=Math.acos(clamp(cos,-1,1))*180/Math.PI;if(ang>45){let sev=clamp((ang-45)/100,0,1),agile=clamp(((rating(p,'agility',rating(p,'acceleration',70))||70)-60)/39,0,1);
+   p.cutCool=g.playTime+.35;p.runSpeed=(p.runSpeed||0)*(1-(.45*w.snow+.15*w.rain)*sev);
+   if(Math.random()<(.26*w.snow+.03*w.rain)*sev*(1-agile*.5)){p.stun=Math.max(p.stun||0,.3+.2*w.snow);p.runSpeed=0;try{spawnPuffs(p,4);}catch(e){}if(p===carrier||p===selected){flash='SLIPPED!';flashTime=.6;}}}}
+  dt*=1-.07*w.snow-.02*w.rain;}
+ return base(p,x,y,dt);};}
+// ---- Passing ----
+{const base=passAccuracy;passAccuracy=function(p,target){let r=base(p,target),w=wx();if(!(w.snow||w.rain||w.wind))return r;let yards=dist(p,target),deep=clamp((yards-12)/25,0,1);return{...r,radius:r.radius*(1+deep*(.6*w.rain+.25*w.snow+.025*w.wind)+.05*w.rain)};};}
+{const base=ratingCatchChance;ratingCatchChance=function(rec,b){let c=base(rec,b),w=wx();if(!(w.snow||w.rain))return c;let deep=b?.start&&dist(b.start,b.target)>20?1:0;return clamp(c-.04*w.snow-.05*w.rain-.04*w.rain*deep,.35,.98);};}
+{const base=catchBands;catchBands=function(p){let b=base(p),w=wx(),k=1-.15*w.rain-.1*w.snow;return{green:b.green*k,orange:b.orange*k};};}
+{const base=fumbleChance;fumbleChance=function(runner,tackler){let w=wx();return base(runner,tackler)*(1+.6*w.rain+.5*w.snow);};}
+// ---- Kicking ----
+{const base=kickGreen;kickGreen=function(distance,k=kickState){let w=wx();return base(distance,k)*(1-.18*w.rain-.22*w.snow-.012*w.wind);};}
+{const base=kickerAbility;kickerAbility=function(team){let a=base(team),w=wx();return{...a,maxRange:a.maxRange*(1-.10*w.snow-.04*w.rain)-w.wind*.35};};}
+{const base=punterAbility;punterAbility=function(team){let a=base(team),w=wx();return{...a,maxRange:a.maxRange*(1-.08*w.snow-.03*w.rain)-w.wind*.3};};}
+// ---- CPU strategy ----
+{const base=cpuOffense;cpuOffense=function(){let call=base(),w=wx(),lean=.3*w.rain+.35*w.snow+Math.max(0,w.wind-10)/40;if(call&&!call.kneel&&call.kind!=='RUN'&&lean>0&&Math.random()<lean){for(let i=0;i<4;i++){let c=base();if(c&&c.kind==='RUN'){call=c;break;}}}return call;};}
+{const base=passRead;passRead=function(qb,p,hot=false){let r=base(qb,p,hot),w=wx(),bad=w.rain+.6*w.snow+w.wind/20;if(bad>0&&g.off===1&&r.gain>15)r={...r,score:r.score-(r.gain-15)*.25*bad};return r;};}
+// ---- Simulated games ----
+function simulateMatch(m){let w=weatherFor(m)||{kind:'clear',wind:0},snow=w.kind==='snow'?w.intensity:0,rain=w.kind==='rain'?w.intensity:0,wind=w.kind==='dome'?0:w.wind||0;
+ let H=coachAdjustedRatings(m.home),A=coachAdjustedRatings(m.away),normal=()=>Math.sqrt(-2*Math.log(Math.max(.000001,Math.random())))*Math.cos(Math.random()*Math.PI*2),possessions=10+Math.floor(Math.random()*3);
+ // Bad weather: fewer touchdowns, harder field goals. Cold-weather home teams handle snow better than dome/warm visitors.
+ let wxTD=.035*snow+.025*rain+Math.max(0,wind-12)*.002,wxFG=.03*snow+.015*rain+wind*.003,coldEdge=snow&&(TEAM_CLIMATE[m.home]?.cold||0)>=.5&&(DOME_TEAMS.has(m.away)||(TEAM_CLIMATE[m.away]?.cold??0)<.3)?.02*snow:0;
+ let points=(attack,defense,home)=>{let form=normal()*.075,td=clamp(.26+(attack.off-defense.def)*.010+(attack.ovr-defense.ovr)*.004+form+(home?.015+coldEdge:0)-wxTD,.05,.68),fg=clamp(.15+(attack.off-defense.def)*.003-wxFG,.04,.22),score=0;for(let i=0;i<possessions;i++){let roll=Math.random();if(roll<td)score+=Math.random()<.94-.04*snow?7:6;else if(roll<td+fg)score+=3;}return score;};
+ let h=points(H,A,!m.neutral),a=points(A,H,false);if(h===a&&Math.random()<.96){if(Math.random()<1/(1+Math.exp(-((H.ovr-A.ovr)*.14+.12))))h+=3;else a+=3;}return[h,a];}
+// ---- Hub: show this week's forecast ----
+{const base=renderSeasonHub;renderSeasonHub=function(...a){let r=base(...a);try{let m=season&&!season.offseason?seasonGame():null,v=document.querySelector('#hubMatchup .hub-versus');if(m&&v&&!v.querySelector('.wx-tag')){let w=weatherFor(m);v.insertAdjacentHTML('beforeend',`<span class="wx-tag wx-${w.kind}">${weatherLabel(w)}</span>`);}}catch(e){}return r;};}
+// ---- Visuals: snow/rain particles, field tint and deep-field haze (kept light so you can always see the play) ----
+let wxParticles=[],wxLast=0;
+function drawWeather(){let w=currentWeather();if(!w||w.kind==='clear'||w.kind==='dome'||!ctx)return;let now=performance.now(),dt=Math.min(.05,(now-(wxLast||now))/1000);wxLast=now;let snow=w.kind==='snow',k=w.intensity,n=Math.round((snow?190:170)*k),windX=(w.wind||0)*(snow?6:10);
+ ctx.save();ctx.setTransform(1,0,0,1,0,0);
+ // Field tint
+ ctx.fillStyle=snow?`rgba(235,242,255,${.16+.14*k})`:`rgba(30,45,75,${.14+.10*k})`;ctx.fillRect(0,128,1000,472);
+ // Deep-field haze beyond ~22 yards downfield from the line (direction of the offense). Capped so it never hides players.
+ if(g&&['ready','live','handoff','contact'].includes(g.phase)){let d=direction(g.off),edge=screen({x:g.spot+d*(snow?28:22),y:26.5}).x,alpha=(snow?.38:.48)*k;let grad=ctx.createLinearGradient(edge,0,edge+d*200,0);grad.addColorStop(0,snow?'rgba(230,236,245,0)':'rgba(70,84,100,0)');grad.addColorStop(1,snow?`rgba(230,236,245,${alpha})`:`rgba(70,84,100,${alpha})`);ctx.fillStyle=grad;if(d>0)ctx.fillRect(edge,135,1000-edge,415);else ctx.fillRect(0,135,edge,415);}
+ // Particles
+ while(wxParticles.length<n)wxParticles.push({x:Math.random()*1000,y:Math.random()*600,s:snow?2+Math.random()*3:1,v:snow?30+Math.random()*40:520+Math.random()*260});wxParticles.length=Math.min(wxParticles.length,n);
+ ctx.fillStyle='rgba(255,255,255,.9)';ctx.strokeStyle='rgba(200,220,245,.6)';ctx.lineWidth=1.5;
+ for(let q of wxParticles){q.y+=q.v*dt;q.x+=(windX+(snow?Math.sin((q.y+q.x)*.02)*14:0))*dt;if(q.y>600){q.y=-5;q.x=Math.random()*1000;}if(q.x>1000)q.x-=1000;if(q.x<0)q.x+=1000;
+  if(snow)ctx.fillRect(Math.round(q.x),Math.round(q.y),Math.round(q.s),Math.round(q.s));else{ctx.beginPath();ctx.moveTo(q.x,q.y);ctx.lineTo(q.x-windX*.02,q.y-13);ctx.stroke();}}
+ ctx.restore();}
+{const base=draw;draw=function(...a){let r=base(...a);try{drawWeather();drawWeatherBadge();}catch(e){}return r;};}
+function drawWeatherBadge(){let w=currentWeather(),c=$('game');if(!c)return;let b=$('wxBadge');if(!b){b=document.createElement('div');b.id='wxBadge';b.className='wx-badge';let host=c.parentElement;if(getComputedStyle(host).position==='static')host.style.position='relative';host.appendChild(b);}
+ if(!w||w.kind==='clear'&&w.wind<8){b.hidden=true;return;}b.hidden=false;let txt=weatherLabel(w);if(b.textContent!==txt)b.textContent=txt;b.className='wx-badge wx-'+w.kind;b.style.left=(c.offsetLeft+c.offsetWidth-12)+'px';b.style.top=(c.offsetTop+12)+'px';}
 
 $('finalReturn').onclick=()=>{$('finalDialog').hidden=true;keys.clear();drag=null;if(season)showSeasonHub();else showMainMenu();};$('finalDialog').onkeydown=e=>{if(e.key==='Tab'){e.preventDefault();$('finalReturn').focus();}};initTeamMenu();initSaveMenu();initLineup();initPlayerDetails();initFinances();function frame(t){let dt=Math.min((t-last)/1000,.04);last=t;if(!menuActive){update(dt);recordSeasonFinal();drawWithFx();syncFinalDialog();autosaveTick(dt);}requestAnimationFrame(frame)}requestAnimationFrame(frame);
 </script></html>
