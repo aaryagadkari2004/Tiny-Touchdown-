@@ -326,6 +326,10 @@ button.player-card{display:block;width:100%;padding:0;text-align:inherit;cursor:
 .cap-off{color:#7ee2a2!important}
 @media(max-width:900px){.diff-grid{grid-template-columns:repeat(2,1fr)}.diff-notes{grid-template-columns:1fr}}
 @media(max-width:520px){.diff-grid{grid-template-columns:1fr}.diff-card{min-height:0}.setting-row{flex-direction:column;align-items:stretch}}
+.crowd-meter{position:absolute;z-index:5;pointer-events:none;background:#0b161ccc;border:2px solid #e9c975;padding:6px 9px;display:flex;flex-direction:column;gap:2px;font:9px TTPixel,monospace;color:#fff0ce;box-shadow:3px 3px 0 #040e13}
+.crowd-meter[hidden]{display:none}.crowd-meter span{color:#f2c94c;font-size:13px;letter-spacing:1px}.crowd-meter small{font-size:7px;color:#f0a58f}
+.inj-badge{position:absolute;right:4px;bottom:26px;z-index:3;font:8px TTPixel,monospace;color:#fff;background:#b8433a;border:2px solid #3a0f0b;padding:2px 4px;letter-spacing:1px}
+.pb-timeout{margin-right:6px}
 </style>
 <main id="financePage" class="finance-page" hidden><header><div id="financeTeam" class="finance-team"></div><button id="financeBack" type="button">Back</button></header><div id="financeContent"><section id="capMetrics" class="cap-metrics" aria-label="Team salary cap"></section><div id="capMeter"></div><p id="financeStatus" aria-live="polite"></p><section id="negotiationPanel" class="finance-section" hidden></section><section class="finance-section"><div class="finance-section-head"><h2>PLAYER CONTRACTS</h2><div class="finance-controls"><label>Sort <select id="financeSort"><option value="capDesc">Highest cap hit</option><option value="capAsc">Lowest cap hit</option><option value="yearsAsc">Shortest remaining</option><option value="yearsDesc">Longest remaining</option><option value="ovr">Highest overall</option></select></label><label>Position <select id="financeFilter"><option value="ALL">All positions</option><option>QB</option><option>RB</option><option>WR</option><option>TE</option><option>OL</option><option>DT</option><option>EDGE</option><option>LB</option><option>MLB</option><option>CB</option><option>S</option><option>K</option><option>P</option></select></label></div></div><div class="finance-table-scroll"><table class="finance-table"><thead><tr><th>Player</th><th>Yearly base</th><th>Yearly bonus</th><th>Current cap hit</th><th>Remaining term</th><th>Bonus still owed</th><th>Actions</th></tr></thead><tbody id="contractRows"></tbody></table></div></section><section class="finance-section"><h2>AUTOMATIC ROOKIE RESERVE</h2><p id="draftReserveNote"></p><div id="draftReserveRows" class="draft-reserve-rows"></div></section><section class="finance-section"><h2>CAP PENALTIES</h2><div class="finance-table-scroll"><table class="finance-table"><thead><tr><th>Player / reason</th><th>Current-year penalty</th></tr></thead><tbody id="capPenaltyRows"></tbody></table></div></section></div></main>
 <div id="signedOverlay" class="signed-overlay" hidden><section role="dialog" aria-modal="true" aria-labelledby="signedStamp"><p class="signed-kicker">CONTRACT AGREED</p><h2 id="signedStamp" class="signed-stamp">SIGNED</h2><div id="signedDetails"></div><button id="signedContinue" class="primary" type="button">Continue</button></section></div><div id="financeDialog" class="finance-dialog" hidden><section role="dialog" aria-modal="true" aria-labelledby="financeDialogTitle"><h2 id="financeDialogTitle"></h2><div id="financeDialogBody"></div><div class="finance-dialog-actions"><button id="financeCancel" type="button">Cancel</button><button id="financeConfirm" class="primary" type="button">Confirm</button></div></section></div>
@@ -1331,6 +1335,7 @@ function renderHubNotices(){let user=season.userTeam,items=[],cap=capSummary(use
  if(typeof coachNotices==='function')items.push(...coachNotices());
  if(typeof rookieRevealNotice==='function'){let n=rookieRevealNotice();if(n)items.push(n);}
  if(typeof freeAgentsTileState==='function'){let b=$('freeAgentsButton'),st=freeAgentsTileState();if(b){b.disabled=!st.ok;b.title=st.why;}}
+ if(typeof injuryNotices==='function')items.push(...injuryNotices());
  if(typeof spreadCorrectionNotice==='function'){let n=spreadCorrectionNotice();if(n)items.push(n);}
  if(typeof postseasonTierNotices==='function')items.push(...postseasonTierNotices());
  if(!items.length)items.push(['info','No action needed. You are ready to play.']);
@@ -3383,6 +3388,111 @@ function switchDefender(){tutorialMark('switch');let list=g.phase==='live'||g.ph
  if(selected&&selected!==pick){selected.speedBoost=1;selected.sprintHeld=false;}selected=pick;flash='SWITCHED · '+(pick.record?playerSlotLabel(pick.record):pick.role);flashTime=.5;}
 // When the CPU throws, you're switched to the defender who can get to the ball first (not just the closest one).
 {const base=throwBall;throwBall=function(target,intended=null,type='touch'){let wasOff=g.off;base(target,intended,type);if(wasOff===1&&ball){let list=switchCandidates();if(list&&list.length){if(selected)selected.speedBoost=1;selected=list[0].p;}}};}
+
+// ===== Timeouts from the play-call screen (and right after a play ends) =====
+// The Timeout button lived in the bar under the field, hidden behind the play-call overlay. Now the overlay has its own
+// Timeout button (T still works), and you can also take one during the result screen right after the whistle to stop
+// the clock immediately, the way real clock management works.
+function earlyTimeoutOK(){return g.phase==='dead'&&(g.deadTimer||0)>0&&(g.pendingKickoff===undefined||g.pendingKickoff===null)&&!g.penalty&&!g.try&&!kickState&&!looseBall;}
+function canCallUserTimeout(){if(!g||paused||celebration||practiceMode||g.timeouts?.[0]<=0)return false;return g.phase==='ready'||g.phase==='dead'&&((g.deadTimer||0)<=0||earlyTimeoutOK());}
+{const base=callTimeout;callTimeout=function(team=0){if(team===0&&earlyTimeoutOK()&&!paused&&!celebration&&g.timeouts[0]>0)g.deadTimer=0;return base(team);};}
+function ensurePlaybookTimeout(){let box=document.querySelector('#playbook .special');if(!box||$('pbTimeout'))return;let b=document.createElement('button');b.id='pbTimeout';b.type='button';b.className='pb-timeout';b.onclick=()=>{if(g.phase==='timeout')resumeTimeout();else queueUserTimeout();};box.insertBefore(b,box.firstChild);}
+{const base=hud;hud=function(...a){let r=base(...a);try{ensurePlaybookTimeout();let left=g.timeouts?.[0]??0,ok=canCallUserTimeout(),b=$('pbTimeout');if(b){b.textContent=`Timeout · T (${left} left)`;b.disabled=!ok;b.hidden=practiceMode||!!g.try;}let t=$('timeout');if(t&&g.phase!=='timeout')t.disabled=!ok;}catch(e){}return r;};}
+// Pressing T (or the button) while the result banner is still up queues the timeout; it's taken the moment it's allowed.
+function queueUserTimeout(){if(!g||practiceMode||g.timeouts?.[0]<=0||g.try||g.phase==='timeout')return false;if(canCallUserTimeout()){callTimeout(0);return true;}if(g.phase==='dead'||celebration&&g.phase!=='live'){g.timeoutQueued=true;say('Timeout requested · it will be taken as soon as the play is over.');hud();return true;}return false;}
+window.addEventListener('keydown',e=>{if(menuActive||e.repeat||e.key.toLowerCase()!=='t'||!g||paused)return;if(celebration&&g.phase!=='timeout'){if(queueUserTimeout()){e.stopImmediatePropagation();}}},true);
+{const base=update;update=function(dt){let r=base(dt);if(g?.timeoutQueued){if(['live','handoff','contact'].includes(g.phase)||g.try||kickState){g.timeoutQueued=false;}else if(canCallUserTimeout()){g.timeoutQueued=false;callTimeout(0);}}return r;};}
+
+// ===== Home-field advantage: crowd noise on crucial plays =====
+// When the ROAD team has the ball on a crucial play (4th down, 3rd down, red zone, a close 4th quarter, end of a half),
+// the home crowd gets loud:
+//   * You (on the road, on offense): the camera shakes. Small and readable at worst: at most ~5px, eased in and out.
+//   * The CPU (on the road, on offense): it can't feel a camera shake, so the same noise makes its QB react a bit later,
+//     sometimes lock onto the wrong receiver, and makes its line jump offside more.
+//   * Both road offenses: more false starts while it's loud.
+// How loud depends on how well the HOME team is doing: a winless team barely gets a murmur, a team on a hot streak or
+// with a great record shakes the stadium. Playoff crowds get a boost.
+const CROWD_MAX_SHAKE_PX=5;
+function crowdStrength(homeId){if(!season)return .55;let rows=leagueTable(),r=rows[homeId];if(!r)return .5;let games=r.w+r.l+r.t;
+ // Early in the year the crowd goes off how good the team looks on paper.
+ let paper=clamp(.5+(teamRatings(homeId).ovr-82)/20,.25,.85);if(games<2)return paper;
+ let p=pct(r),streak=0;for(let i=season.weeks.length-1;i>=0;i--){let m=season.weeks[i].games.find(x=>(x.home===homeId||x.away===homeId)&&x.result);if(!m)continue;let mine=m.home===homeId?m.result[0]:m.result[1],theirs=m.home===homeId?m.result[1]:m.result[0];if(mine>theirs){if(streak>=0)streak++;else break;}else if(mine<theirs){if(streak<=0)streak--;else break;}else break;}
+ let s=.2+.75*p+clamp(streak,-3,4)*.04+(season.week>=20?.15:0);return clamp(games<5?s*.7+paper*.3:s,.15,1);}
+function crucialFactor(){if(!g||g.try||kickState)return 0;let off=g.off,c=cpuSituation(off),f=0;
+ if(g.down===4)f=1;else if(g.down===3)f=.75;
+ if(c.remaining<=20)f=Math.max(f,.6);
+ if(g.q>=4&&Math.abs(c.margin)<=8)f=Math.max(f,.7);
+ if((g.q===2||g.q>=4)&&g.time<=45)f=Math.max(f,.65);
+ return f;}
+// 0 = silent, 1 = deafening. Only when the road team has the ball.
+function crowdNoiseLevel(){if(!g||practiceMode||(typeof tutorial!=='undefined'&&tutorial)||!matchTeams?.length)return 0;let home=homeTeamIndex();if(g.off===home)return 0;if(season&&seasonGame()?.neutral)return 0;
+ let f=crucialFactor();if(!f)return 0;let homeId=matchTeams[home]?.id;if(g._crowdKey!==homeId+':'+(season?.week||0)){g._crowdKey=homeId+':'+(season?.week||0);g._crowdStrength=crowdStrength(homeId);}return clamp(f*g._crowdStrength,0,1);}
+// CPU road offense feels it in its decision making.
+{const base=cpuPlan;cpuPlan=function(p){let plan=base(p),lvl=g.off===1?crowdNoiseLevel():0;if(lvl>0){plan.reaction=(plan.reaction||.2)+.07*lvl;if(!plan.missRead&&Math.random()<.12*lvl)plan.missRead=true;}return plan;};}
+{const base=falseStartChance;falseStartChance=function(){let lvl=crowdNoiseLevel();return base()*(1+(g.off===1?1.2:.6)*lvl);};}
+// Camera shake for you when you're the road offense. Eases in during the pre-snap and fades a second or so into the play.
+let crowdShake={amp:0,t:0};
+function updateCrowdShake(dt){let lvl=g&&g.off===0&&['ready','live','handoff'].includes(g.phase)&&!paused?crowdNoiseLevel():0;let live=g?.phase==='live'||g?.phase==='handoff',fade=live?clamp(1-(g.playTime-.6)/1.2,0,1):1,want=lvl*fade;
+ let reduce=false;try{reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;}catch(e){}if(reduce)want*=.35;
+ crowdShake.amp+=(want-crowdShake.amp)*Math.min(1,dt*3);crowdShake.t+=dt;let c=$('game');if(!c)return;
+ if(crowdShake.amp<.02){if(c.style.transform)c.style.transform='';}else{let a=crowdShake.amp*CROWD_MAX_SHAKE_PX,t=crowdShake.t,x=(Math.sin(t*23)*.6+Math.sin(t*37+1.3)*.4)*a,y=(Math.sin(t*29+.7)*.6+Math.sin(t*41+2.1)*.4)*a*.7;c.style.transform=`translate(${x.toFixed(2)}px,${y.toFixed(2)}px)`;}
+ updateCrowdMeter(lvl);}
+function updateCrowdMeter(lvl){let c=$('game');if(!c)return;let m=$('crowdMeter');if(!m){m=document.createElement('div');m.id='crowdMeter';m.className='crowd-meter';m.setAttribute('aria-live','polite');let host=c.parentElement;if(getComputedStyle(host).position==='static')host.style.position='relative';host.appendChild(m);}
+ let level=g&&['ready','live','handoff'].includes(g.phase)?(lvl||crowdNoiseLevel()):0;if(level<.05){m.hidden=true;return;}m.hidden=false;let bars=Math.max(1,Math.round(level*5)),road=g.off===0?'YOU ARE ON THE ROAD':names[g.off]+' ON THE ROAD';
+ m.innerHTML=`<b>CROWD NOISE</b><span>${'▮'.repeat(bars)}${'▯'.repeat(5-bars)}</span><small>${road}</small>`;m.style.left=(c.offsetLeft+12)+'px';m.style.top=(c.offsetTop+12)+'px';}
+{const base=update;update=function(dt){let r=base(dt);try{updateCrowdShake(dt);}catch(e){}return r;};}
+function resetCrowdFx(){let c=$('game');if(c)c.style.transform='';let m=$('crowdMeter');if(m)m.hidden=true;crowdShake.amp=0;}
+{const base=showSeasonHub;showSeasonHub=function(...a){resetCrowdFx();return base(...a);};}
+{const base=showMainMenu;showMainMenu=function(...a){resetCrowdFx();return base(...a);};}
+
+// ===== Injuries =====
+// In a game you play: any tackle can (rarely) hurt the runner or the tackler (about 1 injury every 2 games, both teams).
+//   55% minor: out for a few plays, then back.   25%: out for the rest of the game.   20%: out for 1-6 weeks (franchise).
+// Simulated games: each team has a small chance of a multi-week injury to a starter.
+// The next man on the depth chart steps in automatically, for you and the CPU. Kickers and punters don't get hurt.
+// Injured players show a red INJ tag on lineup cards; multi-week injuries tick down as weeks are played and are healed
+// by the next season.
+const INJURY_TYPES=['Hamstring','Ankle sprain','Knee sprain','Shoulder','Ribs','Groin','Wrist','Calf','Hip pointer','Back spasms','Turf toe','Elbow'];
+const INJURY_CONTACT_RATE=.012,INJURY_SIM_RATE=.16;
+function injuryWeeksRoll(){let r=Math.random();return r<.45?1:r<.70?2:r<.85?3:r<.95?4:r<.985?5:6;}
+function isInjuredOut(p){if(!p)return false;if(p.injury&&p.injury.weeks>0)return true;let gi=typeof g!=='undefined'&&g?.inj?.[p.id];return !!gi&&(gi.game||gi.plays>0);}
+function injuryLabel(p){if(p?.injury?.weeks>0)return`${p.injury.type} · out ${p.injury.weeks} wk${p.injury.weeks>1?'s':''}`;let gi=g?.inj?.[p?.id];if(gi)return`${gi.type} · ${gi.game?'out for the game':'out '+gi.plays+' play'+(gi.plays>1?'s':'')}`;return'';}
+// Healthy players first; if a position runs out of healthy bodies, the injured guy plays (better than nobody).
+function healthyFirst(records){let healthy=records.filter(p=>!isInjuredOut(p));return[...healthy,...records.filter(p=>isInjuredOut(p))];}
+// ---- On-field lineup: skip injured players, next man up ----
+function player(team,role,x,y,i){let all=roster.teams[team].players.filter(p=>!p.retired),records=healthyFirst(all);return{record:role==='QB'?qbRecord(team):role==='WR'?records.filter(p=>p.position==='WR')[i-7]:['RB','TE'].includes(role)?records.find(p=>p.position===role):role==='OL'?records.filter(p=>p.position==='OL')[i]:role==='DT'?records.filter(p=>p.position==='DT')[i-12]:role==='EDGE'?records.filter(p=>p.position==='EDGE')[i===11?0:1]:['CB','S'].includes(role)?records.filter(p=>p.position===role)[i-(role==='CB'?18:20)]:['LB','MLB'].includes(role)?(i===16?records.find(p=>p.position==='MLB'):records.filter(p=>p.position==='LB')[i===15?0:1]):null,runSpeed:0,team,role,x,y,i,homeY:y,cool:0,jump:0,stun:0,anim:0,facing:direction(team)}}
+function qbRecord(team){let qbs=roster.teams[team].players.filter(p=>p.position==='QB'&&!p.retired);return qbs.find(p=>!isInjuredOut(p))||qbs[0];}
+// ---- Simulated games: injured starters don't count, so losing your star actually hurts ----
+let injuryAwareLineups=false;
+{const base=startingRoster;startingRoster=function(records,...a){let list=base(records,...a);if(!injuryAwareLineups||!list.some(isInjuredOut))return list;let used=new Set(list.filter(p=>!isInjuredOut(p)));
+ return list.map(p=>{if(!isInjuredOut(p))return p;let sub=orderRosterDepth([...records]).find(q=>!q.retired&&q.position===p.position&&!isInjuredOut(q)&&!used.has(q));if(sub){used.add(sub);return sub;}return p;});};}
+function withInjuryAware(fn){let was=injuryAwareLineups;injuryAwareLineups=true;try{return fn();}finally{injuryAwareLineups=was;}}
+function injureRecord(p,weeks,type,source){p.injury={weeks,type,year:season?.year,week:season?.week,fresh:true,source};season.injuryLog=(season.injuryLog||[]).slice(-60);season.injuryLog.push({id:p.id,name:p.name,pos:p.position,team:playerTeamId?.(p),weeks,type,year:season.year,week:season.week});}
+function simInjuries(m){if(!season)return;for(let id of [m.home,m.away]){if(Math.random()>=INJURY_SIM_RATE)continue;let starters=startingRoster(franchiseRoster(id)).filter(p=>!p.retired&&!['K','P'].includes(p.position)&&!(p.injury?.weeks>0));if(!starters.length)continue;let p=starters[Math.floor(Math.random()*starters.length)];injureRecord(p,injuryWeeksRoll(),pick(INJURY_TYPES),'sim');}}
+{const base=simulateMatch;simulateMatch=function(m){let r=withInjuryAware(()=>base(m));try{simInjuries(m);}catch(e){}return r;};}
+{const base=simulatePlayerStats;simulatePlayerStats=function(m,...a){return withInjuryAware(()=>base(m,...a));};}
+// ---- Weekly healing ----
+function healInjuriesWeek(){if(!season)return;for(let p of leaguePlayers()){let inj=p.injury;if(!inj)continue;if(inj.fresh){inj.fresh=false;continue;}inj.weeks--;if(inj.weeks<=0)delete p.injury;}}
+{const base=settleWeek;settleWeek=function(...a){let ok=base(...a);if(ok)try{healInjuriesWeek();if(season.week>23)clearAllInjuries();}catch(e){}return ok;};}
+// ---- Live games: tackles can hurt someone ----
+function liveInjuryCheck(runner,tackler,big){if(!g||practiceMode||(typeof tutorial!=='undefined'&&tutorial)||!runner?.record||!tackler?.record)return;let rate=INJURY_CONTACT_RATE*(big?1.6:1);if(Math.random()>=rate)return;
+ let victim=Math.random()<.6?runner:tackler,rec=victim.record;if(['K','P'].includes(rec.position)||isInjuredOut(rec))return;if(rec.position==='QB'&&Math.random()<.5)return;g.inj=g.inj||{};
+ let roll=Math.random(),type=pick(INJURY_TYPES);
+ if(roll<.55)g.inj[rec.id]={plays:2+Math.floor(Math.random()*5),type};
+ else if(roll<.80||!season)g.inj[rec.id]={game:true,type};
+ else{g.inj[rec.id]={game:true,type};injureRecord(rec,injuryWeeksRoll(),type,'game');}
+ let team=matchTeams[victim.team]?.abbr||names[victim.team];g.injuryNews=(g.injuryNews||[]).concat(`INJURY · ${team} ${playerSlotLabel(rec)} ${rec.name} (${injuryLabel(rec)}). ${victim.team===0?'Your backup steps in.':'Their backup steps in.'}`);}
+{const base=queueContact;queueContact=function(tackler,fumble=false){let runner=carrier;base(tackler,fumble);try{liveInjuryCheck(runner,tackler,fumble||!!contact?.sack);}catch(e){}};}
+// Minor injuries count down each snap.
+{const base=snap;snap=function(){let before=g.phase;base();if(before==='ready'&&g.phase==='live'&&g.inj){for(let [id,v] of Object.entries(g.inj)){if(v.plays>0){v.plays--;if(v.plays<=0)delete g.inj[id];}}}};}
+// Show injury news at the next play call.
+{const base=setup;setup=function(...a){let r=base(...a);if(g?.injuryNews?.length){let msg=g.injuryNews.join(' ');g.injuryNews=[];flash='INJURY';flashTime=1.4;say(msg);}return r;};}
+// ---- Season bookkeeping ----
+function clearAllInjuries(){for(let p of leaguePlayers())delete p.injury;for(let p of season?.freeAgents||[])delete p.injury;}
+// Lineup card tag
+{const base=schemeFitBadge;schemeFitBadge=function(p,...a){let out=base(p,...a)||'';if(p&&isInjuredOut(p)&&p.injury?.weeks>0)out+=`<span class="inj-badge" title="${injuryLabel(p)}">INJ ${p.injury.weeks}W</span>`;return out;};}
+// Hub notice for your injured players
+function injuryNotices(){if(!season)return[];let mine=franchiseRoster(season.userTeam).filter(p=>p.injury?.weeks>0);if(!mine.length)return[];return[['alert','Injured: '+mine.slice(0,4).map(p=>`${playerSlotLabel(p)} ${p.name} (${p.injury.type}, ${p.injury.weeks} wk${p.injury.weeks>1?'s':''})`).join(' · ')+(mine.length>4?' · …':'')+'. Backups will start.']];}
 
 $('finalReturn').onclick=()=>{$('finalDialog').hidden=true;keys.clear();drag=null;if(season)showSeasonHub();else showMainMenu();};$('finalDialog').onkeydown=e=>{if(e.key==='Tab'){e.preventDefault();$('finalReturn').focus();}};initTeamMenu();initSaveMenu();initLineup();initPlayerDetails();initFinances();function frame(t){let dt=Math.min((t-last)/1000,.04);last=t;if(!menuActive){update(dt);recordSeasonFinal();drawWithFx();syncFinalDialog();autosaveTick(dt);}requestAnimationFrame(frame)}requestAnimationFrame(frame);
 </script></html>
