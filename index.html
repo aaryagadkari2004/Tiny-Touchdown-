@@ -3339,5 +3339,50 @@ function zoneDropTarget(p){if(!p.zone)return p;if(g.phase!=='live'&&g.phase!=='h
  if(!p.zoneTarget||g.playTime>=(p.zoneReactAt||0)||p.zoneTargetPlay!==g.statPlay){let job=zoneUnitPlan().jobs.get(p)||{mode:'hold'};p.zoneTarget=zoneJobTarget(p,job);p.zoneJob=job.mode;p.zoneReactAt=g.playTime+.06+(1-q)*.16;p.zoneTargetPlay=g.statPlay;}
  return p.zoneTarget;}
 
+// ===== Catch-and-run, field goal window, smarter defender switching, auto-sprint for your defender =====
+
+// --- Catch and run ---
+// Before: receivers ran to the ball's landing spot and stopped dead, then froze for 0.30s after a routine catch and lost
+// 45% of their speed. Now routine catches keep most of the receiver's speed and he's yours almost immediately; only
+// the showcase catches (toe tap, diving, high point) still take a beat.
+function secureCatch(p,b){if(p.catchAnim?.secured)return;let flight=passFlight(b);let kind=catchStyle(p,b);p.catchAnim={kind,t:0,flight,approach:b.rec===p&&!['dive'].includes(kind)?.03:.24,duration:kind==='toe'?.85:kind==='jump'?.8:kind==='dive'?1.1:.65,secured:true};
+ p.runSpeed*=kind==='reach'?.92:kind==='over'?.85:.55;p.caughtAt=g.playTime;
+ let vx=p.lastMoveX||0,vy=p.lastMoveY||0,l=Math.hypot(vx,vy);p.catchDir=l>.5?{x:vx/l,y:vy/l}:{x:direction(p.team),y:0};
+ if(kind==='dive'){startCatchDive(p,b.target);p.catchHold=1.05;}
+ else if(kind==='toe'){p.catchAnim.step={from:{x:p.x,y:p.y},to:{x:b.target.x,y:clamp(b.target.y,.35,52.65)}};p.catchHold=.45;p.toeOut=b.target.y<.65||b.target.y>52.35;}
+ else if(kind==='jump'){p.jump=.65;p.catchHold=.24;}
+ else p.catchHold=kind==='over'?.10:.05;
+ if(kind!=='reach'){flash=kind==='toe'?'TOE TAP!':kind==='jump'?'HIGH POINT CATCH!':kind==='dive'?'DIVING CATCH!':'OVER THE SHOULDER!';flashTime=1.25;}}
+// Receivers run THROUGH the catch point instead of stopping on it (the catch radius is 4+ yards, so the ball still finds him).
+{const base=moveAthlete;moveAthlete=function(p,x,y,dt){if(ball&&p===ball.rec&&g.phase==='live'&&x===ball.target.x&&y===ball.target.y){let dx=x-p.x,dy=y-p.y,l=Math.hypot(dx,dy);if(l<2.2){let vx=p.lastMoveX||dx,vy=p.lastMoveY||dy,v=Math.hypot(vx,vy)||1;x=x+vx/v*2.2;y=clamp(y+vy/v*2.2,.6,52.4);}}
+ // Your selected defender always runs at full sprint (the offense has to hold Shift; on defense Shift switches players).
+ if(p.team===0&&g.off===1&&p===selected&&carrier!==p){let sprint=(p.energy??1)>.05;p.speedBoost=sprint?1.1:1;p.sprintHeld=sprint;}
+ else if(p.team===0&&g.off===1&&p.sprintHeld&&p!==carrier){p.speedBoost=1;p.sprintHeld=false;}
+ base(p,x,y,dt);
+ if(p.team===0&&g.off===1&&p===selected&&p.sprintHeld&&p.runSpeed>1)p.staminaEffort=(p.staminaEffort||0)*1.4;};}
+// Right after a catch, if you aren't pressing a direction yet, the receiver keeps running the way he was going for a moment.
+{const base=userCarrierStep;userCarrierStep=function(p,dt){let pressing=['w','a','s','d'].some(k=>keys.has(k));if(!pressing&&p.role!=='QB'&&p.catchDir&&p.caughtAt!==undefined&&g.playTime-p.caughtAt<.55&&!p.moveState){p.sprintHeld=keys.has('shift')&&(p.energy??1)>.05;if(carrierMoveStep(p,dt))return;moveAthlete(p,p.x+p.catchDir.x*10,clamp(p.y+p.catchDir.y*10,.6,52.4),dt);return;}return base(p,dt);};}
+
+// --- Field goals: a tighter green zone that shrinks faster with distance (extra points stay fairly forgiving) ---
+// Old: 25% of the meter at 17 yards down to 6.5%. New: 20% down to 4.5%; a 35-yarder ~12.6% (was ~18%), a 50-yarder ~6.6% (was ~12.5%).
+function kickGreen(distance,k=kickState){let base=clamp(.20-(distance-17)*.0041,.045,.20);if(g.try?.kind==='xp'||(k&&!k.punt&&distance<=34&&g.try))base=Math.max(base,.15);return k&&!k.punt?clamp(base*kickerAbility(k.team).windowScale,.03,.24):base;}
+
+// --- Smarter switching (Shift on defense) ---
+// Picks the defender who can get to the ball FIRST (time to arrive, using his speed), not the next player in a fixed
+// order: the landing spot while a pass is in the air, a loose ball, or the ball carrier (preferring players in front of
+// him and not tied up in a block). Press Shift again to go to the next-best option.
+function defenderTopSpeed(p){return(5.8+(rating(p,'speed')-60)/39*4.2)*positionSpeedScale(p.record?.position);}
+function switchTargetPoint(){if(ball)return{pt:ball.target,kind:'ball'};if(looseBall)return{pt:looseBall,kind:'loose'};if(carrier&&carrier.team!==0){let lead=.35;return{pt:{x:carrier.x+(carrier.lastMoveX||0)*lead,y:clamp(carrier.y+(carrier.lastMoveY||0)*lead,0,53)},kind:'carrier'};}return null;}
+function switchCandidates(){let tgt=switchTargetPoint(),defs=players.filter(p=>p.team===0&&!(p.dive));if(!tgt)return null;let d=direction(g.off);
+ return defs.map(p=>{let t=dist(p,tgt.pt)/Math.max(3,defenderTopSpeed(p));if(p.stun>0)t+=.6;if(holdingBlock(p))t+=.8;if(tgt.kind==='carrier'){let behind=(carrier.x-p.x)*d;if(behind>1)t+=behind/defenderTopSpeed(p)*.8;}if(tgt.kind==='ball'&&p.rush&&dist(p,tgt.pt)>6)t+=.5;return{p,t};}).sort((a,b)=>a.t-b.t);}
+function switchDefender(){tutorialMark('switch');let list=g.phase==='live'||g.phase==='fumble'?switchCandidates():null;
+ if(!list||!list.length){let defenders=players.filter(p=>p.team===0);selected=defenders[(defenders.indexOf(selected)+1)%defenders.length];return;}
+ let now=list.findIndex(c=>c.p===selected),pick;
+ // If you're already on the best man, a second press goes to the next best (and keeps cycling through the closest few).
+ if(now===-1||now>=3)pick=list[0].p;else pick=list[(now+1)%Math.min(3,list.length)].p;
+ if(selected&&selected!==pick){selected.speedBoost=1;selected.sprintHeld=false;}selected=pick;flash='SWITCHED · '+(pick.record?playerSlotLabel(pick.record):pick.role);flashTime=.5;}
+// When the CPU throws, you're switched to the defender who can get to the ball first (not just the closest one).
+{const base=throwBall;throwBall=function(target,intended=null,type='touch'){let wasOff=g.off;base(target,intended,type);if(wasOff===1&&ball){let list=switchCandidates();if(list&&list.length){if(selected)selected.speedBoost=1;selected=list[0].p;}}};}
+
 $('finalReturn').onclick=()=>{$('finalDialog').hidden=true;keys.clear();drag=null;if(season)showSeasonHub();else showMainMenu();};$('finalDialog').onkeydown=e=>{if(e.key==='Tab'){e.preventDefault();$('finalReturn').focus();}};initTeamMenu();initSaveMenu();initLineup();initPlayerDetails();initFinances();function frame(t){let dt=Math.min((t-last)/1000,.04);last=t;if(!menuActive){update(dt);recordSeasonFinal();drawWithFx();syncFinalDialog();autosaveTick(dt);}requestAnimationFrame(frame)}requestAnimationFrame(frame);
 </script></html>
