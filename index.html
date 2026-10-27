@@ -333,6 +333,46 @@ button.player-card{display:block;width:100%;padding:0;text-align:inherit;cursor:
 .wx-badge{position:absolute;z-index:5;transform:translateX(-100%);pointer-events:none;background:#0b161ccc;border:2px solid #9fc6e8;padding:6px 9px;font:9px TTPixel,monospace;color:#e6f1ff;box-shadow:3px 3px 0 #040e13;white-space:nowrap}
 .wx-badge[hidden]{display:none}.wx-badge.wx-snow{border-color:#ffffff}.wx-badge.wx-rain{border-color:#6f9fd8}.wx-badge.wx-dome{border-color:#8a9a94}
 .wx-tag{display:block;margin-top:8px;font:9px TTPixel,monospace;color:#9fc6e8;letter-spacing:1px}.wx-tag.wx-snow{color:#ffffff}.wx-tag.wx-rain{color:#7fb2ee}.wx-tag.wx-clear{color:#f2c94c}.wx-tag.wx-dome{color:#9fb4ad}
+/* ---- Pause panel / box score ---- */
+.pause-panel{position:absolute;inset:0;z-index:8;background:rgba(6,16,22,.9);overflow:auto;padding:14px;display:flex;align-items:flex-start;justify-content:center}
+.pause-panel[hidden]{display:none}
+.pp-inner{width:100%;max-width:960px}
+.pp-head{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap;border-bottom:3px solid #2f4a40;padding-bottom:10px;margin-bottom:12px}
+.pp-head h2{font:18px TTPixel,monospace;color:#fff0ce;margin:4px 0 0}
+.pp-head nav{display:flex;gap:6px;flex-wrap:wrap}.pp-head nav button{font:10px TTPixel,monospace;padding:7px 10px}
+.pp-teams{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.box-team{background:#12222b;border:2px solid #3d5c51;border-top:5px solid var(--club);padding:10px}
+.box-team header{display:flex;justify-content:space-between;align-items:center;font:14px TTPixel,monospace;color:#fff0ce;margin-bottom:8px}.box-team header span{font-size:20px;color:#e9c975}
+.box-totals{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-bottom:6px}.box-totals div{background:#0c1a21;border:1px solid #2f4a40;padding:5px 2px;text-align:center}
+.box-totals b{display:block;font:13px TTPixel,monospace;color:#fff0ce}.box-totals small{font:6px TTPixel,monospace;color:#9fb4ad}
+.box-team h4{font:9px TTPixel,monospace;color:#e9c975;margin:10px 0 4px;letter-spacing:1px}
+.box-team table{width:100%;border-collapse:collapse;font-size:11px;color:#d7e2dc}.box-team th{font:7px TTPixel,monospace;color:#9fb4ad;text-align:right;padding:2px 4px}.box-team td{padding:3px 4px;text-align:right;border-top:1px solid #22383f}
+.box-team td:first-child,.box-team th:first-child{text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:150px}.box-none{font-size:11px;color:#6f8790;margin:2px 0}
+@media(max-width:700px){.pp-teams{grid-template-columns:1fr}}
+/* ---- Touch controls ---- */
+.touch-controls{position:fixed;inset:0;z-index:40;pointer-events:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+.touch-controls[hidden]{display:none}
+.touch-controls button{pointer-events:auto;touch-action:none;font-family:TTPixel,monospace;-webkit-tap-highlight-color:transparent}
+.tc-top{position:absolute;top:max(6px,env(safe-area-inset-top));right:max(8px,env(safe-area-inset-right));display:flex;gap:6px}
+.tc-small{font-size:9px;padding:7px 9px;background:#0b161ccc;color:#fff0ce;border:2px solid #49685c}
+.tc-stick{pointer-events:auto;touch-action:none;position:absolute;left:max(14px,env(safe-area-inset-left));bottom:max(14px,env(safe-area-inset-bottom));width:132px;height:132px;border-radius:50%;background:rgba(11,22,28,.45);border:3px solid rgba(233,201,117,.55);display:grid;place-items:center}
+.tc-knob{width:58px;height:58px;border-radius:50%;background:rgba(233,201,117,.75);border:3px solid #13232b;box-shadow:0 2px 0 #040e13}
+.tc-actions{position:absolute;right:max(10px,env(safe-area-inset-right));bottom:max(12px,env(safe-area-inset-bottom));display:grid;grid-template-columns:repeat(3,auto);gap:7px;max-width:min(60vw,330px);justify-content:end}
+.tc-btn{min-width:64px;min-height:50px;padding:6px 8px;font-size:9px;line-height:1.25;background:rgba(18,34,43,.82);color:#fff0ce;border:2px solid #7a9c8c;box-shadow:2px 2px 0 #040e13}
+.tc-btn.big{min-width:96px;min-height:58px;font-size:11px;background:rgba(233,201,117,.9);color:#13232b;border-color:#13232b}
+.tc-btn.num{min-width:50px;font-size:14px}
+.tc-btn.on,.tc-small:active{transform:translateY(2px);background:#e9c975;color:#13232b}
+.tc-small:disabled,.tc-btn:disabled{opacity:.45}
+body.touch-play{overscroll-behavior:none}
+body.touch-play #gameApp>header,body.touch-play #gameApp .league-logos,body.touch-play #gameApp .matchup,body.touch-play #gameApp .bar,body.touch-play #gameApp #ratings,body.touch-play #gameApp .grid{display:none!important}
+body.touch-play #gameApp{padding:0!important;margin:0 auto!important;max-width:none!important}
+body.touch-play #gameApp .stage{max-width:min(100vw,calc((100svh - 34px) * 1.6667));margin:0 auto}
+body.touch-play #message{font-size:10px;min-height:0;padding:4px 8px;text-align:center}
+.seg{display:flex;gap:0}.seg button{font:11px TTPixel,monospace;padding:9px 16px;background:#172c35;color:#d7e2dc;border:2px solid #3d5c51}.seg button+button{border-left:0}.seg button.on{background:#e9c975;color:#13232b;border-color:#e9c975}
+@media (orientation:landscape) and (max-height:520px){.tc-actions{grid-template-columns:repeat(2,auto);gap:6px}.tc-btn{min-width:54px;min-height:46px;font-size:8px;padding:4px 5px}.tc-btn.num{min-width:46px}.tc-btn.big{min-width:100px;grid-column:span 2}.tc-stick{width:118px;height:118px}.tc-knob{width:50px;height:50px}}
+@media (orientation:portrait){.tc-stick{bottom:max(24px,env(safe-area-inset-bottom))}.tc-actions{max-width:62vw}}
+body.touch-play .wx-badge,body.touch-play .crowd-meter{margin-top:40px}
+@media (orientation:portrait){body.touch-play #gameApp{padding-top:50px!important}body.touch-play #gameApp::after{content:'TURN YOUR PHONE SIDEWAYS FOR A BIGGER FIELD';display:block;text-align:center;font:9px TTPixel,monospace;color:#9fb4ad;margin-top:14px;letter-spacing:1px}}
 </style>
 <main id="financePage" class="finance-page" hidden><header><div id="financeTeam" class="finance-team"></div><button id="financeBack" type="button">Back</button></header><div id="financeContent"><section id="capMetrics" class="cap-metrics" aria-label="Team salary cap"></section><div id="capMeter"></div><p id="financeStatus" aria-live="polite"></p><section id="negotiationPanel" class="finance-section" hidden></section><section class="finance-section"><div class="finance-section-head"><h2>PLAYER CONTRACTS</h2><div class="finance-controls"><label>Sort <select id="financeSort"><option value="capDesc">Highest cap hit</option><option value="capAsc">Lowest cap hit</option><option value="yearsAsc">Shortest remaining</option><option value="yearsDesc">Longest remaining</option><option value="ovr">Highest overall</option></select></label><label>Position <select id="financeFilter"><option value="ALL">All positions</option><option>QB</option><option>RB</option><option>WR</option><option>TE</option><option>OL</option><option>DT</option><option>EDGE</option><option>LB</option><option>MLB</option><option>CB</option><option>S</option><option>K</option><option>P</option></select></label></div></div><div class="finance-table-scroll"><table class="finance-table"><thead><tr><th>Player</th><th>Yearly base</th><th>Yearly bonus</th><th>Current cap hit</th><th>Remaining term</th><th>Bonus still owed</th><th>Actions</th></tr></thead><tbody id="contractRows"></tbody></table></div></section><section class="finance-section"><h2>AUTOMATIC ROOKIE RESERVE</h2><p id="draftReserveNote"></p><div id="draftReserveRows" class="draft-reserve-rows"></div></section><section class="finance-section"><h2>CAP PENALTIES</h2><div class="finance-table-scroll"><table class="finance-table"><thead><tr><th>Player / reason</th><th>Current-year penalty</th></tr></thead><tbody id="capPenaltyRows"></tbody></table></div></section></div></main>
 <div id="signedOverlay" class="signed-overlay" hidden><section role="dialog" aria-modal="true" aria-labelledby="signedStamp"><p class="signed-kicker">CONTRACT AGREED</p><h2 id="signedStamp" class="signed-stamp">SIGNED</h2><div id="signedDetails"></div><button id="signedContinue" class="primary" type="button">Continue</button></section></div><div id="financeDialog" class="finance-dialog" hidden><section role="dialog" aria-modal="true" aria-labelledby="financeDialogTitle"><h2 id="financeDialogTitle"></h2><div id="financeDialogBody"></div><div class="finance-dialog-actions"><button id="financeCancel" type="button">Cancel</button><button id="financeConfirm" class="primary" type="button">Confirm</button></div></section></div>
@@ -3572,6 +3612,98 @@ function drawWeather(){let w=currentWeather();if(!w||w.kind==='clear'||w.kind===
 {const base=draw;draw=function(...a){let r=base(...a);try{drawWeather();drawWeatherBadge();}catch(e){}return r;};}
 function drawWeatherBadge(){let w=currentWeather(),c=$('game');if(!c)return;let b=$('wxBadge');if(!b){b=document.createElement('div');b.id='wxBadge';b.className='wx-badge';let host=c.parentElement;if(getComputedStyle(host).position==='static')host.style.position='relative';host.appendChild(b);}
  if(!w||w.kind==='clear'&&w.wind<8){b.hidden=true;return;}b.hidden=false;let txt=weatherLabel(w);if(b.textContent!==txt)b.textContent=txt;b.className='wx-badge wx-'+w.kind;b.style.left=(c.offsetLeft+c.offsetWidth-12)+'px';b.style.top=(c.offsetTop+12)+'px';}
+
+// ===== In-game box score (pause menu) =====
+// Every live stat recorded during a game (season games AND exhibitions) is also kept on the game itself, so pausing
+// shows passing, rushing and receiving lines for both teams plus team totals. The pause panel also carries Resume,
+// Settings, Save and Season hub buttons (on phones the page header is hidden, so this is the menu).
+{const base=addLiveStat;addLiveStat=function(p,key,value,includeTry=false){base(p,key,value,includeTry);try{if(!p||!g||g.try&&!includeTry||practiceMode)return;g.box=g.box||{};let row=g.box[p.id]||(g.box[p.id]={});row[key]=(row[key]||0)+value;
+ if(key==='touchdowns'){let rec=g.statPlay?.receiver;let k2=rec&&(rec===p||rec.id===p.id||rec.record===p)?'recTD':'rushTD';row[k2]=(row[k2]||0)+value;}}catch(e){}};}
+function boxTeamRows(team){let recs=(roster?.teams?.[team]?.players||[]),box=g?.box||{};return recs.map(p=>({p,s:box[p.id]})).filter(x=>x.s);}
+function boxLine(n){return Number.isFinite(n)?Math.round(n):0;}
+function boxTeamHTML(team){let rows=boxTeamRows(team),t=matchTeams[team],abbr=t?.abbr||names[team],sum=k=>rows.reduce((n,x)=>n+(x.s[k]||0),0);
+ let pass=rows.filter(x=>x.s.passAttempts).sort((a,b)=>(b.s.passingYards||0)-(a.s.passingYards||0)),rush=rows.filter(x=>x.s.rushAttempts).sort((a,b)=>(b.s.rushingYards||0)-(a.s.rushingYards||0)).slice(0,4),recv=rows.filter(x=>x.s.receptions||x.s.targets).sort((a,b)=>(b.s.receivingYards||0)-(a.s.receivingYards||0)).slice(0,5);
+ let nm=p=>`${playerSlotLabel(p)} ${p.name}`,table=(title,head,list,cells)=>`<h4>${title}</h4>${list.length?`<table><thead><tr><th></th>${head.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${list.map(x=>`<tr><td>${nm(x.p)}</td>${cells(x.s).map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}</tbody></table>`:'<p class="box-none">None yet</p>'}`;
+ let passY=sum('passingYards'),rushY=sum('rushingYards'),to=sum('interceptionsThrown')+rows.reduce((n,x)=>n+(x.s.fumbles||0),0);
+ return `<section class="box-team" style="--club:${t?.primary||'#e9c975'}"><header><strong>${abbr}</strong><span>${g.score[team]}</span></header>
+ <div class="box-totals"><div><b>${boxLine(passY+rushY)}</b><small>TOTAL YDS</small></div><div><b>${boxLine(passY)}</b><small>PASS</small></div><div><b>${boxLine(rushY)}</b><small>RUSH</small></div><div><b>${to}</b><small>TURNOVERS</small></div><div><b>${sum('sacks')}</b><small>SACKS</small></div></div>
+ ${table('PASSING',['C/ATT','YDS','TD','INT'],pass,s=>[`${s.passCompletions||0}/${s.passAttempts||0}`,boxLine(s.passingYards),s.passingTouchdowns||0,s.interceptionsThrown||0])}
+ ${table('RUSHING',['CAR','YDS','AVG','TD'],rush,s=>[s.rushAttempts||0,boxLine(s.rushingYards),((s.rushingYards||0)/Math.max(1,s.rushAttempts||0)).toFixed(1),s.rushTD||0])}
+ ${table('RECEIVING',['REC','TGT','YDS','TD'],recv,s=>[s.receptions||0,s.targets||0,boxLine(s.receivingYards),s.recTD||0])}</section>`;}
+function ensurePausePanel(){let host=document.querySelector('#gameApp .stage');if(!host)return null;let el=$('pausePanel');if(el)return el;el=document.createElement('section');el.id='pausePanel';el.className='pause-panel';el.hidden=true;el.setAttribute('role','dialog');el.setAttribute('aria-label','Paused · box score');host.appendChild(el);
+ el.addEventListener('click',e=>{let b=e.target.closest('button');if(!b)return;if(b.id==='ppResume'){if(paused)togglePause();}else if(b.id==='ppSettings')openSettings();else if(b.id==='ppSave'){try{saveActiveSlot(true);b.textContent='Saved';}catch(err){}}else if(b.id==='ppHub'){if(paused)togglePause();$('seasonButton')?.click();}else if(b.id==='ppMenu'){if(paused)togglePause();$('menuButton')?.click();}});return el;}
+function renderPausePanel(){let el=ensurePausePanel();if(!el)return;let show=paused&&!!g&&!menuActive&&!$('gameApp').hidden&&!practiceMode;if(!show){if(!el.hidden)el.hidden=true;return;}
+ el.hidden=false;let secs=Math.max(0,Math.round(g.time||0));el.innerHTML=`<div class="pp-inner"><header class="pp-head"><div><p class="hub-eyebrow">PAUSED · Q${Math.min(g.q,4)}${g.q>4?' OT':''} · ${Math.floor(secs/60)}:${String(secs%60).padStart(2,'0')}</p><h2>BOX SCORE</h2></div>
+ <nav><button id="ppResume" type="button" class="primary">Resume</button><button id="ppSettings" type="button">Settings</button>${season?'<button id="ppSave" type="button">Save</button><button id="ppHub" type="button">Season hub</button>':''}<button id="ppMenu" type="button">Main menu</button></nav></header>
+ <div class="pp-teams">${boxTeamHTML(0)}${boxTeamHTML(1)}</div></div>`;}
+{const base=togglePause;togglePause=function(...a){let r=base(...a);try{renderPausePanel();if(paused)$('ppResume')?.focus();}catch(e){}return r;};}
+{const base=hud;hud=function(...a){let r=base(...a);try{let el=$('pausePanel');if(el&&!el.hidden&&!paused)el.hidden=true;}catch(e){}return r;};}
+
+// ===== Phone / tablet touch controls =====
+// A virtual joystick (left thumb) acts as WASD, and the action buttons (right thumb) change with the situation. They're
+// built from the same on-screen prompt list the keyboard uses, so every control the keyboard has is available.
+// Buttons send the same key presses the keyboard would, so all gameplay rules stay identical. Passing by dragging from
+// the QB works with a finger too. On by default on touch screens; Settings has Auto / On / Off.
+const TOUCH_PREF_KEY='tt-touch-controls';
+function touchPref(){try{return localStorage.getItem(TOUCH_PREF_KEY)||'auto';}catch(e){return'auto';}}
+function setTouchPref(v){try{localStorage.setItem(TOUCH_PREF_KEY,v);}catch(e){}touchSync(true);}
+function touchCapable(){try{return(window.matchMedia&&window.matchMedia('(pointer: coarse)').matches)||'ontouchstart' in window||(navigator.maxTouchPoints||0)>0;}catch(e){return false;}}
+function touchEnabled(){let p=touchPref();return p==='on'||p==='auto'&&touchCapable();}
+function tKey(type,key){let code=key===' '?'Space':/^[a-z]$/i.test(key)?'Key'+key.toUpperCase():/^[0-9]$/.test(key)?'Digit'+key:key;window.dispatchEvent(new KeyboardEvent(type,{key,code,bubbles:true,cancelable:true}));}
+function tTap(key){tKey('keydown',key);setTimeout(()=>tKey('keyup',key),50);}
+function tDoubleTap(key){tKey('keydown',key);tKey('keyup',key);setTimeout(()=>{tKey('keydown',key);setTimeout(()=>tKey('keyup',key),40);},45);}
+// ---- Action list for the current moment ----
+const ARROW={'↑':'ArrowUp','↓':'ArrowDown','←':'ArrowLeft','→':'ArrowRight'};
+function touchActions(){if(!g)return[];let out=[],add=(label,key,mode='tap',cls='')=>out.push({label,key,mode,cls});
+ if(g.phase==='kickAim'||g.phase==='kickPower'){add('KICK · HOLD',' ','hold','big');return out;}
+ if(g.phase==='kickFlight'&&kickState?.punt&&!kickState.kickoff&&kickState.team===1)add('FAIR CATCH','f');
+ if(g.phase==='dead'||g.phase==='timeout'){add(g.phase==='timeout'?'RESUME':'NEXT','Enter','tap','big');return out;}
+ let fwd=g.off===0&&carrier?(direction(carrier.team)>0?'d':'a'):'d';
+ for(let [k,label] of controlPrompts()){
+  if(['WASD','DRAG','DRAG QB','SHIFT+RELEASE','2× TAP'].includes(k))continue;
+  if(k==='ENTER')add(label,'Enter','tap','big');
+  else if(k==='SHIFT')add(label,'Shift',label==='SPRINT'?'hold':'tap');
+  else if(k==='SPACE')add(label,' ');
+  else if(k==='ESC')add(label,'Escape');
+  else if(k==='A / D'){add('◀ FORM','a');add('FORM ▶','d');}
+  else if(k==='1-3'||k==='1-5'){let n=k==='1-3'?Math.min(3,choices?.length||3):5,hold=label.includes('BULLET');for(let i=1;i<=n;i++)add(String(i),String(i),hold?'hold':'tap','num');}
+  else if(k==='W W / S S'){add('JUKE ▲','w','double');add('JUKE ▼','s','double');}
+  else if(/^[AD] [AD]$/.test(k))add(label,fwd,'double');
+  else if(k==='← →'){add('◀ '+label,'ArrowLeft');add(label+' ▶','ArrowRight');}
+  else if(k==='↑ ↓'){add('▲ '+label,'ArrowUp');add(label+' ▼','ArrowDown');}
+  else if(ARROW[k])add(k+' '+label,ARROW[k]);
+  else if(/^[A-Z]$/.test(k))add(label,k.toLowerCase(),k==='Q'&&label==='STIFF ARM'?'hold':'tap');}
+ return out.slice(0,12);}
+// ---- DOM ----
+let touchSig='',stick={id:null,ox:0,oy:0,keys:new Set()};
+function ensureTouchUI(){let el=$('touchControls');if(el)return el;el=document.createElement('div');el.id='touchControls';el.className='touch-controls';el.hidden=true;
+ el.innerHTML=`<div class="tc-top"><button type="button" data-tkey="Escape" class="tc-small">❚❚ PAUSE</button><button type="button" data-tkey="t" class="tc-small" id="tcTimeout">TIMEOUT</button></div><div class="tc-stick" id="tcStick" aria-label="Movement joystick"><div class="tc-knob" id="tcKnob"></div></div><div class="tc-actions" id="tcActions"></div>`;
+ document.body.appendChild(el);
+ // Joystick → WASD
+ let zone=el.querySelector('#tcStick'),knob=el.querySelector('#tcKnob'),R=46;
+ let setKeys=(dx,dy)=>{let want=new Set(),on=.38,off=.22,has=k=>stick.keys.has(k);let nx=dx/R,ny=dy/R;
+  if(nx>(has('d')?off:on))want.add('d');if(nx<-(has('a')?off:on))want.add('a');if(ny>(has('s')?off:on))want.add('s');if(ny<-(has('w')?off:on))want.add('w');
+  for(let k of stick.keys)if(!want.has(k))tKey('keyup',k);for(let k of want)if(!stick.keys.has(k))tKey('keydown',k);stick.keys=want;};
+ zone.addEventListener('pointerdown',e=>{e.preventDefault();stick.id=e.pointerId;let r=zone.getBoundingClientRect();stick.ox=r.left+r.width/2;stick.oy=r.top+r.height/2;zone.setPointerCapture?.(e.pointerId);let dx=clamp(e.clientX-stick.ox,-R,R),dy=clamp(e.clientY-stick.oy,-R,R);knob.style.transform=`translate(${dx}px,${dy}px)`;setKeys(dx,dy);});
+ zone.addEventListener('pointermove',e=>{if(e.pointerId!==stick.id)return;e.preventDefault();let dx=e.clientX-stick.ox,dy=e.clientY-stick.oy,l=Math.hypot(dx,dy);if(l>R){dx=dx/l*R;dy=dy/l*R;}knob.style.transform=`translate(${dx}px,${dy}px)`;setKeys(dx,dy);});
+ let end=e=>{if(e.pointerId!==stick.id)return;stick.id=null;knob.style.transform='';setKeys(0,0);};zone.addEventListener('pointerup',end);zone.addEventListener('pointercancel',end);
+ // Buttons
+ let held=new Map();
+ el.addEventListener('pointerdown',e=>{let b=e.target.closest('button[data-tkey]');if(!b)return;e.preventDefault();let key=b.dataset.tkey,mode=b.dataset.mode||'tap';b.classList.add('on');
+  if(mode==='hold'){tKey('keydown',key);held.set(e.pointerId,{b,key});b.setPointerCapture?.(e.pointerId);}else if(mode==='double')tDoubleTap(key);else tTap(key);});
+ let release=e=>{let h=held.get(e.pointerId);if(h){tKey('keyup',h.key);h.b.classList.remove('on');held.delete(e.pointerId);}let b=e.target.closest?.('button[data-tkey]');if(b)setTimeout(()=>b.classList.remove('on'),90);};
+ el.addEventListener('pointerup',release);el.addEventListener('pointercancel',release);el.addEventListener('contextmenu',e=>e.preventDefault());
+ return el;}
+function touchSync(force=false){let on=touchEnabled(),inGame=on&&!menuActive&&!$('gameApp').hidden;document.body.classList.toggle('touch-play',inGame);let el=on?ensureTouchUI():$('touchControls');if(!el)return;el.hidden=!inGame;if(!inGame){if(stick.keys.size){for(let k of stick.keys)tKey('keyup',k);stick.keys.clear();}return;}
+ let acts=paused?[]:touchActions(),sig=JSON.stringify(acts)+paused;if(force||sig!==touchSig){touchSig=sig;$('tcActions').innerHTML=acts.map(a=>`<button type="button" class="tc-btn ${a.cls}" data-tkey="${a.key}" data-mode="${a.mode}">${a.label}</button>`).join('');}
+ let to=$('tcTimeout');if(to){let ok=typeof canCallUserTimeout==='function'?canCallUserTimeout()||g?.phase==='dead':true;to.disabled=!ok||g?.phase==='timeout';to.textContent=`TIMEOUT (${g?.timeouts?.[0]??0})`;}}
+{const base=hud;hud=function(...a){let r=base(...a);try{touchSync();}catch(e){}return r;};}
+{const base=update;update=function(dt){let r=base(dt);try{touchSync();}catch(e){}return r;};}
+for(let fn of ['showSeasonHub','showMainMenu','openSettings','closeSettings']){if(typeof window[fn]==='function'){let base=window[fn];window[fn]=function(...a){let r=base(...a);try{touchSync(true);}catch(e){}return r;};}}
+// Settings: Touch controls Auto / On / Off (saved on this device)
+{const base=settingsHTML;settingsHTML=function(){let p=touchPref();return base()+`<section class="settings-block" aria-labelledby="setTouchTitle"><h2 id="setTouchTitle">TOUCH CONTROLS</h2><p class="settings-help">On-screen joystick and buttons for phones and tablets. Auto turns them on when this device has a touch screen${touchCapable()?' (it does)':' (this one doesn’t)'}. Saved on this device only.</p>
+ <div class="seg" role="radiogroup" aria-label="Touch controls">${['auto','on','off'].map(v=>`<button type="button" role="radio" aria-checked="${p===v}" class="${p===v?'on':''}" data-touch="${v}">${v.toUpperCase()}</button>`).join('')}</div></section>`;};}
+document.addEventListener('click',e=>{let b=e.target.closest?.('[data-touch]');if(!b)return;setTouchPref(b.dataset.touch);if(typeof renderSettings==='function')renderSettings();});
 
 $('finalReturn').onclick=()=>{$('finalDialog').hidden=true;keys.clear();drag=null;if(season)showSeasonHub();else showMainMenu();};$('finalDialog').onkeydown=e=>{if(e.key==='Tab'){e.preventDefault();$('finalReturn').focus();}};initTeamMenu();initSaveMenu();initLineup();initPlayerDetails();initFinances();function frame(t){let dt=Math.min((t-last)/1000,.04);last=t;if(!menuActive){update(dt);recordSeasonFinal();drawWithFx();syncFinalDialog();autosaveTick(dt);}requestAnimationFrame(frame)}requestAnimationFrame(frame);
 </script></html>
