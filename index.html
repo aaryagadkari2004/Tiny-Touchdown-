@@ -3288,5 +3288,56 @@ function renderSettings(){let host=$('settingsBody');if(!host){host=document.cre
 function difficultyBadge(){return season?`${difficultyInfo().name.toUpperCase()}${userCapOff()?' · CAP OFF':''}`:'';}
 {const base=renderSeasonHub;renderSeasonHub=function(...a){let r=base(...a);let e=$('hubEyebrow');if(e&&season&&!e.textContent.includes(' / '+difficultyInfo().name.toUpperCase()))e.textContent+=' / '+difficultyBadge();return r;};}
 
+// ===== Zone coverage AI (CPU defenders and your AI teammates) =====
+// The old zone logic sent each defender straight at whichever receiver was closest to HIM, aimed at the receiver's
+// current spot (no anticipation), and capped how deep he could go (only ~9-11 yards past his landmark, and lopsided
+// by field direction). Results: defenders stood on receivers' toes and body-blocked routes, then lost them the moment
+// they switched targets; deep defenders stopped at ~33 yards while go routes run 42; and wheel routes ran into the
+// gap between an underneath defender who stopped chasing and a deep defender who never picked him up.
+//
+// New rules, worked out for the whole unit each frame:
+//  * Deep defenders (landmark 16+ yards) take the DEEPEST vertical threat in their part of the field and stay over the
+//    top of him (a 2-3 yard cushion, more for weaker cover players), shading inside. No depth cap.
+//  * Underneath defenders take the receiver in their zone, sit just outside/inside his path with leverage (not on his
+//    toes), anticipate where he is going, and pass vertical routes off to the deep defender once he is clearly behind them.
+//  * Anyone running vertical that no deep defender has picked up (a wheel up the sideline, a seam between two deep
+//    halves) is carried by the nearest free zone defender. Nobody runs free downfield.
+//  * Reaction lag and anticipation still depend on the defender's Zone Coverage rating, so good cover players play it
+//    noticeably better than poor ones.
+const ZONE_DEEP_LANDMARK=16;
+function zoneQ(p){return clamp((rating(p,'zoneCover',70)-60)/39,0,1);}
+function zoneDepth(pt){return(pt.x-g.spot)*direction(g.off);}
+function zoneLeverage(y,amount){return clamp(26.5-y,-1,1)*amount;}
+function zoneUnitPlan(){if(g._zonePlan&&g._zonePlan.t===g.playTime&&g._zonePlan.phase===g.phase)return g._zonePlan;
+ let plan={t:g.playTime,phase:g.phase,jobs:new Map()},d=direction(g.off);
+ let defs=players.filter(p=>p.team!==g.off&&p.zone&&!p.rush&&!(g.off===1&&p===selected));
+ let recs=eligible().filter(r=>r.routeName!=='Block'&&r!==carrier&&r.stun<=0).map(r=>{let pred=predictRoute(r,.35),dep=zoneDepth(pred),now=zoneDepth(r),moving=(r.lastMoveX||0)*d;return{r,pred,dep,vertical:dep>=8||now>=4&&moving>2.5||/Go|Seam|Post|Wheel|Corner/.test(r.routeName||'')&&now>=2};});
+ let deep=defs.filter(p=>zoneDepth(p.zone)>=ZONE_DEEP_LANDMARK).sort((a,b)=>a.zone.y-b.zone.y),under=defs.filter(p=>!deep.includes(p)),half=deep.length?26.5/deep.length:0,deepTaken=new Set(),covered=new Set();
+ for(let p of deep){let q=zoneQ(p),band=half+2+q*3,cands=recs.filter(x=>x.vertical&&Math.abs(x.pred.y-p.zone.y)<=band).sort((a,b)=>b.dep-a.dep);
+  if(cands.length){plan.jobs.set(p,{mode:'deep',rec:cands[0],second:cands[1]||null});deepTaken.add(cands[0].r);covered.add(cands[0].r);if(cands[1]&&cands[1].dep>cands[0].dep-6&&Math.abs(cands[1].pred.y-cands[0].pred.y)<8)covered.add(cands[1].r);}
+  else plan.jobs.set(p,{mode:'hold',band});}
+ let underTaken=new Set();
+ for(let p of under){let q=zoneQ(p),reach=17+q*4,landing=zoneDepth(p.zone),metric=x=>Math.hypot((x.pred.x-p.zone.x)*.8,x.pred.y-p.zone.y);
+  let cands=recs.filter(x=>metric(x)<reach&&!(deepTaken.has(x.r)&&x.dep>landing+6)).sort((a,b)=>Number(underTaken.has(a.r))-Number(underTaken.has(b.r))||metric(a)-metric(b));
+  // Doubling a receiver someone else already has only happens when he is right in this defender's area; otherwise hold the landmark.
+  let c=cands[0];if(c&&underTaken.has(c.r)&&metric(c)>9)c=null;
+  if(c){plan.jobs.set(p,{mode:'under',rec:c});underTaken.add(c.r);covered.add(c.r);}else plan.jobs.set(p,{mode:'hold'});}
+ // Vertical routes nobody has: the nearest zone defender who is free (or only covering someone short) carries him.
+ for(let x of recs.filter(x=>x.vertical&&x.dep>=10&&!covered.has(x.r)).sort((a,b)=>b.dep-a.dep)){
+  let free=defs.filter(p=>{let j=plan.jobs.get(p);return j.mode==='hold'||j.mode==='under'&&j.rec.dep<x.dep-8;}).sort((a,b)=>dist(a,x.r)-dist(b,x.r));
+  let p=free[0];if(p){plan.jobs.set(p,{mode:'carry',rec:x});covered.add(x.r);}}
+ g._zonePlan=plan;return plan;}
+function zoneJobTarget(p,job){let d=direction(g.off),q=zoneQ(p),landing=zoneDepth(p.zone);
+ if(job.mode==='deep'){let x=job.rec,cushion=3.4-q*1.4,y=x.pred.y+zoneLeverage(x.pred.y,1.1);if(job.second&&job.second.dep>x.dep-6&&Math.abs(job.second.pred.y-x.pred.y)<14)y=x.pred.y*.7+job.second.pred.y*.3;return{x:g.spot+d*Math.max(landing-4,x.dep+cushion),y:clamp(y,.6,52.4)};}
+ if(job.mode==='hold'&&landing>=ZONE_DEEP_LANDMARK){let recs=eligible().filter(r=>r.routeName!=='Block'&&r!==carrier),deepest=Math.max(0,...recs.filter(r=>Math.abs(r.y-p.zone.y)<=(job.band||14)).map(r=>zoneDepth(r)));return{x:g.spot+d*Math.max(landing,deepest+3.5-q),y:p.zone.y};}
+ if(job.mode==='under'){let x=job.rec,depth=clamp(x.dep+1.2,landing-5,landing+9+q*4);return{x:g.spot+d*depth,y:clamp(x.pred.y+zoneLeverage(x.pred.y,1.4),Math.max(.6,p.zone.y-15-q*3),Math.min(52.4,p.zone.y+15+q*3))};}
+ if(job.mode==='carry'){let x=job.rec;return{x:g.spot+d*(x.dep+1.6-q*.6),y:clamp(x.pred.y+zoneLeverage(x.pred.y,1.2),.6,52.4)};}
+ // Underneath defender with nobody in his area: sit in his landmark, shading toward the closest receiver.
+ let near=eligible().filter(r=>r.routeName!=='Block'&&r!==carrier).sort((a,b)=>dist(a,p.zone)-dist(b,p.zone))[0];return near?{x:p.zone.x,y:p.zone.y+(near.y-p.zone.y)*.25}:p.zone;}
+// Same name and signature as before, so the play loop and ball-in-air logic pick it up unchanged.
+function zoneDropTarget(p){if(!p.zone)return p;if(g.phase!=='live'&&g.phase!=='handoff'||!eligible().length)return p.zone;let q=zoneQ(p);
+ if(!p.zoneTarget||g.playTime>=(p.zoneReactAt||0)||p.zoneTargetPlay!==g.statPlay){let job=zoneUnitPlan().jobs.get(p)||{mode:'hold'};p.zoneTarget=zoneJobTarget(p,job);p.zoneJob=job.mode;p.zoneReactAt=g.playTime+.06+(1-q)*.16;p.zoneTargetPlay=g.statPlay;}
+ return p.zoneTarget;}
+
 $('finalReturn').onclick=()=>{$('finalDialog').hidden=true;keys.clear();drag=null;if(season)showSeasonHub();else showMainMenu();};$('finalDialog').onkeydown=e=>{if(e.key==='Tab'){e.preventDefault();$('finalReturn').focus();}};initTeamMenu();initSaveMenu();initLineup();initPlayerDetails();initFinances();function frame(t){let dt=Math.min((t-last)/1000,.04);last=t;if(!menuActive){update(dt);recordSeasonFinal();drawWithFx();syncFinalDialog();autosaveTick(dt);}requestAnimationFrame(frame)}requestAnimationFrame(frame);
 </script></html>
