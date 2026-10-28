@@ -804,7 +804,7 @@ function update(dt){if(paused)return;updateFx(dt);if(hitStop>0){hitStop=Math.max
  if(updateDives(dt))return;updateHandoff(dt);updatePocketPressure();updateBlocks(dt);updatePassPocket(dt);
  for(let p of players){p.cool=Math.max(0,p.cool-dt);p.jump=Math.max(0,p.jump-dt);p.stun=Math.max(0,p.stun-dt);}
  if(checkReceiverTackle())return;
- if(g.off===1&&!userDefenderLunge(selected,dt)){let p=selected,engaged=isFront(selected)&&holdingBlock(selected);if(p.stun<=0&&!p.dive&&!(p.catchHold>0)){let dx=(keys.has('d')?1:0)-(keys.has('a')?1:0),dy=(keys.has('s')?1:0)-(keys.has('w')?1:0);moveDefenderThroughLine(p,p.x+dx*10,p.y+dy*10,dt);if(engaged&&!p.shed&&dist(p,p.blocker)<3.2&&Math.abs(p.y-p.blocker.y)<1.05&&(p.x-p.blocker.x)*d<1.15)p.x=p.blocker.x+d*1.15;p.y=clamp(p.y,0,53);}}
+ if(g.off===1&&!userDefenderLunge(selected,dt)){let p=selected,engaged=isFront(selected)&&holdingBlock(selected);p.aiControl=false;if(p.stun<=0&&!p.dive&&!(p.catchHold>0)){let dx=(keys.has('d')?1:0)-(keys.has('a')?1:0),dy=(keys.has('s')?1:0)-(keys.has('w')?1:0);if(userDefenderIdle(p,dx,dy))p.aiControl=true;else moveDefenderThroughLine(p,p.x+dx*10,p.y+dy*10,dt);if(engaged&&!p.shed&&dist(p,p.blocker)<3.2&&Math.abs(p.y-p.blocker.y)<1.05&&(p.x-p.blocker.x)*d<1.15)p.x=p.blocker.x+d*1.15;p.y=clamp(p.y,0,53);}}
  for(let p of off){if(g.handoff&&(p===g.handoff.qb||p===g.handoff.rb))continue;if(p.stun>0||p.dive||p.catchHold>0)continue;if(p===carrier){if(p.role==='QB'&&g.off===1&&!g.run){cpuQBMove(p,dt);continue;}if(g.off===0){userCarrierStep(p,dt);continue;}cpuCarrierMoves(p);if(carrierMoveStep(p,dt))continue;if(g.specialReturn){cpuReturnMove(p,dt);continue;}if(g.run||p.role!=='QB'){cpuRushMove(p,dt);}else{moveQB(p,g.spot-d*6-p.x,26-p.y,dt);}continue;}
  if(ball&&p===ball.rec){if(ball.leadPass&&ball.t<ball.duration-.18&&p.route?.length&&!routeDone(p)){runReceiverRoute(p,dt);continue;}if(ratedSkill(p))moveAthlete(p,ball.target.x,ball.target.y,dt);else move(p,ball.target.x,ball.target.y,12,dt);continue;}
  if(p.role==='OL'||g.run||p.routeName==='Block'){
@@ -812,7 +812,7 @@ function update(dt){if(paused)return;updateFx(dt);if(hitStop>0){hitStop=Math.max
  else if(p.route&&p.route.length)runReceiverRoute(p,dt);}
 
 
- for(let p of def){if(p.stun>0||p.dive||p.catchHold>0||g.off===1&&p===selected)continue;let tx,ty,speed=7,safetyTarget=safetyRunTarget(p),frontTarget=frontRunTarget(p);
+ for(let p of def){if(p.stun>0||p.dive||p.catchHold>0||g.off===1&&p===selected&&!p.aiControl)continue;let tx,ty,speed=7,safetyTarget=safetyRunTarget(p),frontTarget=frontRunTarget(p);
  if(ball){let t=ball.target,q=clamp((rating(p,p.zone?'zoneCover':'manCover')-60)/39,0,1),reactAt=p.zone ? .08+(1-q)*.16 : .12+(1-q)*.18,canBreak=ball.t>=reactAt&&(p.zone?zoneOwnsTarget(p,t)&&dist(p,t)<20+q*12:dist(p,t)<15);if(canBreak){tx=t.x;ty=t.y;speed=8;}else{let target=p.zone?zoneDropTarget(p):p.mark?manTarget(p):p;tx=target.x;ty=target.y;}}
  else if(g.interceptionReturn===carrier&&p.team!==carrier.team&&['WR','TE','RB'].includes(p.role)&&!holdingBlock(p)){tx=carrier.x;ty=carrier.y;speed=8;}
  else if(carrier&&g.specialReturn&&!holdingBlock(p)){let target=coverageTarget(p);tx=target.x;ty=target.y;speed=8;}
@@ -3404,7 +3404,7 @@ function secureCatch(p,b){if(p.catchAnim?.secured)return;let flight=passFlight(b
 // Receivers run THROUGH the catch point instead of stopping on it (the catch radius is 4+ yards, so the ball still finds him).
 {const base=moveAthlete;moveAthlete=function(p,x,y,dt){if(ball&&p===ball.rec&&g.phase==='live'&&x===ball.target.x&&y===ball.target.y){let dx=x-p.x,dy=y-p.y,l=Math.hypot(dx,dy);if(l<2.2){let vx=p.lastMoveX||dx,vy=p.lastMoveY||dy,v=Math.hypot(vx,vy)||1;x=x+vx/v*2.2;y=clamp(y+vy/v*2.2,.6,52.4);}}
  // Your selected defender always runs at full sprint (the offense has to hold Shift; on defense Shift switches players).
- if(p.team===0&&g.off===1&&p===selected&&carrier!==p){let sprint=(p.energy??1)>.05;p.speedBoost=sprint?1.1:1;p.sprintHeld=sprint;}
+ if(p.team===0&&g.off===1&&p===selected&&carrier!==p&&!p.aiControl){let sprint=(p.energy??1)>.05;p.speedBoost=sprint?1.1:1;p.sprintHeld=sprint;}
  else if(p.team===0&&g.off===1&&p.sprintHeld&&p!==carrier){p.speedBoost=1;p.sprintHeld=false;}
  base(p,x,y,dt);
  if(p.team===0&&g.off===1&&p===selected&&p.sprintHeld&&p.runSpeed>1)p.staminaEffort=(p.staminaEffort||0)*1.4;};}
@@ -3639,6 +3639,41 @@ function renderPausePanel(){let el=ensurePausePanel();if(!el)return;let show=pau
 {const base=togglePause;togglePause=function(...a){let r=base(...a);try{renderPausePanel();if(paused)$('ppResume')?.focus();}catch(e){}return r;};}
 {const base=hud;hud=function(...a){let r=base(...a);try{let el=$('pausePanel');if(el&&!el.hidden&&!paused)el.hidden=true;}catch(e){}return r;};}
 
+// ===== AI assist for your idle defender + No-huddle / hurry-up =====
+// AI ASSIST: on defense, if you aren't pressing a direction (for ~0.3s, or right after you switch players), your
+// selected defender plays his own assignment (zone drop, man coverage, rush, pursuit) exactly like a CPU defender.
+// The moment you press a direction you have him back. Auto-sprint only applies while YOU are steering him.
+// Toggle in Settings (on by default).
+function defAssistOn(){return !season||season.settings?.defAssist!==false;}
+function userDefenderIdle(p,dx,dy){if(dx||dy){p.lastInputAt=g.playTime;return false;}if(!defAssistOn()||g.phase!=='live'||p.defMove)return false;return g.playTime-(p.lastInputAt??-9)>=.3;}
+{const base=drawSelectedAssignment;drawSelectedAssignment=function(...a){let r=base(...a);try{if(g.off===1&&selected?.aiControl&&g.phase==='live'&&!playMenu){rect(10,isFront(selected)?183:165,270,20,'#10232bee');pixelText('AI ASSIST · MOVE TO TAKE OVER',20,isFront(selected)?197:179,9,'#8dc4fc');}}catch(e){}return r;};}
+// Selected player switched? He starts in AI hands until you steer.
+{const base=switchDefender;switchDefender=function(...a){let r=base(...a);if(selected){selected.lastInputAt=-9;}return r;};}
+
+// NO-HUDDLE (N): after a play on offense, skip the play-call screen and line up in the same play right away.
+// The clock only runs ~3-6 seconds while you hustle to the line (instead of a full huddle), so it's the tool for
+// two-minute drills along with timeouts. You're lined up and ready: Enter snaps (audibles and hot routes still work).
+function noHuddleBlocker(){if(!g||practiceMode)return'Not available here.';if(g.off!==0)return'No-huddle is for your offense.';if(!g.lastUserPlay)return'Run a play first.';if(g.try||kickState||g.penalty||looseBall||celebration&&g.phase!=='dead')return'Not right now.';
+ if(g.phase==='dead'){if(g.pendingKickoff!==undefined&&g.pendingKickoff!==null)return'Not after a score.';if(g.turnover)return'Not after a turnover.';return'';}
+ if(g.phase==='ready'&&playMenu&&!g.fourthPending)return'';if(g.phase==='ready'&&g.fourthPending)return'Fourth down: choose go for it first.';return'Not right now.';}
+function noHuddle(){if(g&&g.off===0&&g.lastUserPlay&&['incomplete','contact','live','handoff'].includes(g.phase)&&!g.try){g.noHuddleQueued=true;flash='NO HUDDLE NEXT';flashTime=.8;return true;}
+ let why=noHuddleBlocker();if(why){say('No-huddle: '+why);return false;}
+ if(g.phase==='dead'){celebration=null;g.deadTimer=0;next();if(g.phase!=='ready')return false;if(g.fourthPending){say('Fourth down: choose go for it (1), then press N again to hurry up.');hud();return false;}}
+ let last=g.lastUserPlay;g.userFormation=last.formation;choices=formationPlays();let idx=Math.min(last.index,choices.length-1);g.noHuddle=true;try{choose(idx);}finally{g.noHuddle=false;}
+ flash='NO HUDDLE';flashTime=1;say('NO HUDDLE · '+(offCall?.name||'same play')+' · Enter to snap.');hud();return true;}
+{const base=huddleRunoffSeconds;huddleRunoffSeconds=function(){let s=base();return g?.noHuddle?Math.min(s,roll(3,6)):s;};}
+// Remember the last play you called.
+{const base=snap;snap=function(){let before=g.phase,off=g.off,c=chosen,form=g.userFormation||0,name=offCall?.name;base();if(before==='ready'&&g.phase!=='ready'&&off===0&&c>=0&&!g.try&&!kickState&&choices?.[c]&&choices[c].kind)g.lastUserPlay={formation:form,index:c,name};};}
+// Key: N (works even while the result banner is up).
+window.addEventListener('keydown',e=>{if(menuActive||e.repeat||e.key.toLowerCase()!=='n'||!g||paused)return;if(document.activeElement&&['INPUT','SELECT','TEXTAREA'].includes(document.activeElement.tagName))return;e.preventDefault();e.stopImmediatePropagation();noHuddle();},true);
+// Prompts (keyboard hint row + phone buttons)
+{const base=controlPrompts;controlPrompts=function(){let out=base();try{if(g&&g.off===0&&!noHuddleBlocker()&&(g.phase==='dead'||g.phase==='ready'&&playMenu))out=[...out,['N','NO HUDDLE']];}catch(e){}return out;};}
+// Settings: AI assist toggle
+{const base=settingsHTML;settingsHTML=function(){let html=base();if(!season)return html;let on=defAssistOn();return html+`<section class="settings-block" aria-labelledby="setAssistTitle"><h2 id="setAssistTitle">DEFENSE AI ASSIST</h2><div class="setting-row"><div><strong>AI plays your defender when you let go</strong><p class="settings-help">${on?'On: if you aren\'t pressing a direction, your selected defender plays his assignment (zone, man, rush or pursuit). Press any direction to take him back.':'Off: your selected defender only moves when you move him.'}</p></div><button type="button" id="assistToggle" role="switch" aria-checked="${on}" class="switch ${on?'on':''}"><span>${on?'ON':'OFF'}</span><i></i></button></div></section>`;};}
+document.addEventListener('click',e=>{let b=e.target.closest?.('#assistToggle');if(!b||!season)return;let s=gameSettings();s.defAssist=s.defAssist===false;try{saveActiveSlot(true);}catch(err){}renderSettings();$('assistToggle')?.focus();});
+// N pressed while the ball was still live / an incompletion was settling: line up as soon as the play is dead.
+{const base=update;update=function(dt){let r=base(dt);try{if(g?.noHuddleQueued){if(g.phase==='dead'){g.noHuddleQueued=false;if(!noHuddleBlocker())noHuddle();}else if(g.phase==='ready'||g.turnover||g.try||kickState||g.off!==0)g.noHuddleQueued=false;}}catch(e){}return r;};}
+
 // ===== Phone / tablet touch controls =====
 // A virtual joystick (left thumb) acts as WASD, and the action buttons (right thumb) change with the situation. They're
 // built from the same on-screen prompt list the keyboard uses, so every control the keyboard has is available.
@@ -3657,7 +3692,7 @@ const ARROW={'↑':'ArrowUp','↓':'ArrowDown','←':'ArrowLeft','→':'ArrowRig
 function touchActions(){if(!g)return[];let out=[],add=(label,key,mode='tap',cls='')=>out.push({label,key,mode,cls});
  if(g.phase==='kickAim'||g.phase==='kickPower'){add('KICK · HOLD',' ','hold','big');return out;}
  if(g.phase==='kickFlight'&&kickState?.punt&&!kickState.kickoff&&kickState.team===1)add('FAIR CATCH','f');
- if(g.phase==='dead'||g.phase==='timeout'){add(g.phase==='timeout'?'RESUME':'NEXT','Enter','tap','big');return out;}
+ if(g.phase==='dead'||g.phase==='timeout'){add(g.phase==='timeout'?'RESUME':'NEXT','Enter','tap','big');if(g.phase==='dead'&&typeof noHuddleBlocker==='function'&&g.off===0&&!noHuddleBlocker())add('NO HUDDLE','n');return out;}
  let fwd=g.off===0&&carrier?(direction(carrier.team)>0?'d':'a'):'d';
  for(let [k,label] of controlPrompts()){
   if(['WASD','DRAG','DRAG QB','SHIFT+RELEASE','2× TAP'].includes(k))continue;
