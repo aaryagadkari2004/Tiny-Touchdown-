@@ -404,6 +404,53 @@ body.touch-play .wx-badge,body.touch-play .crowd-meter{margin-top:40px}
 @media(max-width:760px){.trade-cols{grid-template-columns:1fr}.trade-list{max-height:32vh}}
 .trade-offers .offer-card{background:#0f1d24;border:2px solid #49685c;padding:10px 12px;margin-bottom:8px}.offer-card p{margin:5px 0;font-size:12px;color:#d7e2dc}.offer-from b{color:#fff0ce}
 .tag-out,.tag-in{display:inline-block;font:8px TTPixel,monospace;padding:2px 5px;margin-right:6px}.tag-out{background:#5a2420;color:#f7c3bc}.tag-in{background:#1d4a30;color:#bdf0cf}.offer-card small{font-size:10px;color:#9fb4ad}
+/* ---- Trade Center v2 ---- */
+.tr-wrap{max-width:1180px}
+.tr-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding-bottom:12px;border-bottom:3px solid #2f4a40}
+.tr-head h1{font:22px TTPixel,monospace;color:#fff0ce;margin:4px 0}
+.tr-window{font:9px TTPixel,monospace;margin:4px 0 0;color:#9fb4ad}.tr-window.open{color:#7ee2a2}.tr-window.closed{color:#f0a58f}
+.tr-tabs{display:flex;gap:0;margin:14px 0;border-bottom:2px solid #2f4a40;overflow-x:auto}
+.tr-tabs button{font:10px TTPixel,monospace;background:none;border:0;border-bottom:3px solid transparent;color:#9fb4ad;padding:10px 14px;margin-bottom:-2px;white-space:nowrap;cursor:pointer}
+.tr-tabs button.on{color:#e9c975;border-bottom-color:#e9c975}.tr-tabs button:disabled{opacity:.35;cursor:default}
+.tr-body{display:flex;flex-direction:column;gap:14px}
+.tr-partner{display:flex;align-items:center;gap:16px;flex-wrap:wrap;background:#0f1d24;border:2px solid #2f4a40;padding:10px 12px}
+.tr-select{display:flex;flex-direction:column;gap:4px}.tr-select span{font:8px TTPixel,monospace;color:#9fb4ad;letter-spacing:1px}
+.tr-select select{font-size:13px;padding:7px 8px;background:#12222b;color:#fff0ce;border:2px solid #3d5c51;min-width:200px}.tr-select.small select{min-width:90px}.tr-select.grow{flex:1;min-width:240px}.tr-select.grow select{width:100%}
+.tr-select.inline{display:inline-flex;margin-left:8px}.tr-select.inline select{padding:2px 4px;font-size:11px;min-width:70px}
+.tr-team{display:flex;align-items:center;gap:10px;flex:1;min-width:240px}.tr-team strong{font:12px TTPixel,monospace;color:#fff0ce}.tr-logo svg{display:block;width:44px;height:44px}
+.tr-tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:5px}.tr-tag{font:7px TTPixel,monospace;padding:3px 6px;background:#1b3038;color:#c7d6d0;letter-spacing:1px}
+.tr-tag.st-contender{background:#1d4a30;color:#bdf0cf}.tr-tag.st-rebuilding{background:#4a2c1d;color:#f0c9a5}.tr-tag.st-neutral{background:#2a3a4a;color:#c9dcf0}.tr-tag.need{background:#3a3418;color:#f2d98a}
+.tr-cols{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.tr-panel{background:#0f1d24;border:2px solid #2f4a40;display:flex;flex-direction:column;min-width:0}
+.tr-panel>header{font:9px TTPixel,monospace;color:#e9c975;padding:9px 12px;border-bottom:2px solid #22383f;letter-spacing:1px;display:flex;align-items:center}
+.tr-list{max-height:340px;overflow:auto}.tr-list.short{max-height:280px}
+.tr-row{display:grid;grid-template-columns:48px 1fr 40px;gap:10px;align-items:center;width:100%;text-align:left;background:none;border:0;border-left:3px solid transparent;border-bottom:1px solid #1a2d35;color:#d7e2dc;padding:7px 10px 7px 8px;cursor:pointer;font:inherit}
+.tr-row:hover{background:#142833}.tr-row.on{background:#183a29;border-left-color:#7ee2a2}
+.tr-pos{font:8px TTPixel,monospace;color:#9fc6e8;background:#1b3038;text-align:center;padding:4px 0}
+.tr-main b{font:10px TTPixel,monospace;color:#fff0ce;margin-right:6px}.tr-main small{display:block;font-size:11px;color:#8ea39c;margin-top:2px}
+.tr-ovr{font:15px TTPixel,monospace;color:#fff0ce;text-align:right}.tr-row.on .tr-ovr{color:#7ee2a2}
+.tr-tier{font:7px TTPixel,monospace;padding:1px 4px;margin-right:4px;vertical-align:1px}.tr-tier.legend{background:#6b2fb3;color:#fff}.tr-tier.gb{background:#b8433a;color:#fff}.tr-tier.star{background:#d9a93b;color:#13232b}.tr-tier.brk{background:#2f7fa8;color:#fff}.tr-tier.rook{background:#2c5d8a;color:#fff}
+.tr-inj{font:7px TTPixel,monospace;background:#b8433a;color:#fff;padding:1px 4px}
+.tr-picks{display:flex;flex-wrap:wrap;gap:5px;align-items:center;padding:8px 10px;border-top:2px solid #22383f}.tr-picks>span{font:7px TTPixel,monospace;color:#9fb4ad;margin-right:4px;width:100%}
+.tr-pick{font:9px TTPixel,monospace;background:#12222b;color:#c7d6d0;border:1px solid #3d5c51;padding:5px 7px;cursor:pointer}.tr-pick b{color:#9fc6e8}.tr-pick.on{background:#183a29;border-color:#7ee2a2;color:#fff0ce}
+.tr-deal{position:sticky;bottom:0;background:#0b161c;border:2px solid #49685c;padding:12px 14px;box-shadow:0 -8px 16px #040e13aa;z-index:2}
+.tr-deal-sides{display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:start}.tr-deal-sides h3{font:8px TTPixel,monospace;color:#9fb4ad;margin:0 0 6px;letter-spacing:1px}
+.tr-arrow{font-size:20px;color:#e9c975;align-self:center}
+.tr-chips{display:flex;flex-wrap:wrap;gap:5px}.tr-chip{display:inline-flex;align-items:center;gap:6px;font-size:12px;background:#172c35;border:1px solid #3d5c51;padding:4px 4px 4px 8px;color:#fff0ce}
+.tr-chip button{background:none;border:0;color:#f0a58f;font-size:15px;line-height:1;padding:0 4px;cursor:pointer}.tr-empty{font-size:12px;color:#6f8790;font-style:italic}.tr-empty.pad{padding:12px}
+.tr-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}.tr-actions button{font:10px TTPixel,monospace;padding:8px 12px}
+.tr-note{font-size:12px;color:#9fc6e8;margin:6px 0 0}.tr-warn{font-size:12px;color:#f0a58f;margin:6px 0 0}.tr-help{font-size:12px;color:#9fb4ad;margin:0;line-height:1.5}
+.tr-seg{display:inline-flex;border:2px solid #3d5c51;align-self:flex-start}.tr-seg button{font:9px TTPixel,monospace;background:#12222b;color:#c7d6d0;border:0;padding:9px 14px;cursor:pointer}.tr-seg button.on{background:#e9c975;color:#13232b}
+.tr-finder-pick{display:grid;grid-template-columns:2fr 1fr;gap:14px;align-items:start}.tr-finder-side{background:#0f1d24;border:2px solid #2f4a40;padding:12px;display:flex;flex-direction:column;gap:10px}.tr-finder-side h3{font:8px TTPixel,monospace;color:#9fb4ad;margin:0}
+.tr-finder-form{display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap}.tr-finder-form>button{font:10px TTPixel,monospace;padding:9px 14px}
+.tr-results{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:12px}
+.tr-result{background:#0f1d24;border:2px solid #2f4a40;padding:12px;display:flex;flex-direction:column;gap:8px}.tr-result>header{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.tr-deal-sides.compact ul{list-style:none;margin:0;padding:0;font-size:12px;color:#fff0ce}.tr-deal-sides.compact li{padding:2px 0}
+.tr-fair{font:7px TTPixel,monospace;padding:4px 6px;white-space:nowrap;letter-spacing:1px}.tr-fair.fair{background:#2a3a4a;color:#c9dcf0}.tr-fair.you{background:#1d4a30;color:#bdf0cf}.tr-fair.them{background:#4a2c1d;color:#f0c9a5}
+.tr-log{list-style:none;margin:0;padding:0}.tr-log li{font-size:12px;color:#d7e2dc;padding:8px 12px;border-bottom:1px solid #1a2d35}.tr-log li span{font:8px TTPixel,monospace;color:#9fb4ad;margin-right:8px}.tr-log li.mine{background:#183a29}
+@media(max-width:820px){.tr-cols,.tr-finder-pick{grid-template-columns:1fr}.tr-list{max-height:260px}.tr-deal-sides{grid-template-columns:1fr}.tr-arrow{display:none}.tr-results{grid-template-columns:1fr}}
+.tr-wrap button.primary{background:#e9c975;color:#13232b;border-color:#13232b}.tr-wrap button.primary:disabled{opacity:.45}
+@media(max-width:820px){.tr-deal{position:static;box-shadow:none}}
 </style>
 <main id="financePage" class="finance-page" hidden><header><div id="financeTeam" class="finance-team"></div><button id="financeBack" type="button">Back</button></header><div id="financeContent"><section id="capMetrics" class="cap-metrics" aria-label="Team salary cap"></section><div id="capMeter"></div><p id="financeStatus" aria-live="polite"></p><section id="negotiationPanel" class="finance-section" hidden></section><section class="finance-section"><div class="finance-section-head"><h2>PLAYER CONTRACTS</h2><div class="finance-controls"><label>Sort <select id="financeSort"><option value="capDesc">Highest cap hit</option><option value="capAsc">Lowest cap hit</option><option value="yearsAsc">Shortest remaining</option><option value="yearsDesc">Longest remaining</option><option value="ovr">Highest overall</option></select></label><label>Position <select id="financeFilter"><option value="ALL">All positions</option><option>QB</option><option>RB</option><option>WR</option><option>TE</option><option>OL</option><option>DT</option><option>EDGE</option><option>LB</option><option>MLB</option><option>CB</option><option>S</option><option>K</option><option>P</option></select></label></div></div><div class="finance-table-scroll"><table class="finance-table"><thead><tr><th>Player</th><th>Yearly base</th><th>Yearly bonus</th><th>Current cap hit</th><th>Remaining term</th><th>Bonus still owed</th><th>Actions</th></tr></thead><tbody id="contractRows"></tbody></table></div></section><section class="finance-section"><h2>AUTOMATIC ROOKIE RESERVE</h2><p id="draftReserveNote"></p><div id="draftReserveRows" class="draft-reserve-rows"></div></section><section class="finance-section"><h2>CAP PENALTIES</h2><div class="finance-table-scroll"><table class="finance-table"><thead><tr><th>Player / reason</th><th>Current-year penalty</th></tr></thead><tbody id="capPenaltyRows"></tbody></table></div></section></div></main>
 <div id="signedOverlay" class="signed-overlay" hidden><section role="dialog" aria-modal="true" aria-labelledby="signedStamp"><p class="signed-kicker">CONTRACT AGREED</p><h2 id="signedStamp" class="signed-stamp">SIGNED</h2><div id="signedDetails"></div><button id="signedContinue" class="primary" type="button">Continue</button></section></div><div id="financeDialog" class="finance-dialog" hidden><section role="dialog" aria-modal="true" aria-labelledby="financeDialogTitle"><h2 id="financeDialogTitle"></h2><div id="financeDialogBody"></div><div class="finance-dialog-actions"><button id="financeCancel" type="button">Cancel</button><button id="financeConfirm" class="primary" type="button">Confirm</button></div></section></div>
@@ -3864,10 +3911,13 @@ function tradeWindow(){if(!season)return{ok:false,why:'No season loaded.'};if(se
  if(o){if(o.stage==='draft')return{ok:false,why:'Trades are frozen during the draft.'};return{ok:true,why:o.stage==='cuts'?'Offseason (draft picks are used up until the season starts).':'Offseason trading is open.'};}
  if(season.week>TRADE_DEADLINE_WEEK)return{ok:false,why:`The trade deadline (week ${TRADE_DEADLINE_WEEK}) has passed. Trading reopens in the offseason.`};return{ok:true,why:`Trade deadline: after week ${TRADE_DEADLINE_WEEK}.`};}
 // ---- CPU evaluation ----
-function teamStatus(id){return expectationTag(teamRatings(id).ovr);}
+// Optional memo while the market/finder runs thousands of evaluations on unchanged rosters.
+let tradeMemo=null;
+function teamStatus(id){if(tradeMemo){let k='st'+id;return tradeMemo[k]??=expectationTag(teamRatings(id).ovr);}return expectationTag(teamRatings(id).ovr);}
 function cpuAssetValue(a,cpu,side){let status=teamStatus(cpu);if(a.kind==='pick'){let v=pickTradeValue(a.round,a.slot);if(status==='Rebuilding')v*=1.2;else if(status==='Contender'&&a.round>=3)v*=.85;return v;}
  let p=a.p,v=playerTradeValue(p);if(status==='Rebuilding'){if(p.age<25)v*=1.2;else if(p.age>=30)v*=.7;}else if(status==='Contender'&&p.overall>=82&&p.age>=27)v*=1.15;return v;}
-function startersAt(id,pos){return startingRoster([...franchiseRoster(id)]).filter(p=>p.position===pos);}
+function teamStarters(id){if(tradeMemo){let k='sr'+id;return tradeMemo[k]??=startingRoster([...franchiseRoster(id)]);}return startingRoster([...franchiseRoster(id)]);}
+function startersAt(id,pos){return teamStarters(id).filter(p=>p.position===pos);}
 function positionNeed(id,pos){let s=startersAt(id,pos);if(!s.length)return'need';let low=Math.min(...s.map(p=>p.overall));if(low<75)return'need';if(s.every(p=>p.overall>=84))return'stocked';return'ok';}
 function isCornerstone(p,id){let qb1=startersAt(id,'QB')[0];return p===qb1&&p.overall>=80||['Gamebreaker','Legend'].includes(p.developmentTier)&&p.overall>=88&&p.age<26;}
 function depthAfter(id,outgoing,incoming){let short=[];let roster=franchiseRoster(id).filter(p=>!p.retired&&!outgoing.includes(p)).concat(incoming);for(let pos of new Set(outgoing.map(p=>p.position))){let need=Math.max(2,STARTER_COUNTS[pos]||1);if(roster.filter(p=>p.position===pos).length<need)short.push(pos);}return short;}
@@ -3989,10 +4039,17 @@ function weakSpots(id){let out=[];for(let pos of ['QB','RB','WR','TE','OL','DT',
 // Assets a team is willing to move as payment: picks (rounds 1-4) and young non-starters.
 function paymentAssets(id,exclude=[]){let starters=new Set(startingRoster([...franchiseRoster(id)]));return[...teamPicks(id).filter(pk=>pk.round<=4),...franchiseRoster(id).filter(p=>tradeable(p)&&!starters.has(p)&&p.age<=25&&p.overall>=64&&!exclude.includes(p)).map(p=>({kind:'player',p}))];}
 function assetBaseValue(a){return a.kind==='pick'?pickTradeValue(a.round,a.slot):playerTradeValue(a.p);}
-// Smallest (or best-fitting) 1-3 asset package that makes `test` pass.
-function findPackage(assets,test,pickBy='min'){let list=assets.slice().sort((a,b)=>assetBaseValue(b)-assetBaseValue(a)).slice(0,9),ok=[];
- for(let i=0;i<list.length;i++){let c=[list[i]];if(test(c))ok.push(c);for(let j=i+1;j<list.length;j++){let c2=[list[i],list[j]];if(test(c2))ok.push(c2);for(let k=j+1;k<list.length&&ok.length<40;k++){let c3=[list[i],list[j],list[k]];if(test(c3))ok.push(c3);}}}
- if(!ok.length)return null;let total=c=>c.reduce((n,a)=>n+assetBaseValue(a),0);ok.sort((a,b)=>pickBy==='min'?total(a)-total(b)||a.length-b.length:total(b)-total(a));return ok[0];}
+
+// 1-3 asset packages that pass `test`. pickBy: 'min' (cheapest), 'max' (richest) or a scoring function (lowest wins).
+function packageCombos(assets,size=3,top=9){let list=assets.slice().sort((a,b)=>assetBaseValue(b)-assetBaseValue(a)).slice(0,top),out=[];for(let i=0;i<list.length;i++){out.push([list[i]]);if(size<2)continue;for(let j=i+1;j<list.length;j++){out.push([list[i],list[j]]);if(size<3)continue;for(let k=j+1;k<list.length;k++)out.push([list[i],list[j],list[k]]);}}return out;}
+function findPackage(assets,test,pickBy='min',opts={}){let total=c=>c.reduce((n,a)=>n+assetBaseValue(a),0),combos=packageCombos(assets,opts.size??3,opts.top??9);
+ if(opts.range){let [lo,hi]=opts.range;combos=combos.filter(c=>{let v=total(c);return v>=lo&&v<=hi;});}
+ let ok=[];for(let c of combos){if(test(c)){ok.push(c);if(ok.length>=(opts.max??40))break;}}if(!ok.length)return null;
+ if(typeof pickBy==='function')ok.sort((a,b)=>pickBy(a)-pickBy(b));else ok.sort((a,b)=>pickBy==='min'?total(a)-total(b)||a.length-b.length:total(b)-total(a));return ok[0];}
+// Fairness mix for CPU-made trades: mostly fair, some lean to the CPU, a few lean to you (by base point value).
+function fairnessTarget(){let r=Math.random();return r<.6?{label:'fair',ratio:1}:r<.85?{label:'cpu',ratio:.9}:{label:'user',ratio:1.1};}
+function packageValue(c){return c.reduce((n,a)=>n+assetBaseValue(a),0);}
+function fairnessLabel(ratio){return ratio>=1.05?'FAVORS YOU':ratio<=.95?'FAVORS THEM':'FAIR';}
 function buyerLikes(buyer,incoming,outgoing){let gain=incoming.reduce((n,a)=>n+cpuAssetValue(a,buyer),0),cost=outgoing.reduce((n,a)=>n+cpuAssetValue(a,buyer),0);return gain>=cost*.85;}
 function cpuTradeCounts(){season.cpuTradeCount??={total:0,teams:{}};return season.cpuTradeCount;}
 function tryCpuTrade(){let user=season.userTeam,counts=cpuTradeCounts();if(counts.total>=CPU_TRADES_PER_SEASON)return null;let teams=TEAM_DEFINITIONS.map(t=>t.id).filter(id=>id!==user&&(counts.teams[id]||0)<CPU_TRADES_PER_TEAM);
@@ -4000,7 +4057,7 @@ function tryCpuTrade(){let user=season.userTeam,counts=cpuTradeCounts();if(count
  for(let buyer of buyers.slice(0,4)){for(let need of weakSpots(buyer).slice(0,2)){
   let cands=sellers.filter(s=>s!==buyer).flatMap(s=>franchiseRoster(s).filter(p=>tradeable(p)&&p.position===need.pos&&p.overall>=Math.max(78,need.low.overall+4)&&p.age>=27&&!isCornerstone(p,s)).map(p=>({s,p}))).sort((a,b)=>b.p.overall-a.p.overall).slice(0,3);
   for(let {s:seller,p} of cands){let recv=[{kind:'player',p}];
-   let pkg=findPackage(paymentAssets(buyer),c=>{let e=evaluateTrade(seller,c,recv,buyer);return e.accepted&&buyerLikes(buyer,recv,c);});
+   let fair=fairnessTarget(),vv=assetBaseValue(recv[0]);let pkg=findPackage(paymentAssets(buyer),c=>{let e=evaluateTrade(seller,c,recv,buyer);return e.accepted&&buyerLikes(buyer,recv,c);},c=>Math.abs(packageValue(c)/vv-fair.ratio),{range:[vv*.7,vv*1.45],max:25});
    if(pkg&&executeTrade(seller,pkg,recv,buyer)){counts.total++;counts.teams[buyer]=(counts.teams[buyer]||0)+1;counts.teams[seller]=(counts.teams[seller]||0)+1;return{buyer,seller,p};}}}}
  return null;}
 function runCpuTradeMarket(kind){if(!season)return;let n=0,attempts=kind==='offseason'?3:season.week>=7?3:season.week>=4?2:1,chance=kind==='offseason'?.6:season.week>=7?.55:.35;
@@ -4015,18 +4072,17 @@ function makeUserOffer(){let user=season.userTeam,offers=season.tradeOffers||[];
  let userLosing=isSellerTeam(user);
  // A: a buyer wants one of your proven players.
  if(Math.random()<(userLosing?.7:.5)){for(let buyer of teams.filter(isBuyerTeam).slice(0,5)){for(let need of weakSpots(buyer).slice(0,2)){let mine=franchiseRoster(user).filter(p=>tradeable(p)&&p!==userQB&&p.position===need.pos&&p.overall>=Math.max(78,need.low.overall+4)).sort((a,b)=>b.overall-a.overall)[0];if(!mine)continue;
-   let send=[{kind:'player',p:mine}],target=cpuAssetValue(send[0],buyer)*.9;
-   let pkg=findPackage(paymentAssets(buyer),c=>{let e=evaluateTrade(buyer,send,c,user);return e.accepted&&!e.blockers.length;},'max');
-   // Don't make them hand over everything: prefer a package near 90% of what your player is worth to them.
-   if(pkg){let alt=findPackage(paymentAssets(buyer),c=>{let e=evaluateTrade(buyer,send,c,user);let v=c.reduce((n,a)=>n+cpuAssetValue(a,buyer),0);return e.accepted&&!e.blockers.length&&v>=target*.75;},'min');return{cpu:buyer,kind:'buy',send,receive:alt||pkg,note:`${TEAM_DEFINITIONS[buyer].abbr} need a ${need.pos} for a playoff push.`};}}}}
+   let send=[{kind:'player',p:mine}],mv=assetBaseValue(send[0]),fair=fairnessTarget();
+   let pkg=findPackage(paymentAssets(buyer),c=>{let e=evaluateTrade(buyer,send,c,user);return e.accepted&&!e.blockers.length;},c=>Math.abs(packageValue(c)/mv-fair.ratio),{range:[mv*.7,mv*1.4],max:25});
+   if(pkg)return{cpu:buyer,kind:'buy',send,receive:pkg,fairness:fairnessLabel(packageValue(pkg)/mv),note:`${TEAM_DEFINITIONS[buyer].abbr} need a ${need.pos} for a playoff push.`};}}}
  // B: a seller offers you a veteran at your weakest spot.
  let need=weakSpots(user)[0];if(!need)return null;for(let seller of teams.filter(isSellerTeam).slice(0,6)){let vet=franchiseRoster(seller).filter(p=>tradeable(p)&&p.position===need.pos&&p.overall>=need.low.overall+5&&p.age>=27&&!isCornerstone(p,seller)).sort((a,b)=>b.overall-a.overall)[0];if(!vet)continue;
-  let receive=[{kind:'player',p:vet}],pkg=findPackage(paymentAssets(user),c=>{let e=evaluateTrade(seller,c,receive,user);return e.accepted&&!e.blockers.length;},'min');
-  if(pkg)return{cpu:seller,kind:'sell',send:pkg,receive,note:`${TEAM_DEFINITIONS[seller].abbr} are shopping ${vet.name} and think he fixes your ${need.pos} spot.`};}
+  let receive=[{kind:'player',p:vet}],vv=assetBaseValue(receive[0]),fair=fairnessTarget(),pkg=findPackage(paymentAssets(user),c=>{let e=evaluateTrade(seller,c,receive,user);return e.accepted&&!e.blockers.length;},c=>Math.abs(vv/packageValue(c)-fair.ratio),{range:[vv*.7,vv*1.5],max:25});
+  if(pkg)return{cpu:seller,kind:'sell',send:pkg,receive,fairness:fairnessLabel(vv/packageValue(pkg)),note:`${TEAM_DEFINITIONS[seller].abbr} are shopping ${vet.name} and think he fixes your ${need.pos} spot.`};}
  return null;}
 function runUserOffers(){if(!season)return;if(!tradeWindow().ok){season.tradeOffers=[];return;}season.tradeOffers=(season.tradeOffers||[]).filter(o=>(o.expiresWeek??0)>=season.week&&(!!season.offseason)===(!!o.offseason)&&hydrateOffer(o));
  if(!tradeWindow().ok)return;let chance=season.offseason?.5:season.week>=7?.5:.3;if(Math.random()>=chance)return;let o=makeUserOffer();if(!o)return;
- season.tradeOffers.push({id:'offer-'+season.year+'-'+season.week+'-'+o.cpu+'-'+Math.floor(Math.random()*1e6),cpu:o.cpu,kind:o.kind,note:o.note,offseason:!!season.offseason,week:season.week,expiresWeek:season.offseason?season.week:season.week+1,send:o.send.map(a=>serializeAsset(a,season.userTeam)),receive:o.receive.map(a=>serializeAsset(a,o.cpu))});}
+ season.tradeOffers.push({id:'offer-'+season.year+'-'+season.week+'-'+o.cpu+'-'+Math.floor(Math.random()*1e6),cpu:o.cpu,kind:o.kind,note:o.note,fairness:o.fairness,offseason:!!season.offseason,week:season.week,expiresWeek:season.offseason?season.week:season.week+1,send:o.send.map(a=>serializeAsset(a,season.userTeam)),receive:o.receive.map(a=>serializeAsset(a,o.cpu))});}
 function acceptOffer(id){let o=(season.tradeOffers||[]).find(x=>x.id===id);if(!o)return'That offer is gone.';let w=tradeWindow();if(!w.ok){season.tradeOffers=[];return w.why;}let h=hydrateOffer(o);if(!h)return'That offer is no longer valid (a player or pick moved).';let ev=evaluateTrade(o.cpu,h.send,h.receive);if(!ev.accepted)return`They pulled the offer: ${ev.blockers[0]||ev.quote}`;if(!executeTrade(o.cpu,h.send,h.receive))return'That trade could not be completed.';season.tradeOffers=season.tradeOffers.filter(x=>x!==o);return'';}
 function declineOffer(id){season.tradeOffers=(season.tradeOffers||[]).filter(x=>x.id!==id);}
 // ---- Hooks: weekly market + offseason window ----
@@ -4051,6 +4107,104 @@ function tradeOfferNotices(){if(!season||!tradeWindow().ok)return[];let n=(seaso
 function cpuTrimAll(){let log={limitCuts:0};for(let t of TEAM_DEFINITIONS)if(t.id!==season.userTeam&&rosterOverages(t.id).length)try{cpuTrimToLimits(t.id,log);}catch(e){}return log.limitCuts;}
 {const base=advanceOffseason;advanceOffseason=function(...a){if(season?.offseason?.stage==='cuts')try{cpuTrimAll();}catch(e){}return base(...a);};}
 {const base=executeTrade;executeTrade=function(cpu,send,receive,from=season.userTeam){let ok=base(cpu,send,receive,from);if(ok){let log={limitCuts:0};for(let id of [cpu,from])if(id!==season.userTeam&&rosterOverages(id).length)try{cpuTrimToLimits(id,log);}catch(e){}}return ok;};}
+// Memoize team status / starters while the market searches (rosters don't change until a trade executes).
+{const base=tryCpuTrade;tryCpuTrade=function(){tradeMemo={};try{return base();}finally{tradeMemo=null;}};}
+{const base=makeUserOffer;makeUserOffer=function(){tradeMemo={};try{return base();}finally{tradeMemo=null;}};}
+{const base=executeTrade;executeTrade=function(...a){let m=tradeMemo;let r=base(...a);if(m)tradeMemo={};return r;};}
+
+// ===== Trade Center v2: cleaner layout + Trade Finder =====
+// Tabs: Build a trade · Trade Finder · Offers · History. Replaces the first trade screen (same engine underneath).
+const TRADE_POS_ORDER=['QB','RB','WR','TE','OL','DT','EDGE','LB','MLB','CB','S','K','P'];
+tradeUI.tab=tradeUI.tab||'build';tradeUI.finder=tradeUI.finder||{mode:'shop',shop:[],pos:'ALL',targetPos:'WR',target:'any',results:null,running:false,shopFilter:'ALL'};
+function trTierDot(p){let t=displayTierName(p);let cls={Legend:'legend',Gamebreaker:'gb',Superstar:'star',Breakout:'brk',Rookie:'rook'}[t]||'norm';return `<span class="tr-tier ${cls}" title="${t}">${t==='Normal'?'':t}</span>`;}
+function trPlayerRow(p,attr,on){let inj=p.injury?.weeks>0?'<span class="tr-inj">INJ</span>':'';return `<button type="button" class="tr-row ${on?'on':''}" ${attr}="${p.id}" aria-pressed="${on}"><span class="tr-pos">${playerSlotLabel(p)}</span><span class="tr-main"><b>${p.name}</b>${trTierDot(p)}${inj}<small>Age ${p.age} · ${money(contractForYear(p)?.annualBase||0)}/yr${contractForYear(p)?' · '+Math.max(1,contractEnd(p.extension||p.contract)-season.year+1)+' yr':''}</small></span><span class="tr-ovr">${p.overall}</span></button>`;}
+function trPickChip(pk,attr,on){return `<button type="button" class="tr-pick ${on?'on':''}" ${attr}="${pk.key}" aria-pressed="${on}"><b>R${pk.round}</b> ${TEAM_DEFINITIONS[pk.orig].abbr} #${(pk.round-1)*32+pk.slot}</button>`;}
+function trAssetName(a){return a.kind==='pick'?`R${a.round} pick (${TEAM_DEFINITIONS[a.orig].abbr} #${(a.round-1)*32+a.slot})`:`${a.p.position} ${a.p.name} · ${a.p.overall}`;}
+function trSideChips(list,side){return list.length?list.map((a,i)=>`<span class="tr-chip">${trAssetName(a)}<button type="button" data-tr-remove="${side}:${i}" aria-label="Remove ${trAssetName(a)}">×</button></span>`).join(''):'<span class="tr-empty">Tap players or picks to add</span>';}
+function trTeamBadge(id){let t=TEAM_DEFINITIONS[id],rows=leagueTable(),st=teamStatus(id),cap=capSummary(id).space,needs=weakSpots(id).slice(0,3).map(n=>n.pos);
+ return `<div class="tr-team"><div class="tr-logo">${typeof teamLogoSVG==='function'?teamLogoSVG(t,44):''}</div><div><strong>${t.city} ${t.mascot}</strong><div class="tr-tags"><span class="tr-tag st-${st.toLowerCase()}">${st.toUpperCase()}</span><span class="tr-tag">${recordLabel(rows[id])}</span><span class="tr-tag">CAP ${money(cap)}</span>${needs.length?`<span class="tr-tag need">NEEDS ${needs.join(' · ')}</span>`:''}</div></div></div>`;}
+function trBuildHTML(){let user=season.userTeam,cpu=tradeUI.cpu,f=tradeUI.filter,match=p=>f==='ALL'||p.position===f,sort=(a,b)=>TRADE_POS_ORDER.indexOf(a.position)-TRADE_POS_ORDER.indexOf(b.position)||b.overall-a.overall;
+ let mine=franchiseRoster(user).filter(p=>!p.retired&&match(p)).sort(sort),theirs=franchiseRoster(cpu).filter(p=>!p.retired&&match(p)).sort(sort),ev=tradeUI.send.length&&tradeUI.receive.length?evaluateTrade(cpu,tradeUI.send,tradeUI.receive):null;
+ let on=(side,p)=>tradeUI[side].some(a=>a.kind==='player'&&a.p===p),onPk=(side,k)=>tradeUI[side].some(a=>a.kind==='pick'&&a.key===k);
+ let panel=(title,team,list,side,attr,pickAttr)=>`<section class="tr-panel"><header>${title}</header><div class="tr-list">${list.length?list.map(p=>trPlayerRow(p,attr,on(side,p))).join(''):'<p class="tr-empty pad">No players at this position.</p>'}</div>${teamPicks(team).length?`<div class="tr-picks"><span>DRAFT PICKS</span>${teamPicks(team).map(pk=>trPickChip(pk,pickAttr,onPk(side,pk.key))).join('')}</div>`:''}</section>`;
+ return `<div class="tr-partner"><label class="tr-select"><span>TRADE WITH</span><select id="tradePartner">${TEAM_DEFINITIONS.filter(t=>t.id!==user).map(t=>`<option value="${t.id}" ${t.id===cpu?'selected':''}>${t.city} ${t.mascot}</option>`).join('')}</select></label>${trTeamBadge(cpu)}
+ <label class="tr-select small"><span>POSITION</span><select id="tradeFilter">${['ALL',...TRADE_POS_ORDER].map(p=>`<option ${p===f?'selected':''}>${p}</option>`).join('')}</select></label></div>
+ <div class="tr-cols">${panel('YOUR ROSTER',user,mine,'send','data-trade-send','data-trade-send-pick')}${panel(TEAM_DEFINITIONS[cpu].abbr+' ROSTER',cpu,theirs,'receive','data-trade-recv','data-trade-recv-pick')}</div>
+ <div class="tr-deal"><div class="tr-deal-sides"><div><h3>YOU GIVE</h3><div class="tr-chips">${trSideChips(tradeUI.send,'send')}</div></div><div class="tr-arrow">⇄</div><div><h3>YOU GET</h3><div class="tr-chips">${trSideChips(tradeUI.receive,'receive')}</div></div></div>
+ ${ev?tradeMeterHTML(ev.pct,ev.blockers.length?'CAN\'T SUBMIT':null):tradeMeterHTML(0,'ADD ASSETS ON BOTH SIDES')}
+ ${ev?.blockers.length?`<p class="tr-warn">${ev.blockers.join(' ')}</p>`:''}${tradeUI.note?`<p class="tr-note">${tradeUI.note}</p>`:''}
+ <div class="tr-actions"><button type="button" id="tradePropose" class="primary" ${ev&&!ev.blockers.length?'':'disabled'}>Propose trade</button><button type="button" id="tradeMTW" ${ev&&!ev.accepted&&ev.rawPct>=60&&!ev.dealbreaker&&!ev.blockers.length?'':'disabled'}>Make this work</button><button type="button" id="tradeClear">Clear</button></div></div>`;}
+// ---- Trade Finder ----
+function finderUserPool(){let user=season.userTeam,starters=new Set(teamStarters(user)),qb=startersAt(user,'QB')[0];return[...teamPicks(user),...franchiseRoster(user).filter(p=>tradeable(p)&&p!==qb&&(!starters.has(p)||p.overall<78)&&p.overall>=58).map(p=>({kind:'player',p}))];}
+function finderCpuPool(cpu){let qb=startersAt(cpu,'QB')[0];return[...teamPicks(cpu),...franchiseRoster(cpu).filter(p=>tradeable(p)&&p!==qb&&!isCornerstone(p,cpu)&&p.overall>=60).map(p=>({kind:'player',p}))];}
+function nearestAssets(pool,value,n){return pool.slice().sort((a,b)=>Math.abs(Math.log(Math.max(30,assetBaseValue(a))/Math.max(30,value)))-Math.abs(Math.log(Math.max(30,assetBaseValue(b))/Math.max(30,value)))).slice(0,n);}
+const FINDER_TARGETS=[1,1,.92,1,1.08,1,.92,1.08];   // mostly fair, a few leaning each way
+function runTradeFinder(){let F=tradeUI.finder,user=season.userTeam,out=[];tradeMemo={};let t0=Date.now();
+ try{let needs=new Set(weakSpots(user).map(n=>n.pos)),teams=TEAM_DEFINITIONS.map(t=>t.id).filter(id=>id!==user),ti=0;
+  if(F.mode==='shop'){if(!F.shop.length)return[];let give=F.shop,gv=packageValue(give);
+   for(let cpu of teams){let target=FINDER_TARGETS[ti++%FINDER_TARGETS.length],pool=finderCpuPool(cpu).filter(a=>assetBaseValue(a)<=gv*1.4),cands=[...nearestAssets(pool,gv,6),...nearestAssets(pool,gv/2,4)].filter((a,i,arr)=>arr.indexOf(a)===i);
+    let givePos=new Map(give.filter(a=>a.kind==='player').map(a=>[a.p.position,a.p.overall])),sideways=c=>c.some(a=>a.kind==='player'&&givePos.has(a.p.position)&&a.p.overall<=givePos.get(a.p.position)+1)?.12:0;
+    let best=findPackage(cands,c=>evaluateTrade(cpu,give,c).accepted,c=>Math.abs(packageValue(c)/gv-target)-(c.some(a=>a.kind==='player'&&needs.has(a.p.position))?.06:0)+sideways(c),{size:2,top:10,range:[gv*.72,gv*1.38],max:6});
+    if(best)out.push({cpu,send:give,receive:best,ratio:packageValue(best)/gv,need:best.some(a=>a.kind==='player'&&needs.has(a.p.position))});if(Date.now()-t0>4000)break;}}
+  else{let pos=F.targetPos,myLow=Math.min(...startersAt(user,pos).map(p=>p.overall),99),targets;
+   if(F.target!=='any'){let [team,id]=F.target.split('|');let p=franchiseRoster(Number(team)).find(q=>q.id===id);targets=p?[{cpu:Number(team),p}]:[];}
+   else targets=teams.flatMap(cpu=>franchiseRoster(cpu).filter(p=>tradeable(p)&&p.position===pos&&p.overall>=myLow+2&&!isCornerstone(p,cpu)&&p!==startersAt(cpu,'QB')[0]).map(p=>({cpu,p}))).sort((a,b)=>b.p.overall-a.p.overall).slice(0,14);
+   let pool=finderUserPool(),used=new Map();for(let {cpu,p} of targets){let target=FINDER_TARGETS[ti++%FINDER_TARGETS.length],recv=[{kind:'player',p}],tv=assetBaseValue(recv[0]),cands=[...nearestAssets(pool,tv,6),...nearestAssets(pool,tv/2,4)].filter((a,i,arr)=>arr.indexOf(a)===i);
+    let reuse=c=>c.reduce((n,a)=>n+(used.get(a.kind==='pick'?a.key:a.p.id)||0)*.06,0);
+    let best=findPackage(cands,c=>evaluateTrade(cpu,c,recv).accepted,c=>Math.abs(tv/packageValue(c)-target)+reuse(c),{size:3,top:10,range:[tv*.7,tv*1.45],max:8});
+    if(best){out.push({cpu,send:best,receive:recv,ratio:tv/packageValue(best)});for(let a of best){let k=a.kind==='pick'?a.key:a.p.id;used.set(k,(used.get(k)||0)+1);}}if(Date.now()-t0>4000)break;}}}
+ finally{tradeMemo=null;}
+ return out.sort((a,b)=>Number(!!b.need)-Number(!!a.need)||Math.abs(a.ratio-1)-Math.abs(b.ratio-1)).slice(0,8);}
+function trFairTag(r){let l=fairnessLabel(r);return `<span class="tr-fair ${l==='FAIR'?'fair':l==='FAVORS YOU'?'you':'them'}">${l}</span>`;}
+function trFinderHTML(){let F=tradeUI.finder,user=season.userTeam,sort=(a,b)=>TRADE_POS_ORDER.indexOf(a.position)-TRADE_POS_ORDER.indexOf(b.position)||b.overall-a.overall;
+ let modeNav=`<div class="tr-seg" role="tablist"><button type="button" data-finder-mode="shop" class="${F.mode==='shop'?'on':''}">Shop my players & picks</button><button type="button" data-finder-mode="acquire" class="${F.mode==='acquire'?'on':''}">Find a player</button></div>`;
+ let body='';if(F.mode==='shop'){let f=F.shopFilter,mine=franchiseRoster(user).filter(p=>!p.retired&&(f==='ALL'||p.position===f)).sort(sort),on=p=>F.shop.some(a=>a.kind==='player'&&a.p===p),onPk=k=>F.shop.some(a=>a.kind==='pick'&&a.key===k);
+  body=`<p class="tr-help">Pick up to 3 players and/or picks you'd move. The finder asks every team what they'd give back and shows deals they would accept.</p>
+  <div class="tr-finder-pick"><section class="tr-panel"><header>YOUR ASSETS <label class="tr-select small inline"><select id="finderShopFilter">${['ALL',...TRADE_POS_ORDER].map(p=>`<option ${p===f?'selected':''}>${p}</option>`).join('')}</select></label></header><div class="tr-list short">${mine.map(p=>trPlayerRow(p,'data-finder-shop',on(p))).join('')}</div>${teamPicks(user).length?`<div class="tr-picks"><span>DRAFT PICKS</span>${teamPicks(user).map(pk=>trPickChip(pk,'data-finder-shop-pick',onPk(pk.key))).join('')}</div>`:''}</section>
+  <div class="tr-finder-side"><h3>SHOPPING</h3><div class="tr-chips">${trSideChips(F.shop,'shop')}</div><button type="button" id="finderRun" class="primary" ${F.shop.length?'':'disabled'}>Find offers</button></div></div>`;}
+ else{let myLow=Math.min(...startersAt(user,F.targetPos).map(p=>p.overall),99),league=TEAM_DEFINITIONS.filter(t=>t.id!==user).flatMap(t=>franchiseRoster(t.id).filter(p=>!p.retired&&p.position===F.targetPos).map(p=>({t,p}))).sort((a,b)=>b.p.overall-a.p.overall).slice(0,40);
+  body=`<p class="tr-help">Choose a position (or a specific player). The finder builds packages from your bench, young players and picks that the other team would accept.</p>
+  <div class="tr-finder-form"><label class="tr-select"><span>POSITION</span><select id="finderPos">${TRADE_POS_ORDER.filter(p=>!['K','P'].includes(p)).map(p=>`<option ${p===F.targetPos?'selected':''}>${p}</option>`).join('')}</select></label>
+  <label class="tr-select grow"><span>TARGET</span><select id="finderTarget"><option value="any">Best available upgrades (your weakest ${F.targetPos} starter: ${myLow===99?'none':myLow})</option>${league.map(({t,p})=>`<option value="${t.id}|${p.id}" ${F.target===t.id+'|'+p.id?'selected':''}>${p.name} · ${p.overall} OVR · age ${p.age} · ${t.abbr}</option>`).join('')}</select></label>
+  <button type="button" id="finderRun" class="primary">Find deals</button></div>`;}
+ let res=F.running?'<p class="tr-help">Searching the league…</p>':F.results?F.results.length?`<div class="tr-results">${F.results.map((r,i)=>`<article class="tr-result"><header>${trTeamBadge(r.cpu)}${trFairTag(r.ratio)}</header><div class="tr-deal-sides compact"><div><h3>YOU GIVE</h3><ul>${r.send.map(a=>`<li>${trAssetName(a)}</li>`).join('')}</ul></div><div class="tr-arrow">⇄</div><div><h3>YOU GET</h3><ul>${r.receive.map(a=>`<li>${trAssetName(a)}${a.kind==='player'&&r.need?'':''}</li>`).join('')}</ul></div></div>${r.need?'<p class="tr-note">Fills one of your weak spots.</p>':''}<div class="tr-actions"><button type="button" class="primary" data-finder-propose="${i}">Propose</button><button type="button" data-finder-load="${i}">Edit in builder</button></div></article>`).join('')}</div>`:'<p class="tr-help">No team would take that deal right now. Try different players, add a pick, or pick another position.</p>':'';
+ return modeNav+body+res;}
+function trOffersHTML(){let offers=(season.tradeOffers||[]).map(o=>({o,h:hydrateOffer(o)})).filter(x=>x.h);if(!tradeWindow().ok)return'<p class="tr-help">The trade window is closed.</p>';if(!offers.length)return'<p class="tr-help">No offers right now. CPU teams send offers during the season (more near the deadline) and early in the offseason.</p>';
+ return `<div class="tr-results">${offers.map(({o,h})=>{let gv=packageValue(h.send),rv=packageValue(h.receive);return `<article class="tr-result"><header>${trTeamBadge(o.cpu)}${trFairTag(rv/Math.max(1,gv))}</header><p class="tr-help">${o.note}</p><div class="tr-deal-sides compact"><div><h3>YOU GIVE</h3><ul>${h.send.map(a=>`<li>${trAssetName(a)}</li>`).join('')}</ul></div><div class="tr-arrow">⇄</div><div><h3>YOU GET</h3><ul>${h.receive.map(a=>`<li>${trAssetName(a)}</li>`).join('')}</ul></div></div><div class="tr-actions"><button type="button" class="primary" data-offer-accept="${o.id}">Accept</button><button type="button" data-offer-open="${o.id}">Counter in builder</button><button type="button" data-offer-decline="${o.id}">Decline</button></div><small class="tr-help">${o.offseason?'Expires when free agency ends.':`Expires after week ${o.expiresWeek}.`}</small></article>`;}).join('')}</div>`;}
+function trHistoryHTML(){let mine=(season.tradeLog||[]).slice().reverse(),league=(season.leagueTrades||[]).filter(t=>t.year===season.year).slice().reverse(),ab=id=>TEAM_DEFINITIONS[id].abbr;
+ return `<section class="tr-panel"><header>YOUR TRADES</header>${mine.length?`<ul class="tr-log">${mine.map(t=>`<li><span>S${t.year} · W${t.week}</span> Sent ${t.send.join(', ')} to <b>${ab(t.cpu)}</b> for ${t.receive.join(', ')}</li>`).join('')}</ul>`:'<p class="tr-empty pad">No trades yet.</p>'}</section>
+ <section class="tr-panel"><header>LEAGUE TRADES THIS SEASON (${league.length})</header>${league.length?`<ul class="tr-log">${league.map(t=>`<li class="${t.a===season.userTeam||t.b===season.userTeam?'mine':''}"><span>${t.offseason?'Offseason':'W'+t.week}</span> <b>${ab(t.a)}</b> get ${t.bSent.join(', ')} · <b>${ab(t.b)}</b> get ${t.aSent.join(', ')}</li>`).join('')}</ul>`:'<p class="tr-empty pad">No league trades yet this season.</p>'}</section>`;}
+renderTradePage=function(){if(!season)return;let win=tradeWindow(),user=season.userTeam;if(tradeUI.cpu===null||tradeUI.cpu===user)tradeUI.cpu=TEAM_DEFINITIONS.find(t=>t.id!==user).id;
+ let nOffers=(season.tradeOffers||[]).filter(o=>hydrateOffer(o)).length,tab=win.ok?tradeUI.tab:'history';
+ let tabs=[['build','Build a trade'],['finder','Trade Finder'],['offers','Offers'+(nOffers?` (${nOffers})`:'')],['history','History']];
+ $('tradePage').innerHTML=`<div class="staff-inner tr-wrap"><header class="tr-head"><div><p class="hub-eyebrow">SEASON ${season.year} · ${season.offseason?'OFFSEASON':'WEEK '+season.week}</p><h1 id="tradeTitle">TRADE CENTER</h1><p class="tr-window ${win.ok?'open':'closed'}">${win.ok?'● OPEN':'● CLOSED'} · ${win.why}</p></div><button id="tradeClose" type="button">Back to hub</button></header>
+ <nav class="tr-tabs" role="tablist">${tabs.map(([k,l])=>`<button type="button" role="tab" aria-selected="${tab===k}" class="${tab===k?'on':''}" data-tr-tab="${k}" ${!win.ok&&k!=='history'?'disabled':''}>${l}</button>`).join('')}</nav>
+ <div class="tr-body">${tab==='build'?trBuildHTML():tab==='finder'?trFinderHTML():tab==='offers'?trOffersHTML():trHistoryHTML()}</div>
+ ${tradeUI.result?tradeResultHTML(tradeUI.result):''}</div>`;};
+ensureTradePage=function(){if($('tradePage'))return;let s=document.createElement('section');s.id='tradePage';s.className='staff-page';s.hidden=true;s.setAttribute('role','dialog');s.setAttribute('aria-modal','true');s.setAttribute('aria-labelledby','tradeTitle');document.body.appendChild(s);
+ s.addEventListener('change',e=>{let id=e.target.id,F=tradeUI.finder;if(id==='tradePartner'){tradeUI.cpu=Number(e.target.value);tradeUI.receive=[];tradeUI.note='';}else if(id==='tradeFilter')tradeUI.filter=e.target.value;else if(id==='finderShopFilter')F.shopFilter=e.target.value;else if(id==='finderPos'){F.targetPos=e.target.value;F.target='any';F.results=null;}else if(id==='finderTarget')F.target=e.target.value;else return;tradeUI.result=null;renderTradePage();});
+ s.addEventListener('click',e=>{let b=e.target.closest('button');if(!b)return;let d=b.dataset,user=season.userTeam,F=tradeUI.finder,find=(id,team)=>franchiseRoster(team).find(p=>p.id===id);
+  if(d.trTab){tradeUI.tab=d.trTab;tradeUI.result=null;}
+  else if(d.tradeSend)toggleTradeAsset('send',{kind:'player',p:find(d.tradeSend,user)});
+  else if(d.tradeRecv)toggleTradeAsset('receive',{kind:'player',p:find(d.tradeRecv,tradeUI.cpu)});
+  else if(d.tradeSendPick){let pk=teamPicks(user).find(x=>x.key===d.tradeSendPick);if(pk)toggleTradeAsset('send',pk);}
+  else if(d.tradeRecvPick){let pk=teamPicks(tradeUI.cpu).find(x=>x.key===d.tradeRecvPick);if(pk)toggleTradeAsset('receive',pk);}
+  else if(d.trRemove){let [side,i]=d.trRemove.split(':');if(side==='shop'){F.shop.splice(Number(i),1);F.results=null;}else{tradeUI[side].splice(Number(i),1);tradeUI.note='';}}
+  else if(d.finderMode){F.mode=d.finderMode;F.results=null;}
+  else if(d.finderShop){let p=find(d.finderShop,user),i=F.shop.findIndex(a=>a.kind==='player'&&a.p===p);if(i>=0)F.shop.splice(i,1);else if(F.shop.length<3)F.shop.push({kind:'player',p});F.results=null;}
+  else if(d.finderShopPick){let pk=teamPicks(user).find(x=>x.key===d.finderShopPick),i=F.shop.findIndex(a=>a.kind==='pick'&&a.key===d.finderShopPick);if(i>=0)F.shop.splice(i,1);else if(pk&&F.shop.length<3)F.shop.push(pk);F.results=null;}
+  else if(b.id==='finderRun'){F.running=true;F.results=null;renderTradePage();setTimeout(()=>{try{F.results=runTradeFinder();}catch(err){console.error(err);F.results=[];}F.running=false;renderTradePage();},30);return;}
+  else if(d.finderLoad||d.finderPropose){let r=F.results?.[Number(d.finderLoad??d.finderPropose)];if(r){tradeUI.cpu=r.cpu;tradeUI.send=r.send.slice();tradeUI.receive=r.receive.slice();tradeUI.note='';tradeUI.tab='build';tradeUI.result=d.finderPropose!==undefined?evaluateTrade(r.cpu,tradeUI.send,tradeUI.receive):null;}}
+  else if(b.id==='tradeClear'){tradeUI.send=[];tradeUI.receive=[];tradeUI.result=null;tradeUI.note='';}
+  else if(b.id==='tradePropose')tradeUI.result=evaluateTrade(tradeUI.cpu,tradeUI.send,tradeUI.receive);
+  else if(b.id==='tradeMTW'||b.id==='tradeMTW2'){let r=makeThisWork(tradeUI);if(r){tradeUI.send.push(r.asset);tradeUI.note=r.closes?`Added ${trAssetName(r.asset)}: that should get it done.`:`Added ${trAssetName(r.asset)}, your best remaining piece. Still a little short.`;}else tradeUI.note='Nothing you have left can bridge that gap on its own.';tradeUI.result=b.id==='tradeMTW2'?evaluateTrade(tradeUI.cpu,tradeUI.send,tradeUI.receive):null;}
+  else if(b.id==='tradeDetail')tradeUI.detail=!tradeUI.detail;
+  else if(b.id==='tradeBack')tradeUI.result=null;
+  else if(b.id==='tradeConfirm'){if(executeTrade(tradeUI.cpu,tradeUI.send,tradeUI.receive)){tradeUI.note='Trade complete. New players start at the bottom of your depth chart: check your lineup.';tradeUI.send=[];tradeUI.receive=[];F.results=null;F.shop=[];}else tradeUI.note='That trade could not be completed.';tradeUI.result=null;}
+  else if(b.id==='tradeClose'){closeTradePage();return;}else return;renderTradePage();});
+ s.addEventListener('keydown',e=>{if(e.key==='Escape'){if(tradeUI.result){tradeUI.result=null;renderTradePage();}else closeTradePage();}});};
+// Offer buttons (handled document-wide in trade_market.js) jump to the builder when you counter.
+document.addEventListener('click',e=>{if(e.target.closest?.('[data-offer-open]'))tradeUI.tab='build';},true);
 
 // ===== Phone / tablet touch controls =====
 // A virtual joystick (left thumb) acts as WASD, and the action buttons (right thumb) change with the situation. They're
